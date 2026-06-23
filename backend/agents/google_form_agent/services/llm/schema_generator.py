@@ -4,7 +4,7 @@ structured JSON form schema.
 """
 
 import json
-from google_form_agent.services.llm.llm_client import get_llm
+from core.llm.llm_client import get_llm
 
 SYSTEM_PROMPT = """You are a form schema generator. Given a user's description of a form,
 output ONLY valid JSON (no markdown, no explanation, no backticks) matching this exact shape:

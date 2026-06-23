@@ -18,7 +18,6 @@ from google_form_agent.services.google.sheets_service import build_sheets_servic
 from google_form_agent.services.google.linking_service import link_form_to_sheet
 from google_form_agent.services.llm.schema_generator import generate_form_schema
 
-
 def run_autoform_pipeline(user_description: str) -> dict:
     creds = get_credentials()
 
