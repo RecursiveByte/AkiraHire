@@ -2,7 +2,7 @@
 # Handles LinkedIn image upload and post creation via LinkedIn REST API
 
 import requests
-from linkedin_agent.config import (
+from agents.linkedin_agent.config import (
     LINKEDIN_ASSETS_URL,
     LINKEDIN_POSTS_URL,
     DEFAULT_POST_VISIBILITY,

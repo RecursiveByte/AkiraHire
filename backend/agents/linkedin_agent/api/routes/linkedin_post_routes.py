@@ -3,19 +3,19 @@ from typing import List, Optional
 from fastapi import APIRouter, File, Form, UploadFile
 from fastapi.responses import RedirectResponse
 
-from linkedin_agent.auth.linkedin_auth import (
+from agents.linkedin_agent.auth.linkedin_auth import (
     exchange_code_for_token,
     get_authorization_url,
     get_person_urn,
 )
-from linkedin_agent.orchestrators.linkedin_post_orchestrator import (
+from agents.linkedin_agent.orchestrators.linkedin_post_orchestrator import (
     confirm_and_publish,
     create_draft,
 )
-from linkedin_agent.schemas.linkedin_post_request import (
+from agents.linkedin_agent.schemas.linkedin_post_request import (
     LinkedInPostGenerateRequest,
 )
-from linkedin_agent.schemas.linkedin_post_response import (
+from agents.linkedin_agent.schemas.linkedin_post_response import (
     LinkedInDraftResponse,
     LinkedInPostResponse
 )

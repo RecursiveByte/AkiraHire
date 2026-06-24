@@ -1,9 +1,9 @@
 from fastapi import APIRouter
-from google_form_agent.orchestrators.google_autoform import run_autoform_pipeline
-from google_form_agent.schemas.google_form_description import (
+from agents.google_form_agent.orchestrators.google_autoform import run_autoform_pipeline
+from agents.google_form_agent.schemas.google_form_description import (
     AutoFormRequest,
 )
-from google_form_agent.schemas.google_form_response import (
+from agents.google_form_agent.schemas.google_form_response import (
     GoogleFormResponse,
 )
 

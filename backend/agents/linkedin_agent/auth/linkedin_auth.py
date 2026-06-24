@@ -1,5 +1,5 @@
 import requests
-from linkedin_agent.config import (
+from agents.linkedin_agent.config import (
     LINKEDIN_CLIENT_ID,
     LINKEDIN_CLIENT_SECRET,
     LINKEDIN_REDIRECT_URI,

@@ -9,14 +9,14 @@ Flow:
 5. Optionally create a response sheet and link it to the form.
 """
 
-from google_form_agent.auth.google_auth import get_credentials
-from google_form_agent.services.google.forms_service import (
+from agents.google_form_agent.auth.google_auth import get_credentials
+from agents.google_form_agent.services.google.forms_service import (
     build_form_service, create_form, add_questions,
     form_edit_url, form_responder_url,
 )
-from google_form_agent.services.google.sheets_service import build_sheets_service, create_response_sheet, sheet_url
-from google_form_agent.services.google.linking_service import link_form_to_sheet
-from google_form_agent.services.llm.schema_generator import generate_form_schema
+from agents.google_form_agent.services.google.sheets_service import build_sheets_service, create_response_sheet, sheet_url
+from agents.google_form_agent.services.google.linking_service import link_form_to_sheet
+from agents.google_form_agent.services.llm.schema_generator import generate_form_schema
 
 def run_autoform_pipeline(user_description: str) -> dict:
     creds = get_credentials()

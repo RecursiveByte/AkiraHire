@@ -11,5 +11,10 @@ from agents.linkedin_agent.api.routes.linkedin_post_routes import (
     router as linkedin_router
 )
 
+from api.routes.auth_routes import (
+    router as auth_router
+)
+
 app.include_router(google_autoform_router)
 app.include_router(linkedin_router)
+app.include_router(auth_router)

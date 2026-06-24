@@ -18,7 +18,8 @@ class User(Base):
 
     name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False, index=True)
-
+    password_hash = Column(String, nullable=True)
+    
     role = Column(Enum(UserRole), default=UserRole.USER, nullable=False)
 
     is_active = Column(Boolean, default=True)
