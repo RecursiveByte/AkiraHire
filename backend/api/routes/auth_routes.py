@@ -5,15 +5,23 @@ from database.session import get_db
 from services.auth_service import (
     google_login_service,
     google_callback_service,
+    register_user,
+    logout_user
 )
 
-from schemas.auth_schema import AuthResponse
+from schemas.auth_schema import AuthResponse,RegisterRequest
+
+from fastapi.responses import FileResponse
 
 router = APIRouter(
     prefix="/auth",
     tags=["auth"]
 )
 
+
+@router.get("/")
+async def home():
+    return FileResponse("static/google_form_agent.html")
 
 @router.get("/google/login")
 async def google_login(
@@ -33,3 +41,12 @@ async def google_callback(
         request=request,
         db=db,
     )
+    
+    
+@router.post("/register", response_model=AuthResponse)
+async def register(payload: RegisterRequest, db: Session = Depends(get_db)):
+    return register_user(payload, db)
+
+@router.post("/logout")
+def logout(request: Request):
+    return logout_user(request)

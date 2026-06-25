@@ -55,7 +55,6 @@ def generate_form_schema(user_description: str) -> dict:
     except json.JSONDecodeError as e:
         raise ValueError(f"LLM did not return valid JSON: {e}\nRaw output: {raw}")
 
-    # Defensive defaults in case the LLM omits a field
     data.setdefault("store_in_sheet", False)
     data.setdefault("questions", [])
 

@@ -1,15 +1,4 @@
-"""
-Google AutoForm orchestrator.
-
-Flow:
-1. Authenticate with Google APIs.
-2. Generate a form schema from the user's description.
-3. Create the Google Form.
-4. Add questions to the form.
-5. Optionally create a response sheet and link it to the form.
-"""
-
-from agents.google_form_agent.auth.google_auth import get_credentials
+from agents.google_form_agent.auth.google_auth import get_credentials, get_user_id_from_request, GoogleNotConnectedError
 from agents.google_form_agent.services.google.forms_service import (
     build_form_service, create_form, add_questions,
     form_edit_url, form_responder_url,
@@ -17,9 +6,12 @@ from agents.google_form_agent.services.google.forms_service import (
 from agents.google_form_agent.services.google.sheets_service import build_sheets_service, create_response_sheet, sheet_url
 from agents.google_form_agent.services.google.linking_service import link_form_to_sheet
 from agents.google_form_agent.services.llm.schema_generator import generate_form_schema
+from sqlalchemy.orm import Session
 
-def run_autoform_pipeline(user_description: str) -> dict:
-    creds = get_credentials()
+AGENT_NAME = "forms_agent"
+
+def run_autoform_pipeline(user_id: int, db: Session, user_description: str) -> dict:
+    creds = get_credentials(user_id, AGENT_NAME, db)
 
     schema = generate_form_schema(user_description)
 
