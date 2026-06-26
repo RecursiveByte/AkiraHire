@@ -1,96 +1,121 @@
-from fastapi import APIRouter, Request, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
-from google_auth_oauthlib.flow import Flow
 from sqlalchemy.orm import Session
 
-from agents.google_form_agent.auth.google_auth import (
-    GoogleNotConnectedError,
-    _save_credentials,
+from database.session import get_db
+
+from agents.google_form_agent.auth.auth_utils import (
     get_user_id_from_request,
 )
-from agents.google_form_agent.config.google_oauth import CLIENT_CONFIG
-from agents.google_form_agent.config.settings import GOOGLE_REDIRECT_URI
-from agents.google_form_agent.constants.google import SCOPES
-from agents.google_form_agent.orchestrators.google_autoform import run_autoform_pipeline
-from agents.google_form_agent.schemas.google_form_description import AutoFormRequest
-from agents.google_form_agent.schemas.google_form_response import GoogleFormResponse
-from database.models.connected_account import ConnectedAccount, ProviderType
-from database.session import get_db
+
+from agents.google_form_agent.config.settings import (
+    FRONTEND_URL,
+)
+
+from agents.google_form_agent.schemas.google_form_description import (
+    AutoFormRequest,
+)
+
+from agents.google_form_agent.schemas.google_form_response import (
+    GoogleFormResponse,
+)
+
+from agents.google_form_agent.services.google_form_service import (
+    create_google_form,
+)
+
+from agents.google_form_agent.services.google_oauth_service import (
+    create_google_auth_url,
+    exchange_code_for_tokens,
+    save_google_credentials,
+)
 
 router = APIRouter()
 
 
 @router.get("/auth/google/connect")
-def connect_google(request: Request):
+def connect_google(
+    request: Request,
+) -> RedirectResponse:
+    """
+    Redirect the user to Google's OAuth consent screen.
+    """
+
     user_id = get_user_id_from_request(request)
 
-    flow = Flow.from_client_config(
-        CLIENT_CONFIG,
-        scopes=SCOPES,
-        redirect_uri=GOOGLE_REDIRECT_URI
+    auth_url, code_verifier = create_google_auth_url(
+        user_id,
     )
 
-    auth_url, state = flow.authorization_url(
-        access_type="offline",
-        prompt="consent",
-        state=str(user_id)
-    )
-    
-    request.session["code_verifier"] = flow.code_verifier
+    request.session["code_verifier"] = code_verifier
 
-    return RedirectResponse(auth_url)
+    return RedirectResponse(
+        url=auth_url,
+    )
 
 
 @router.get("/auth/google/connect/callback")
-def connect_google_callback(
+def google_oauth_callback(
     request: Request,
     code: str,
     state: str,
     db: Session = Depends(get_db),
-):
-    user_id = int(state)
+) -> RedirectResponse:
+    """
+    Handle Google's OAuth callback.
+    """
 
-    flow = Flow.from_client_config(
-        CLIENT_CONFIG,
-        scopes=SCOPES,
-        redirect_uri=GOOGLE_REDIRECT_URI
+    code_verifier = request.session.get(
+        "code_verifier",
     )
-    code_verifier = request.session.get("code_verifier")
 
-    if not code_verifier:
+    if code_verifier is None:
         raise HTTPException(
             status_code=400,
-            detail="Missing OAuth session. Please connect Google again."
+            detail="OAuth session expired.",
         )
 
-    flow.code_verifier = code_verifier
+    credentials = exchange_code_for_tokens(
+        code=code,
+        code_verifier=code_verifier,
+    )
 
-    flow.fetch_token(code=code)
+    save_google_credentials(
+        db=db,
+        user_id=int(state),
+        creds=credentials,
+    )
 
-    creds = flow.credentials
+    request.session.pop(
+        "code_verifier",
+        None,
+    )
 
-    existing = db.query(ConnectedAccount).filter(
-        ConnectedAccount.user_id == user_id,
-        ConnectedAccount.provider == ProviderType.GOOGLE,
-        ConnectedAccount.agent_name == "google_forms_agent"
-    ).first()
-
-    _save_credentials(creds, user_id, "forms_agent", db, existing)
-
-    request.session.pop("code_verifier", None)
-
-    return RedirectResponse("http://localhost:8000/create_google_form")
+    return RedirectResponse(
+        url=f"{FRONTEND_URL}/auth",
+        status_code=303,
+    )
 
 
-@router.post("/create_google_form", response_model=GoogleFormResponse)
-async def create_google_form(
+@router.post(
+    "/create_google_form",
+    response_model=GoogleFormResponse,
+)
+def create_google_form_endpoint(
     request: AutoFormRequest,
     http_request: Request,
     db: Session = Depends(get_db),
-):
-    user_id = get_user_id_from_request(http_request)
+) -> GoogleFormResponse:
+    """
+    Generate and create a Google Form.
+    """
 
-    try:
-        return run_autoform_pipeline(user_id, db, request.description)
-    except GoogleNotConnectedError:
-        return RedirectResponse("/auth/google/connect")
+    user_id = get_user_id_from_request(
+        http_request,
+    )
+
+    return create_google_form(
+        user_id=user_id,
+        db=db,
+        description=request.description,
+    )

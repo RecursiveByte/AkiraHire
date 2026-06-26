@@ -1,162 +1,71 @@
 """
-Google Forms client.
+Google Sheets client.
 
-Responsible only for communicating with the Google Forms API.
-Contains no business logic.
+Responsible only for communicating with the Google Sheets API.
 """
 
 import logging
 
-from googleapiclient.discovery import Resource, build
+from googleapiclient.discovery import build, Resource
 from googleapiclient.errors import HttpError
 
 from agents.google_form_agent.exceptions.google_exceptions import (
-    GoogleFormsClientError,
-)
-from agents.google_form_agent.schemas.generated_form_schema import (
-    QuestionSchema,
+    GoogleSheetsClientError,
 )
 
 logger = logging.getLogger(__name__)
 
 
-def build_form_service(creds) -> Resource:
-    """
-    Build and return the Google Forms service.
-    """
-    return build("forms", "v1", credentials=creds)
+def build_sheets_service(creds) -> Resource:
+    """Build and return the Google Sheets service."""
+    return build(
+        "sheets",
+        "v4",
+        credentials=creds,
+    )
 
 
-def create_form(
+def create_response_sheet(
     service: Resource,
     title: str,
 ) -> str:
     """
-    Create an empty Google Form.
+    Create a response spreadsheet.
 
     Returns:
-        str: Google Form ID
+        Spreadsheet ID.
     """
 
     body = {
-        "info": {
-            "title": title,
-            "documentTitle": title,
+        "properties": {
+            "title": f"{title} - Responses"
         }
     }
 
     try:
 
-        response = service.forms().create(
+        response = service.spreadsheets().create(
             body=body,
+            fields="spreadsheetId",
         ).execute()
 
-        return response["formId"]
+        return response["spreadsheetId"]
 
     except HttpError as e:
 
         logger.exception(
-            "Failed to create Google Form."
+            "Google Sheets API failed while creating spreadsheet."
         )
 
-        raise GoogleFormsClientError(
-            "Failed to create Google Form."
+        raise GoogleSheetsClientError(
+            "Failed to create Google response spreadsheet."
         ) from e
 
 
-def add_questions(
-    service: Resource,
-    form_id: str,
-    questions: list[QuestionSchema],
-) -> None:
-    """
-    Add questions to a Google Form.
-    """
+def sheet_url(sheet_id: str) -> str:
+    """Return the spreadsheet URL."""
 
-    requests = []
-
-    for index, question in enumerate(questions):
-
-        question_payload = {
-            "required": question.required,
-        }
-
-        if question.type == "TEXT":
-
-            question_payload["textQuestion"] = {
-                "paragraph": question.paragraph,
-            }
-
-        elif question.type in ("RADIO", "CHECKBOX"):
-
-            question_payload["choiceQuestion"] = {
-                "type": question.type,
-                "options": [
-                    {
-                        "value": option,
-                    }
-                    for option in question.options
-                ],
-            }
-
-        elif question.type == "SCALE":
-
-            question_payload["scaleQuestion"] = {
-                "low": question.low,
-                "high": question.high,
-            }
-
-        else:
-
-            raise GoogleFormsClientError(
-                f"Unsupported question type: {question.type}"
-            )
-
-        requests.append(
-            {
-                "createItem": {
-                    "item": {
-                        "title": question.title,
-                        "questionItem": {
-                            "question": question_payload,
-                        },
-                    },
-                    "location": {
-                        "index": index,
-                    },
-                }
-            }
-        )
-
-    try:
-
-        service.forms().batchUpdate(
-            formId=form_id,
-            body={
-                "requests": requests,
-            },
-        ).execute()
-
-    except HttpError as e:
-
-        logger.exception(
-            "Failed to add questions to Google Form."
-        )
-
-        raise GoogleFormsClientError(
-            "Failed to add questions to Google Form."
-        ) from e
-
-
-def form_edit_url(form_id: str) -> str:
-    """
-    Return the edit URL of a Google Form.
-    """
-    return f"https://docs.google.com/forms/d/{form_id}/edit"
-
-
-def form_responder_url(form_id: str) -> str:
-    """
-    Return the public responder URL of a Google Form.
-    """
-    return f"https://docs.google.com/forms/d/{form_id}/viewform"
+    return (
+        f"https://docs.google.com/spreadsheets/d/"
+        f"{sheet_id}/edit"
+    )

@@ -105,6 +105,9 @@ def add_questions(
                 "low": question.low,
                 "high": question.high,
             }
+        
+        elif question.type == "FILE":
+            question_payload["fileUploadQuestion"] = {}
 
         else:
 
