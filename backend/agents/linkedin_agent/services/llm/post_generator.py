@@ -1,12 +1,6 @@
 from core.llm.llm_client import get_llm
 
-
-
-
-def generate_post_text(description: str) -> str:
-    llm = get_llm()
-    prompt = f"""
-
+POST_GENERATION_PROMPT_TEMPLATE = """
 You are an expert employer branding specialist and LinkedIn content strategist.
 
 Your task is to create a highly professional, engaging, and visually appealing LinkedIn hiring post based on the job description provided.
@@ -40,14 +34,14 @@ ABOUT THE ROLE
 Short introduction
 
 KEY RESPONSIBILITIES
-• Item 1
-• Item 2
-• Item 3
+- Item 1
+- Item 2
+- Item 3
 
 WHAT WE'RE LOOKING FOR
-• Skill 1
-• Skill 2
-• Skill 3
+- Skill 1
+- Skill 2
+- Skill 3
 
 WHY JOIN US
 Short compelling value proposition
@@ -63,5 +57,9 @@ Job Description:
 {description}
 """
 
+
+def generate_post_text(description: str) -> str:
+    llm = get_llm()
+    prompt = POST_GENERATION_PROMPT_TEMPLATE.format(description=description)
     response = llm.invoke(prompt)
     return response.content

@@ -15,13 +15,12 @@ from fastapi.responses import FileResponse
 
 router = APIRouter(
     prefix="/auth",
-    tags=["auth"]
+    tags=["Authentication"]
 )
-
 
 @router.get("/")
 async def home():
-    return FileResponse("static/google_form_agent.html")
+    return FileResponse("static/linkedin_post.html")
 
 @router.get("/google/login")
 async def google_login(

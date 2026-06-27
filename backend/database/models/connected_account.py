@@ -26,8 +26,8 @@ class ConnectedAccount(Base):
     refresh_token = Column(String, nullable=True)
 
     scopes = Column(String, nullable=False)
-    expires_at = Column(DateTime, nullable=True)
-
+    expires_at = Column(DateTime(timezone=True), nullable=True)
+    
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(
         DateTime,

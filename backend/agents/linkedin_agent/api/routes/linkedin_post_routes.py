@@ -1,80 +1,80 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, File, Form, UploadFile
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 from fastapi.responses import RedirectResponse
+from sqlalchemy.orm import Session
 
-from agents.linkedin_agent.auth.linkedin_auth import (
-    exchange_code_for_token,
-    get_authorization_url,
-    get_person_urn,
-)
-from agents.linkedin_agent.orchestrators.linkedin_post_orchestrator import (
-    confirm_and_publish,
-    create_draft,
-)
 from agents.linkedin_agent.schemas.linkedin_post_request import (
     LinkedInPostGenerateRequest,
 )
 from agents.linkedin_agent.schemas.linkedin_post_response import (
+    LinkedInConnectionStatusResponse,
     LinkedInDraftResponse,
-    LinkedInPostResponse
+    LinkedInPostResponse,
 )
+from agents.linkedin_agent.services.auth import linkedin_auth_service
+from agents.linkedin_agent.services.linkedin import posting_service
 
+from auth.auth_utils import get_user_id_from_request
+from database.session import get_db
 
 router = APIRouter(prefix="/linkedin", tags=["linkedin"])
 
 
-@router.get("/auth/login")
-def login() -> RedirectResponse:
-    return RedirectResponse(url=get_authorization_url())
+@router.get("/status", response_model=LinkedInConnectionStatusResponse)
+def connection_status(
+    user_id: int = Depends(get_user_id_from_request),
+    db: Session = Depends(get_db),
+) -> LinkedInConnectionStatusResponse:
+    connected = linkedin_auth_service.is_connected(db, user_id)
+    return LinkedInConnectionStatusResponse(connected=connected)
 
+
+@router.get("/auth/login")
+def login(user_id: int = Depends(get_user_id_from_request)) -> RedirectResponse:
+    url = linkedin_auth_service.get_authorization_url()
+    print(url)
+    return RedirectResponse(url)
 
 @router.get("/auth/callback")
-def callback(code: str) -> dict[str, str]:
-    token_data = exchange_code_for_token(code)
-    access_token = token_data["access_token"]
-    person_urn = get_person_urn(access_token)
-
-    return {
-        "access_token": access_token,
-        "person_urn": person_urn,
-    }
+def callback(
+    code: str,
+    user_id: int = Depends(get_user_id_from_request),
+    db: Session = Depends(get_db),
+) -> dict[str, str]:
+    linkedin_auth_service.handle_oauth_callback(db, user_id, code)
+    return {"status": "connected"}
 
 
-@router.post(
-    "/generate-post",
-    response_model=LinkedInDraftResponse,
-)
+@router.post("/generate-post", response_model=LinkedInDraftResponse)
 def generate_post(
     request: LinkedInPostGenerateRequest,
+    user_id: int = Depends(get_user_id_from_request),
+    db: Session = Depends(get_db),
 ) -> LinkedInDraftResponse:
-    draft = create_draft(request.description)
+
+    draft = posting_service.create_draft(
+        db=db,
+        user_id=user_id,
+        description=request.description,
+    )
+
     return LinkedInDraftResponse(**draft)
 
 
-@router.post(
-    "/confirm-post",
-    response_model=LinkedInPostResponse,
-)
+@router.post("/confirm-post", response_model=LinkedInPostResponse)
 async def confirm_post(
     draft_id: str = Form(...),
     approved: bool = Form(...),
-    access_token: str = Form(...),
-    person_urn: str = Form(...),
     images: Optional[List[UploadFile]] = File(None),
+    user_id: int = Depends(get_user_id_from_request),
+    db: Session = Depends(get_db),
 ) -> LinkedInPostResponse:
-    image_bytes_list: List[bytes] = []
 
-    if images:
-        for image in images:
-            image_bytes_list.append(await image.read())
-
-    result = confirm_and_publish(
+    return await posting_service.confirm_post(
+        db=db,
+        user_id=user_id,
         draft_id=draft_id,
         approved=approved,
-        access_token=access_token,
-        person_urn=person_urn,
-        images=image_bytes_list or None,
+        images=images,
     )
-
-    return LinkedInPostResponse(**result)

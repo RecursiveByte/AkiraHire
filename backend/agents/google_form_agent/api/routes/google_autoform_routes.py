@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from database.session import get_db
 
-from agents.google_form_agent.auth.auth_utils import (
+from auth.auth_utils import (
     get_user_id_from_request,
 )
 
