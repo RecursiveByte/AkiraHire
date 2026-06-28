@@ -1,14 +1,10 @@
 from sqlalchemy import Column, Integer, String, DateTime, Enum, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
-import enum
 
 from database.base import Base
 
-
-class UserRole(str, enum.Enum):
-    ADMIN = "admin"
-    USER = "user"
+from enums.user_role_enum import UserRole
 
 
 class User(Base):
@@ -20,7 +16,7 @@ class User(Base):
     email = Column(String, unique=True, nullable=False, index=True)
     password_hash = Column(String, nullable=True)
     
-    role = Column(Enum(UserRole), default=UserRole.USER, nullable=False)
+    role = Column(Enum(UserRole), default=UserRole.CANDIDATE, nullable=False)
 
     is_active = Column(Boolean, default=True)
 

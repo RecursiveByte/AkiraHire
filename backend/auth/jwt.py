@@ -1,42 +1,91 @@
+from datetime import (
+    datetime,
+    timedelta,
+    timezone,
+)
+
 from jose import jwt
-from datetime import datetime, timedelta, timezone
-import os
-from fastapi import HTTPException
 
-SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-ALGORITHM = os.getenv("JWT_ALGORITHM")
+from config.settings import settings
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-REFRESH_TOKEN_EXPIRE_DAYS = 30
+from exceptions.auth_exceptions import (
+    InvalidTokenError,
+    TokenExpiredError,
+)
 
 
-def create_access_token(user_id: int,role: str):
+def create_access_token(
+    user_id: int,
+    role: str,
+) -> str:
+
+    now = datetime.now(
+        timezone.utc,
+    )
+
     payload = {
+        "sub": str(user_id),
         "user_id": user_id,
         "role": role,
         "type": "access",
-        "exp": datetime.now(timezone.utc)
-        + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+        "iat": now,
+        "exp": now
+        + timedelta(
+            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES,
+        ),
     }
 
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(
+        payload,
+        settings.JWT_SECRET_KEY,
+        algorithm=settings.JWT_ALGORITHM,
+    )
 
 
-def create_refresh_token(user_id: int):
+def create_refresh_token(
+    user_id: int,
+) -> str:
+
+    now = datetime.now(
+        timezone.utc,
+    )
+
     payload = {
+        "sub": str(user_id),
         "user_id": user_id,
         "type": "refresh",
-        "exp": datetime.now(timezone.utc)
-        + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS),
+        "iat": now,
+        "exp": now
+        + timedelta(
+            days=settings.REFRESH_TOKEN_EXPIRE_DAYS,
+        ),
     }
 
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(
+        payload,
+        settings.JWT_SECRET_KEY,
+        algorithm=settings.JWT_ALGORITHM,
+    )
 
-def verify_token(token: str):
+
+def verify_token(
+    token: str,
+):
+
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload
+
+        return jwt.decode(
+            token,
+            settings.JWT_SECRET_KEY,
+            algorithms=[
+                settings.JWT_ALGORITHM,
+            ],
+        )
+
     except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired")
+
+        raise TokenExpiredError()
+
     except jwt.JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+
+        raise InvalidTokenError()

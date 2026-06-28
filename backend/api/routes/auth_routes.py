@@ -1,51 +1,104 @@
-from fastapi import APIRouter, Request, Depends
-from sqlalchemy.orm import Session
-
-from database.session import get_db
-from services.auth_service import (
-    google_login_service,
-    google_callback_service,
-    register_user,
-    logout_user
+from fastapi import (
+    APIRouter,
+    Depends,
+    Request,
+    UploadFile,
+    File,
 )
-
-from schemas.auth_schema import AuthResponse,RegisterRequest
 
 from fastapi.responses import FileResponse
 
+from sqlalchemy.orm import Session
+
+from database.session import get_db
+
+from schemas.auth_schema import (
+    AuthResponse,
+    RegisterRequest,
+)
+
+from services.auth_service import AuthService
+
+
 router = APIRouter(
     prefix="/auth",
-    tags=["Authentication"]
+    tags=["Authentication"],
 )
+
 
 @router.get("/")
 async def home():
-    return FileResponse("static/linkedin_post.html")
+
+    return FileResponse(
+        "static/google_form_agent.html",
+    )
+
+
+@router.get("/form")
+async def form():
+
+    return FileResponse(
+        "static/form.html",
+    )
+
+@router.post(
+    "/login",
+    response_model=AuthResponse,
+)
+async def login(
+    payload: RegisterRequest, 
+    db: Session = Depends(get_db),
+):
+    return await AuthService.login(
+        payload=payload,
+        db=db,
+    )
 
 @router.get("/google/login")
 async def google_login(
     request: Request,
 ):
-    return await google_login_service(
+
+    return await AuthService.google_login(
         request=request,
     )
 
 
-@router.get("/google/callback",response_model=AuthResponse)
+@router.get(
+    "/google/callback",
+    response_model=AuthResponse,
+)
 async def google_callback(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    return await google_callback_service(
+
+    return await AuthService.google_callback(
         request=request,
         db=db,
     )
-    
-    
-@router.post("/register", response_model=AuthResponse)
-async def register(payload: RegisterRequest, db: Session = Depends(get_db)):
-    return register_user(payload, db)
+
+
+@router.post(
+    "/register",
+    response_model=AuthResponse,
+)
+async def register(
+    payload: RegisterRequest,
+    db: Session = Depends(get_db),
+):
+
+    return AuthService.register(
+        payload=payload,
+        db=db,
+    )
+
 
 @router.post("/logout")
-def logout(request: Request):
-    return logout_user(request)
+async def logout(
+    request: Request,
+):
+
+    return AuthService.logout(
+        request=request,
+    )

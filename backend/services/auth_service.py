@@ -1,69 +1,247 @@
-from fastapi import Request, HTTPException
+from fastapi import (
+    Request,
+)
+
 from fastapi.responses import JSONResponse
+
 from sqlalchemy.orm import Session
 
 from auth.google_oauth import oauth
+
 from auth.jwt import (
     create_access_token,
     create_refresh_token,
 )
 
-from database.models.user import User
+from config.settings import settings
 
-from passlib.context import CryptContext
+from auth.helpers import get_user_id_from_request
 
+from config.logging import logger
 
-async def google_login_service(
-    request: Request,
-):
-    redirect_uri = (
-        "http://localhost:8000/auth/google/callback"
-    )
+from database.models.user import (
+    User,
+    UserRole,
+)
 
-    return await oauth.google.authorize_redirect(
-        request,
-        redirect_uri,
-    )
+from exceptions.auth_exceptions import (
+    UserAlreadyExistsError,
+    NoActiveSessionError,
+    GoogleAuthenticationError,
+)
 
+from repositories.user_repository import UserRepository
 
-async def google_callback_service(
-    request: Request,
-    db: Session,
-):
-    try:
+from schemas.auth_schema import RegisterRequest
 
-        token = await oauth.google.authorize_access_token(
-            request
+from utils.cookies import (
+    set_refresh_cookie,
+    clear_refresh_cookie,
+)
+
+from schemas.auth_schema import LoginRequest
+from utils.password import verify_password
+from exceptions.auth_exceptions import (
+    InvalidCredentialsError,
+)
+
+from utils.password import hash_password
+
+class AuthService:
+
+    @staticmethod
+    def login(
+        payload: LoginRequest,
+        db: Session,
+    ):
+
+        logger.info("User login started.")
+
+        user = UserRepository.get_by_email(
+            db=db,
+            email=payload.email,
         )
 
-        user_info = token["userinfo"]
+        if (
+            user is None
+            or user.password_hash is None
+            or not verify_password(
+                payload.password,
+                user.password_hash,
+            )
+        ):
 
-        email = user_info["email"]
-        name = user_info["name"]
-
-        user = (
-            db.query(User)
-            .filter(User.email == email)
-            .first()
-        )
-
-        if not user:
-
-            user = User(
-                name=name,
-                email=email,
+            logger.warning(
+                f"Invalid login attempt. email={payload.email}"
             )
 
-            db.add(user)
-            db.commit()
-            db.refresh(user)
+            raise InvalidCredentialsError()
 
         access_token = create_access_token(
-            user.id,user.role
+            user.id,
+            user.role,
         )
 
         refresh_token = create_refresh_token(
-            user.id
+            user.id,
+        )
+
+        response = JSONResponse(
+            {
+                "access_token": access_token,
+                "user": {
+                    "id": user.id,
+                    "name": user.name,
+                    "email": user.email,
+                    "role": user.role,
+                },
+            }
+        )
+
+        set_refresh_cookie(
+            response=response,
+            refresh_token=refresh_token,
+        )
+
+        logger.info(
+            f"User logged in successfully. user_id={user.id}"
+        )
+
+        return response       
+    
+    @staticmethod
+    async def google_login(
+        request: Request,
+    ):
+
+        logger.info("Google login initiated.")
+
+        return await oauth.google.authorize_redirect(
+            request=request,
+            redirect_uri=settings.GOOGLE_LOGIN_CALLBACK_URI,
+        )
+
+
+    @staticmethod
+    async def google_callback(
+        request: Request,
+        db: Session,
+    ):
+
+        logger.info("Google callback received.")
+
+        try:
+
+            token = await oauth.google.authorize_access_token(
+                request=request,
+            )
+
+            user_info = token["userinfo"]
+
+            user = UserRepository.get_by_email(
+                db=db,
+                email=user_info["email"],
+            )
+
+            if user is None:
+
+                user = User(
+                    name=user_info["name"],
+                    email=user_info["email"],
+                    role=UserRole.CANDIDATE,
+                )
+
+                user = UserRepository.create(
+                    db=db,
+                    user=user,
+                )
+
+                logger.info(
+                    f"New Google user created. user_id={user.id}"
+                )
+
+            access_token = create_access_token(
+                user.id,
+                user.role,
+            )
+
+            refresh_token = create_refresh_token(
+                user.id,
+            )
+
+            response = JSONResponse(
+                {
+                    "access_token": access_token,
+                    "user": {
+                        "id": user.id,
+                        "name": user.name,
+                        "email": user.email,
+                    },
+                }
+            )
+
+            set_refresh_cookie(
+                response=response,
+                refresh_token=refresh_token,
+            )
+
+            logger.info(
+                f"Google login successful. user_id={user.id}"
+            )
+
+            return response
+
+        except Exception:
+
+            logger.exception(
+                "Google authentication failed."
+            )
+
+            raise GoogleAuthenticationError()
+
+
+    @staticmethod
+    def register(
+        payload: RegisterRequest,
+        db: Session,
+    ):
+
+        logger.info("User registration started.")
+
+        existing_user = UserRepository.get_by_email(
+            db=db,
+            email=payload.email,
+        )
+
+        if existing_user:
+
+            logger.warning(
+                f"Registration attempted with existing email={payload.email}"
+            )
+
+            raise UserAlreadyExistsError()
+
+        user = User(
+            name=payload.name,
+            email=payload.email,
+            password_hash=hash_password(
+                payload.password,
+            ),
+            role=payload.role,
+        )
+
+        user = UserRepository.create(
+            db=db,
+            user=user,
+        )
+
+        access_token = create_access_token(
+            user.id,
+            user.role,
+        )
+
+        refresh_token = create_refresh_token(
+            user.id,
         )
 
         response = JSONResponse(
@@ -77,122 +255,39 @@ async def google_callback_service(
             }
         )
 
-        response.set_cookie(
-            key="refresh_token",
-            value=refresh_token,
-            httponly=True,
-            secure=False,  
-            samesite="lax",
-            max_age=60 * 60 * 24 * 30,
+        set_refresh_cookie(
+            response=response,
+            refresh_token=refresh_token,
+        )
+
+        logger.info(
+            f"User registered successfully. user_id={user.id}"
         )
 
         return response
 
-    except Exception as e:
 
-        raise HTTPException(
-            status_code=500,
-            detail=str(e),
+    @staticmethod
+    def logout(
+        request: Request,
+    ):
+
+        logger.info("Logout request received.")
+
+        get_user_id_from_request(
+            request=request,
         )
-
-
-pwd_context = CryptContext(
-    schemes=["bcrypt"],
-    deprecated="auto"
-)
-
-
-def hash_password(password: str):
-    return pwd_context.hash(password)
-
-
-def register_user(payload, db: Session):
-
-    try:
-
-        existing_user = db.query(User).filter(
-            User.email == payload.email
-        ).first()
-
-        if existing_user:
-            raise HTTPException(
-                status_code=400,
-                detail="User already exists"
-            )
-
-        user = User(
-            name=payload.name,
-            email=payload.email,
-            role="user",
-            password_hash=hash_password(payload.password)
-        )
-
-        db.add(user)
-        db.commit()
-        db.refresh(user)
-
-        access_token = create_access_token(user.id,user.role)
-        refresh_token = create_refresh_token(user.id)
 
         response = JSONResponse(
             {
-                "access_token": access_token,
-                "user": {
-                    "id": user.id,
-                    "name": user.name,
-                    "email": user.email
-                }
+                "message": "Logged out successfully",
             }
         )
 
-        response.set_cookie(
-            key="refresh_token",
-            value=refresh_token,
-            httponly=True,
-            secure=False,
-            samesite="lax",
-            max_age=60 * 60 * 24 * 30,
+        clear_refresh_cookie(
+            response=response,
         )
+
+        logger.info("User logged out successfully.")
 
         return response
-
-    except HTTPException:
-        raise
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
-
-def logout_user(request: Request):
-    try:
-        refresh_token = request.cookies.get("refresh_token")
-
-        if not refresh_token:
-            raise HTTPException(
-                status_code=400,
-                detail="No active session found"
-            )
-
-        response = JSONResponse(
-            {"message": "Logged out successfully"}
-        )
-
-        response.delete_cookie(
-            key="refresh_token",
-            httponly=True,
-            secure=False,  
-            samesite="lax",
-        )
-
-        return response
-
-    except HTTPException:
-        raise
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )

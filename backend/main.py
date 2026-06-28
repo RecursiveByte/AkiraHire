@@ -15,6 +15,18 @@ from api.routes.auth_routes import (
     router as auth_router
 )
 
+from api.routes.candidate_routes import (router as candidate_router)
+
+from api.routes.job_routes import (
+    router as job_router,
+)
+
 app.include_router(google_autoform_router)
+
 app.include_router(linkedin_router)
+
 app.include_router(auth_router)
+
+app.include_router(candidate_router)
+
+app.include_router(job_router)
