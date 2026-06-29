@@ -15,6 +15,7 @@ from database.session import get_db
 from schemas.auth_schema import (
     AuthResponse,
     RegisterRequest,
+    LoginRequest
 )
 
 from services.auth_service import AuthService
@@ -45,11 +46,11 @@ async def form():
     "/login",
     response_model=AuthResponse,
 )
-async def login(
-    payload: RegisterRequest, 
+def login(
+    payload: LoginRequest, 
     db: Session = Depends(get_db),
 ):
-    return await AuthService.login(
+    return AuthService.login(
         payload=payload,
         db=db,
     )

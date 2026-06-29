@@ -4,10 +4,13 @@ from sqlalchemy import (
     String,
     ForeignKey,
     DateTime,
+    Enum
 )
 from sqlalchemy.sql import func
-
+from sqlalchemy.dialects.postgresql import JSONB
 from database.base import Base
+
+from enums.form_status_enum import FormStatus
 
 
 class Form(Base):
@@ -32,11 +35,16 @@ class Form(Base):
         String(255),
         nullable=False,
     )
-
+    
     status = Column(
-        String(20),
+        Enum(FormStatus),
         nullable=False,
-        default="DRAFT",
+        default=FormStatus.DRAFT,
+    )
+    
+    form_schema_json = Column(
+    JSONB,
+    nullable=False,
     )
 
     expires_at = Column(

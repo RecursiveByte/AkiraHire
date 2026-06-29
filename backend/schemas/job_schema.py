@@ -3,6 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 
 
+
 class JobCreate(BaseModel):
 
     role: str = Field(
@@ -16,7 +17,7 @@ class JobCreate(BaseModel):
         min_length=20,
     )
 
-    expires_at: datetime
+    application_deadline: datetime
 
     model_config = ConfigDict(
         str_strip_whitespace=True,

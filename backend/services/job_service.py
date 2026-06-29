@@ -62,7 +62,7 @@ class JobService:
 
             raise UnauthorizedRecruiterError()
 
-        if job_data.expires_at <= datetime.now(timezone.utc):
+        if job_data.application_deadline <= datetime.now(timezone.utc):
 
             logger.warning(
                 f"Invalid expiry date. user_id={user_id}"
@@ -73,7 +73,7 @@ class JobService:
     recruiter_id=user_id,
     role=job_data.role,
     job_description=job_data.job_description,
-    application_deadline=job_data.expires_at,
+    application_deadline=job_data.application_deadline,
     status=JobStatus.DRAFT,
 )
 

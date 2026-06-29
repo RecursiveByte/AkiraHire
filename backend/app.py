@@ -23,6 +23,21 @@ async def job_exception_handler(request: Request, exc: JobException):
         status_code=exc.status_code,
         content={"detail": exc.message},
     )
+    
+from exceptions.form_exceptions import FormException
+
+
+@app.exception_handler(FormException)
+async def form_exception_handler(
+    request: Request,
+    exc: FormException,
+):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "detail": exc.message,
+        },
+    )
 
 app.add_middleware(
     SessionMiddleware,
