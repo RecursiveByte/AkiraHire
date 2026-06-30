@@ -1,10 +1,3 @@
-"""
-LLM service responsible for generating a validated
-application form schema.
-"""
-
-import logging
-
 from core.llm.llm_client import get_llm
 
 from prompts.dynamic_form_prompt import (
@@ -19,8 +12,9 @@ from exceptions.form_exceptions import (
     InvalidFormSchemaError
 )
 
-logger = logging.getLogger(__name__)
+from utils.logger import get_logger
 
+logger = get_logger(__name__)
 
 class FormSchemaService:
 

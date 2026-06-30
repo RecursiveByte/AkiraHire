@@ -8,6 +8,11 @@ from agents.google_form_agent.api.exception_handlers import register_exception_h
 from fastapi.responses import JSONResponse
 
 from exceptions.job_exceptions import JobException
+from exceptions.base import AppException
+
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 load_dotenv()
 
@@ -17,25 +22,24 @@ app = FastAPI(
 )
 
 # register_exception_handlers(app)
-@app.exception_handler(JobException)
-async def job_exception_handler(request: Request, exc: JobException):
+@app.exception_handler(AppException)
+async def app_exception_handler(request: Request, exc: AppException):
     return JSONResponse(
         status_code=exc.status_code,
         content={"detail": exc.message},
     )
     
-from exceptions.form_exceptions import FormException
-
-
-@app.exception_handler(FormException)
-async def form_exception_handler(
+@app.exception_handler(Exception)
+async def exception_handler(
     request: Request,
-    exc: FormException,
+    exc: Exception,
 ):
+    logger.exception(exc)
+
     return JSONResponse(
-        status_code=exc.status_code,
+        status_code=500,
         content={
-            "detail": exc.message,
+            "detail": "Internal Server Error",
         },
     )
 
@@ -43,5 +47,6 @@ app.add_middleware(
     SessionMiddleware,
     secret_key=os.getenv("SECRET_KEY")
 )
+
 
 app.mount("/static", StaticFiles(directory="static"), name="static")

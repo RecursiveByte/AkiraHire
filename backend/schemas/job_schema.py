@@ -46,3 +46,21 @@ class JobResponse(BaseModel):
     model_config = ConfigDict(
         from_attributes=True,
     )
+    
+    
+class JobUpdate(BaseModel):
+    role: str | None = Field(default=None, min_length=2, max_length=100)
+    job_description: str | None = Field(default=None, min_length=10)
+    application_deadline: datetime | None = None
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+    
+class DeleteJobResponse(BaseModel):
+    message: str
+    
+class GenerateJobDescriptionRequest(BaseModel):
+    description: str
+        
+class GenerateJobDescriptionResponse(BaseModel):
+    job_description: str
+    

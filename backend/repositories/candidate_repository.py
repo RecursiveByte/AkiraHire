@@ -31,6 +31,21 @@ class CandidateRepository:
             .first()
         )
 
+    @staticmethod
+
+    def get_by_id(
+        db: Session,
+        candidate_id: int,
+    ) -> CandidateProfile | None:
+
+        return (
+            db.query(CandidateProfile)
+            .filter(
+                CandidateProfile.candidate_id == candidate_id,
+            )
+            .first()
+        )
+
 
     @staticmethod
     def create(
@@ -45,6 +60,43 @@ class CandidateRepository:
             db.refresh(candidate_profile)
 
             return candidate_profile
+
+        except SQLAlchemyError:
+
+            db.rollback()
+            raise
+        
+    @staticmethod
+
+    def update(
+        db: Session,
+        candidate_profile: CandidateProfile,
+    ) -> CandidateProfile:
+
+        try:
+
+            db.commit()
+            db.refresh(candidate_profile)
+
+            return candidate_profile
+
+        except SQLAlchemyError:
+
+            db.rollback()
+            raise
+
+
+    @staticmethod
+
+    def delete(
+        db: Session,
+        candidate_profile: CandidateProfile,
+    ) -> None:
+
+        try:
+
+            db.delete(candidate_profile)
+            db.commit()
 
         except SQLAlchemyError:
 

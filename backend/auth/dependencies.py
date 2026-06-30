@@ -1,10 +1,11 @@
 from fastapi import HTTPException, Request
 from auth.jwt import verify_token
+from schemas.auth_schema import CurrentUser
 
 
 def get_current_user(
     request: Request,
-) -> dict:
+) -> CurrentUser:
 
     auth_header = request.headers.get("Authorization")
 
@@ -29,25 +30,30 @@ def get_current_user(
             detail="Not Authorized",
         )
 
-    return payload
+    return CurrentUser(
+        user_id=payload["user_id"],
+        role=payload["role"],
+        email=payload["email"],
+        type=payload["type"],
+    )
 
 
 def require_role(*required_roles: str):
 
     def role_checker(
         request: Request,
-    ) -> dict:
+    ) -> CurrentUser:
 
-        payload = get_current_user(
+        current_user = get_current_user(
             request=request,
         )
 
-        if payload.get("role") not in required_roles:
+        if current_user.role not in required_roles:
             raise HTTPException(
                 status_code=403,
                 detail="You don't have permission to access this.",
             )
 
-        return payload
+        return current_user
 
     return role_checker

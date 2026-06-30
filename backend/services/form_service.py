@@ -1,4 +1,3 @@
-import logging
 
 from sqlalchemy.orm import Session
 
@@ -9,12 +8,9 @@ from repositories.form_repository import FormRepository
 
 from exceptions.form_exceptions import (
     FormNotFoundError,
-    FormCannotBeUpdatedError,
     FormAlreadyClosedError,
     FormCannotBeClosedError,
     FormAlreadyExistsError,
-    FormAlreadyCancelledError,
-    FormCannotBeCancelledError,
     FormAlreadyPublishedError
 )
 
@@ -27,17 +23,15 @@ from schemas.form_schema import (
     CreateFormResponse,
     GetFormResponse,
     PublishFormResponse,
-    UpdateFormRequest,
-    UpdateFormResponse,
     CloseFormResponse,
-    CancelFormResponse,
     DeleteFormResponse,
 )
 
 from enums.form_status_enum import FormStatus
 
-logger = logging.getLogger(__name__)
+from utils.logger import get_logger
 
+logger = get_logger(__name__)
 
 class FormService:
 
@@ -165,56 +159,6 @@ class FormService:
             status=updated_form.status,
         )
 
-    @staticmethod
-    def update_form(
-        form_id: int,
-        payload: UpdateFormRequest,
-        db: Session,
-    ) -> UpdateFormResponse:
-
-        logger.info(f"Updating form_id={form_id}.")
-
-        form = FormRepository.get_by_id(
-            db=db,
-            form_id=form_id,
-        )
-
-        if not form:
-
-            logger.warning(f"Form not found. form_id={form_id}")
-
-            raise FormNotFoundError()
-
-        if form.status != FormStatus.DRAFT:
-
-            logger.warning(f"Only draft forms can be updated. form_id={form_id}")
-
-            raise FormCannotBeUpdatedError()
-
-        if payload.expires_at is not None:
-            form.expires_at = payload.expires_at
-
-        if payload.form_schema_json is not None:
-
-            form.schema_json = payload.form_schema_json.model_dump()
-
-            form.title = payload.form_schema_json.title
-
-        updated_form = FormRepository.update(
-            db=db,
-            form=form,
-        )
-
-        logger.info(f"Form updated successfully. form_id={updated_form.form_id}")
-
-        return UpdateFormResponse(
-            form_id=updated_form.form_id,
-            job_id=updated_form.job_id,
-            title=updated_form.title,
-            status=updated_form.status,
-            expires_at=updated_form.expires_at,
-            updated_at=updated_form.updated_at,
-        )
 
     @staticmethod
     def close_form(
@@ -257,51 +201,6 @@ class FormService:
         logger.info(f"Form closed successfully. form_id={updated_form.form_id}")
 
         return CloseFormResponse(
-            form_id=updated_form.form_id,
-            status=updated_form.status,
-        )
-
-    @staticmethod
-    def cancel_form(
-        form_id: int,
-        db: Session,
-    ) -> CancelFormResponse:
-
-        logger.info(f"Cancelling form_id={form_id}.")
-
-        form = FormRepository.get_by_id(
-            db=db,
-            form_id=form_id,
-        )
-
-        if not form:
-
-            logger.warning(f"Form not found. form_id={form_id}")
-
-            raise FormNotFoundError()
-
-        if form.status == FormStatus.CANCELLED:
-
-            logger.warning(f"Form is already cancelled. form_id={form_id}")
-
-            raise FormAlreadyCancelledError()
-
-        if form.status == FormStatus.CLOSED:
-
-            logger.warning(f"Closed forms cannot be cancelled. form_id={form_id}")
-
-            raise FormCannotBeCancelledError()
-
-        form.status = FormStatus.CANCELLED
-
-        updated_form = FormRepository.update(
-            db=db,
-            form=form,
-        )
-
-        logger.info(f"Form cancelled successfully. form_id={updated_form.form_id}")
-
-        return CancelFormResponse(
             form_id=updated_form.form_id,
             status=updated_form.status,
         )

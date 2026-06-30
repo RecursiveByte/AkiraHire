@@ -1,87 +1,62 @@
-class FormException(Exception):
-    def __init__(self, message: str, status_code: int = 400):
-        self.status_code = status_code
-        super().__init__(message)
+from fastapi import status
+from exceptions.base import AppException
 
-    @property
-    def message(self):
-        return str(self)
-    
+class FormException(AppException):
+    pass
+
+
 class InvalidFormSchemaError(FormException):
     def __init__(self):
         super().__init__(
-            "LLM returned an invalid form schema.",
-            422
+            message="LLM returned an invalid form schema.",
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         )
 
 
 class FormAlreadyExistsError(FormException):
     def __init__(self):
         super().__init__(
-            "A form already exists for this job.",
-            409
+            message="A form already exists for this job.",
+            status_code=status.HTTP_409_CONFLICT,
         )
 
 
 class FormNotFoundError(FormException):
     def __init__(self):
         super().__init__(
-            "Form not found.",
-            404
+            message="Form not found.",
+            status_code=status.HTTP_404_NOT_FOUND,
         )
 
 
 class FormGenerationFailedError(FormException):
     def __init__(self):
         super().__init__(
-            "Failed to generate the form schema.",
-            500
+            message="Failed to generate the form schema.",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
 
 class FormAlreadyPublishedError(FormException):
     def __init__(self):
         super().__init__(
-            "The form is already published.",
-            409
+            message="The form is already published.",
+            status_code=status.HTTP_409_CONFLICT,
         )
 
-
-class FormCannotBeUpdatedError(FormException):
-    def __init__(self):
-        super().__init__(
-            "Only draft forms can be updated.",
-            400
-        )
 
 
 class FormAlreadyClosedError(FormException):
     def __init__(self):
         super().__init__(
-            "The form is already closed.",
-            409
+            message="The form is already closed.",
+            status_code=status.HTTP_409_CONFLICT,
         )
 
 
 class FormCannotBeClosedError(FormException):
     def __init__(self):
         super().__init__(
-            "Only open forms can be closed.",
-            400
-        )
-
-
-class FormAlreadyCancelledError(FormException):
-    def __init__(self):
-        super().__init__(
-            "The form is already cancelled.",
-            409
-        )
-
-
-class FormCannotBeCancelledError(FormException):
-    def __init__(self):
-        super().__init__(
-            "Closed forms cannot be cancelled.",
-            400
+            message="Only open forms can be closed.",
+            status_code=status.HTTP_400_BAD_REQUEST,
         )

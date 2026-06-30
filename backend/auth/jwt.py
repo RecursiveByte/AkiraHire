@@ -17,6 +17,7 @@ from exceptions.auth_exceptions import (
 def create_access_token(
     user_id: int,
     role: str,
+    email: str,
 ) -> str:
 
     now = datetime.now(
@@ -27,6 +28,7 @@ def create_access_token(
         "sub": str(user_id),
         "user_id": user_id,
         "role": role,
+        "email": email,
         "type": "access",
         "iat": now,
         "exp": now

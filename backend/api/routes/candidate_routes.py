@@ -12,7 +12,16 @@ from database.session import get_db
 from schemas.candidate_schema import (
     CandidateProfileCreate,
     CandidateProfileResponse,
+    CandidateProfileUpdate,
+    DeleteCandidateProfileResponse
 )
+
+from enums.user_role_enum import UserRole
+
+
+from schemas.auth_schema import CurrentUser
+
+from auth.dependencies import require_role,get_current_user
 
 from services.candidate_service import CandidateService
 
@@ -30,11 +39,73 @@ router = APIRouter(
 async def create_candidate_profile(
     request: Request,
     candidate_data: CandidateProfileCreate,
+    current_user: CurrentUser = Depends(
+    require_role(UserRole.CANDIDATE),
+),
     db: Session = Depends(get_db),
 ):
 
     return CandidateService.create_candidate_profile(
-        request=request,
         db=db,
         candidate_data=candidate_data,
+        current_user=current_user
+    )
+    
+@router.get(
+    "/profile/{candidate_id}",
+    response_model=CandidateProfileResponse,
+)
+
+def get_candidate_profile_by_id(
+    candidate_id: int,
+    current_user: CurrentUser = Depends(
+        get_current_user,
+    ),
+    db: Session = Depends(get_db),
+):
+
+    return CandidateService.get_candidate_profile_by_id(
+        candidate_id=candidate_id,
+        db=db,
+    )
+    
+@router.patch(
+    "/profile/{candidate_id}",
+    response_model=CandidateProfileResponse,
+)
+
+def update_candidate_profile(
+    candidate_id: int,
+    candidate_data: CandidateProfileUpdate,
+    current_user: CurrentUser = Depends(
+        require_role(UserRole.CANDIDATE,UserRole.ADMIN),
+    ),
+    db: Session = Depends(get_db), 
+):
+
+    return CandidateService.update_candidate_profile(
+        candidate_id=candidate_id,
+        current_user=current_user,
+        db=db,
+        candidate_data=candidate_data,
+    )
+
+
+@router.delete(
+    "/profile/{candidate_id}",
+    response_model=DeleteCandidateProfileResponse,
+)
+
+def delete_candidate_profile(
+    candidate_id: int,
+    current_user: CurrentUser = Depends(
+        require_role(UserRole.CANDIDATE,UserRole.ADMIN)
+    ),
+    db: Session = Depends(get_db),
+):
+
+    return CandidateService.delete_candidate_profile(
+        candidate_id=candidate_id,
+        current_user=current_user,
+        db=db,
     )

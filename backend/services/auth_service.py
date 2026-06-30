@@ -17,7 +17,6 @@ from config.settings import settings
 
 from auth.helpers import get_user_id_from_request
 
-from config.logging import logger
 
 from database.models.user import (
     User,
@@ -26,7 +25,6 @@ from database.models.user import (
 
 from exceptions.auth_exceptions import (
     UserAlreadyExistsError,
-    NoActiveSessionError,
     GoogleAuthenticationError,
 )
 
@@ -46,6 +44,10 @@ from exceptions.auth_exceptions import (
 )
 
 from utils.password import hash_password
+
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 class AuthService:
 
@@ -80,6 +82,7 @@ class AuthService:
         access_token = create_access_token(
             user.id,
             user.role,
+            user.email
         )
 
         refresh_token = create_refresh_token(
@@ -163,6 +166,7 @@ class AuthService:
             access_token = create_access_token(
                 user.id,
                 user.role,
+                user.email
             )
 
             refresh_token = create_refresh_token(
@@ -238,6 +242,7 @@ class AuthService:
         access_token = create_access_token(
             user.id,
             user.role,
+            user.email
         )
 
         refresh_token = create_refresh_token(

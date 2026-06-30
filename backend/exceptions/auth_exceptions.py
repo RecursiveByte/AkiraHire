@@ -1,17 +1,8 @@
 from fastapi import status
+from exceptions.base import AppException
 
-
-class AuthException(Exception):
-
-    def __init__(
-        self,
-        message: str,
-        status_code: int,
-    ):
-        self.message = message
-        self.status_code = status_code
-        super().__init__(message)
-
+class AuthException(AppException):
+    pass
 
 class UserAlreadyExistsError(AuthException):
 

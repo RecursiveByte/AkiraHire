@@ -111,31 +111,12 @@ class GetFormResponse(BaseModel):
     updated_at: datetime
 
 
-class UpdateFormRequest(BaseModel):
-    expires_at: datetime | None = None
-    form_schema_json: GeneratedFormSchemaResponse 
-
-
-class UpdateFormResponse(BaseModel):
-    form_id: int
-    job_id: int
-    title: str
-    status: FormStatus
-    expires_at: datetime
-    updated_at: datetime
-
-
 class PublishFormResponse(BaseModel):
     form_id: int
     status: FormStatus
 
 
 class CloseFormResponse(BaseModel):
-    form_id: int
-    status: FormStatus
-
-
-class CancelFormResponse(BaseModel):
     form_id: int
     status: FormStatus
 

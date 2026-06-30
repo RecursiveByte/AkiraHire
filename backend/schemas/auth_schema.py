@@ -53,3 +53,9 @@ class LoginRequest(BaseModel):
     email: EmailStr
     password: str
     role: UserRole
+    
+class CurrentUser(BaseModel):
+    user_id: int
+    role: UserRole
+    email: EmailStr
+    type: str

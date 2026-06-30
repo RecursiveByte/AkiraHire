@@ -11,11 +11,8 @@ from schemas.form_schema import (
     CreateFormRequest,
     CreateFormResponse,
     GetFormResponse,
-    UpdateFormRequest,
-    UpdateFormResponse,
     PublishFormResponse,
     CloseFormResponse,
-    CancelFormResponse,
     DeleteFormResponse,
     GenerateFormSchemaRequest,
     GeneratedFormSchemaResponse,
@@ -54,7 +51,7 @@ def generate_form_schema(
 
 
 @router.post(
-    "/create-form",
+    "/",
     response_model=CreateFormResponse,
 )
 def create_form(
@@ -106,24 +103,6 @@ def get_form_by_job_id(
     )
 
 
-@router.put(
-    "/{form_id}",
-    response_model=UpdateFormResponse,
-)
-def update_form(
-    form_id: int,
-    payload: UpdateFormRequest,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(
-        require_role(UserRole.ADMIN, UserRole.RECRUITER)
-    ),
-):
-    return FormService.update_form(
-        form_id=form_id,
-        payload=payload,
-        db=db,
-    )
-
 
 @router.patch(
     "/{form_id}/publish",
@@ -158,22 +137,6 @@ def close_form(
         db=db,
     )
 
-
-@router.patch(
-    "/{form_id}/cancel",
-    response_model=CancelFormResponse,
-)
-def cancel_form(
-    form_id: int,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(
-        require_role(UserRole.ADMIN, UserRole.RECRUITER)
-    ),
-):
-    return FormService.cancel_form(
-        form_id=form_id,
-        db=db,
-    )
 
 
 @router.delete(

@@ -1,16 +1,10 @@
 from fastapi import status
 
+from exceptions.base import AppException
 
-class CandidateException(Exception):
 
-    def __init__(
-        self,
-        message: str,
-        status_code: int,
-    ):
-        self.message = message
-        self.status_code = status_code
-        super().__init__(message)
+class CandidateException(AppException):
+    pass
 
 
 class CandidateProfileAlreadyExistsError(CandidateException):
@@ -37,4 +31,25 @@ class CandidateProfileNotFoundError(CandidateException):
         super().__init__(
             message="Candidate profile not found.",
             status_code=status.HTTP_404_NOT_FOUND,
+        )
+        
+        
+class CandidateProfileNotFoundError(
+    CandidateException,
+):
+
+    def __init__(self):
+        super().__init__(
+            message="Candidate profile not found.",
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
+        
+class UnauthorizedCandidateError(
+    CandidateException,
+):
+
+    def __init__(self):
+        super().__init__(
+            message="You are not authorized to access this candidate profile.",
+            status_code=status.HTTP_403_FORBIDDEN,
         )
