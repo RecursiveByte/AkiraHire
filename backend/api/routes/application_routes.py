@@ -1,6 +1,7 @@
 from fastapi import (
     APIRouter,
     Depends,
+    status
 )
 
 from sqlalchemy.orm import Session
@@ -35,6 +36,7 @@ router = APIRouter(
 @router.post(
     "/",
     response_model=CreateApplicationResponse,
+    status_code=status.HTTP_201_CREATED
 )
 
 def create_application(

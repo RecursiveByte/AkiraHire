@@ -1,11 +1,19 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UniqueConstraint
-from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
-
-from database.base import Base
 import enum
 
-from sqlalchemy import Enum
+from sqlalchemy import (
+    Column,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Integer,
+    String,
+    UniqueConstraint,
+)
+from sqlalchemy.orm import relationship
+
+from database.base import Base
+
 
 class ProviderType(str, enum.Enum):
     LINKEDIN = "linkedin"
@@ -17,18 +25,50 @@ class ConnectedAccount(Base):
 
     id = Column(Integer, primary_key=True)
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=False,
+        index=True,
+    )
 
-    provider = Column(Enum(ProviderType), nullable=False, index=True)
-    agent_name = Column(String, nullable=False, index=True)
+    provider = Column(
+        Enum(ProviderType),
+        nullable=False,
+        index=True,
+    )
 
-    access_token = Column(String, nullable=False)
-    refresh_token = Column(String, nullable=True)
+    integration_name = Column(
+        String,
+        nullable=False,
+        index=True,
+    )
 
-    scopes = Column(String, nullable=False)
-    expires_at = Column(DateTime(timezone=True), nullable=True)
-    
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    access_token = Column(
+        String,
+        nullable=False,
+    )
+
+    refresh_token = Column(
+        String,
+        nullable=True,
+    )
+
+    scopes = Column(
+        String,
+        nullable=False,
+    )
+
+    expires_at = Column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    created_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc),
+    )
+
     updated_at = Column(
         DateTime,
         default=lambda: datetime.now(timezone.utc),
@@ -39,8 +79,8 @@ class ConnectedAccount(Base):
         UniqueConstraint(
             "user_id",
             "provider",
-            "agent_name",
-            name="uq_user_provider_agent",
+            "integration_name",
+            name="uq_user_provider_integration",
         ),
     )
 
@@ -52,5 +92,5 @@ class ConnectedAccount(Base):
     linkedin_identity = relationship(
         "LinkedInIdentity",
         back_populates="connected_account",
-        uselist=False
+        uselist=False,
     )

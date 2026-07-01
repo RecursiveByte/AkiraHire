@@ -3,12 +3,12 @@ from starlette.middleware.sessions import SessionMiddleware
 import os
 from dotenv import load_dotenv
 from fastapi.staticfiles import StaticFiles
-from agents.google_form_agent.api.exception_handlers import register_exception_handlers
  
 from fastapi.responses import JSONResponse
 
 from exceptions.job_exceptions import JobException
 from exceptions.base import AppException
+from fastapi.middleware.cors import CORSMiddleware
 
 from utils.logger import get_logger
 
@@ -21,7 +21,6 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# register_exception_handlers(app)
 @app.exception_handler(AppException)
 async def app_exception_handler(request: Request, exc: AppException):
     return JSONResponse(
@@ -42,6 +41,13 @@ async def exception_handler(
             "detail": "Internal Server Error",
         },
     )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.add_middleware(
     SessionMiddleware,

@@ -43,7 +43,7 @@ class FormService:
 
         logger.info(f"Creating form for job_id={payload.job_id}.")
 
-        job = JobRepository.get_by_id(
+        job = JobRepository.get_by_job_id(
             db=db,
             job_id=payload.job_id,
         )

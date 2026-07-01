@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field, ConfigDict,HttpUrl
 
+from schemas.validators import PhoneNumber
 
 class CandidateProfileCreate(BaseModel):
     full_name: str = Field(
@@ -8,11 +9,9 @@ class CandidateProfileCreate(BaseModel):
         max_length=100,
     )
 
-    email: EmailStr
-
-    phone: str = Field(
+    phone: PhoneNumber = Field(
         ...,
-        min_length=10,
+        min_length=11,
         max_length=20,
     )
 

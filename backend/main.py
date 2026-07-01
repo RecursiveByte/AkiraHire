@@ -3,11 +3,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from agents.google_form_agent.api.routes.google_autoform_routes import (
+from integration.google_form.api.routes.google_form_routes import (
     router as google_autoform_router
 )
 
-from agents.linkedin_agent.api.routes.linkedin_post_routes import (
+from integration.linkedin.api.routes.linkedin_post_routes import (
     router as linkedin_router
 )
 
@@ -27,6 +27,10 @@ from api.routes.form_routes import (
 
 from api.routes.application_routes import router as application_router
     
+from api.routes.resume_routes import router as resume_router
+
+from api.routes.application_evaluation_routes import router as application_evaluation_routes
+
 
 app.include_router(google_autoform_router)
 
@@ -41,3 +45,7 @@ app.include_router(job_router)
 app.include_router(form_router)
 
 app.include_router(application_router)
+
+app.include_router(resume_router)
+
+app.include_router(application_evaluation_routes)

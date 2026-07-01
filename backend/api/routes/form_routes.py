@@ -1,6 +1,7 @@
 from fastapi import (
     APIRouter,
     Depends,
+    status
 )
 
 from sqlalchemy.orm import Session
@@ -53,6 +54,7 @@ def generate_form_schema(
 @router.post(
     "/",
     response_model=CreateFormResponse,
+    status_code=status.HTTP_201_CREATED,
 )
 def create_form(
     payload: CreateFormRequest,

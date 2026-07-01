@@ -29,6 +29,8 @@ def get_current_user(
             status_code=401,
             detail="Not Authorized",
         )
+        
+    
 
     return CurrentUser(
         user_id=payload["user_id"],
@@ -47,7 +49,7 @@ def require_role(*required_roles: str):
         current_user = get_current_user(
             request=request,
         )
-
+        
         if current_user.role not in required_roles:
             raise HTTPException(
                 status_code=403,

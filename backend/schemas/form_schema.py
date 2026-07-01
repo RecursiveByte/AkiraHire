@@ -8,6 +8,8 @@ from pydantic import (
 
 from typing import Literal,Any
 
+from schemas.validators import DescriptionStr
+
 from enums.form_status_enum import FormStatus
 
 class LinkField(BaseModel):
@@ -57,7 +59,7 @@ class AdditionalQuestion(BaseModel):
     )
 
 class GenerateFormSchemaRequest(BaseModel):
-    description: str
+    description: DescriptionStr
 
 class GeneratedFormSchemaResponse(BaseModel):
 

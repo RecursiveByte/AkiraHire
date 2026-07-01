@@ -39,10 +39,6 @@ from services.application_question_service import (
 from schemas.application_schema import (
     CreateApplicationRequest,
     CreateApplicationResponse,
-    GetApplicationResponse,
-    CandidateProfileRequest,
-    ApplicationLinkRequest,
-    ApplicationAnswerRequest,
     UpdateApplicationRequest,
     UpdateApplicationResponse,
     DeleteApplicationResponse,
@@ -55,7 +51,6 @@ from exceptions.form_exceptions import (
 )
 
 from exceptions.application_exceptions import (
-    # CandidateProfileAlreadyExistsError,
     CandidateProfileNotFoundError
 )
 

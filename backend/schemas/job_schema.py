@@ -2,11 +2,16 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from schemas.validators import DescriptionStr,validate_str
 
+from typing import Annotated
+from pydantic import AfterValidator
+
+roleStr =  Annotated[str, AfterValidator(validate_str)]
 
 class JobCreate(BaseModel):
 
-    role: str = Field(
+    role: roleStr = Field(
         ...,
         min_length=2,
         max_length=150,
@@ -56,7 +61,7 @@ class JobUpdate(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
     
 class DeleteJobResponse(BaseModel):
-    message: str
+    message: DescriptionStr
     
 class GenerateJobDescriptionRequest(BaseModel):
     description: str

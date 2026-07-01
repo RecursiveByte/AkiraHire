@@ -5,10 +5,7 @@ from pydantic import (
     EmailStr,
 )
 
-# from schemas.form_schema import (
-    # LinkField,
-    # AdditionalQuestion,
-# )
+from typing import Any
 
 
 class CandidateProfileRequest(BaseModel):
@@ -19,18 +16,17 @@ class CandidateProfileRequest(BaseModel):
 
 
 class ApplicationLinkRequest(BaseModel):
-    label: str
+    id: str
     url: str
 
-
 class ApplicationAnswerRequest(BaseModel):
-    question_id: str
-    answer: str
+    id: str
+    answer: Any
 
 
 class CreateApplicationRequest(BaseModel):
     form_id: int
-    candidate_profile: CandidateProfileRequest
+    # candidate_profile: CandidateProfileRequest
     links: list[ApplicationLinkRequest] = []
     answers: list[ApplicationAnswerRequest] = []
 

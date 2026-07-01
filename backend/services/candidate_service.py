@@ -73,7 +73,7 @@ class CandidateService:
         existing_email = (
             CandidateRepository.get_by_email(
                 db=db,
-                email=candidate_data.email,
+                email=current_user.email,
             )
         )
 
@@ -88,7 +88,7 @@ class CandidateService:
         candidate_profile = CandidateProfile(
             user_id=user_id,
             full_name=candidate_data.full_name,
-            email=candidate_data.email,
+            email=current_user.email,
             phone=candidate_data.phone,
             resume_url=str(candidate_data.resume_url),
         )
