@@ -53,3 +53,12 @@ class UnauthorizedCandidateError(
             message="You are not authorized to access this candidate profile.",
             status_code=status.HTTP_403_FORBIDDEN,
         )
+
+
+class InvalidCandidateDataError(CandidateException):
+
+    def __init__(self):
+        super().__init__(
+            message="candidate_data is not valid JSON.",
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        )

@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     COOKIE_SAMESITE: str
 
     FRONTEND_URL: str
+    
+    SUPABASE_URL: str
+    SUPABASE_KEY: str
 
     model_config = SettingsConfigDict(
         env_file=".env",

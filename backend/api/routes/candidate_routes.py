@@ -3,6 +3,9 @@ from fastapi import (
     Depends,
     Request,
     status,
+    File,
+    Form,
+    UploadFile
 )
 
 from sqlalchemy.orm import Session
@@ -13,11 +16,13 @@ from schemas.candidate_schema import (
     CandidateProfileCreate,
     CandidateProfileResponse,
     CandidateProfileUpdate,
-    DeleteCandidateProfileResponse
+    DeleteCandidateProfileResponse,
+    CandidateProfileInput
 )
 
 from enums.user_role_enum import UserRole
 
+import json
 
 from schemas.auth_schema import CurrentUser
 
@@ -25,11 +30,18 @@ from auth.dependencies import require_role,get_current_user
 
 from services.candidate_service import CandidateService
 
+from core.document.service import ResumeService
+
+from pydantic import ValidationError
+
+from exceptions.candidate_exceptions import InvalidCandidateDataError
+
 
 router = APIRouter(
     prefix="/candidate",
     tags=["Candidate"],
 )
+
 
 @router.post(
     "/profile",
@@ -38,17 +50,34 @@ router = APIRouter(
 )
 async def create_candidate_profile(
     request: Request,
-    candidate_data: CandidateProfileCreate,
+    candidate_data: str = Form(...),
+    resume: UploadFile = File(...),
     current_user: CurrentUser = Depends(
-    require_role(UserRole.CANDIDATE),
-),
+        require_role(UserRole.CANDIDATE),
+    ),
     db: Session = Depends(get_db),
 ):
 
+    try:
+        candidate_input = CandidateProfileInput(
+            **json.loads(candidate_data),
+        )
+    except (json.JSONDecodeError, ValidationError):
+        raise InvalidCandidateDataError()
+
+    resume_url = ResumeService.upload_resume(
+        file=resume,
+    )
+
+    candidate_data_parsed = CandidateProfileCreate(
+        **candidate_input.model_dump(),
+        resume_url=resume_url,
+    )
+
     return CandidateService.create_candidate_profile(
         db=db,
-        candidate_data=candidate_data,
-        current_user=current_user
+        candidate_data=candidate_data_parsed,
+        current_user=current_user,
     )
     
 @router.get(

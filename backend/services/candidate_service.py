@@ -37,8 +37,9 @@ logger = get_logger(__name__)
 
 class CandidateService:
 
-    @staticmethod
 
+
+    @staticmethod
     def create_candidate_profile(
         current_user: CurrentUser,
         db: Session,

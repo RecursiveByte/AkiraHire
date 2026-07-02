@@ -1,15 +1,19 @@
 from fastapi import (
     APIRouter,
     Depends,
+    UploadFile,
+    File
 )
 
 from auth.dependencies import (
-    get_current_user,
+    get_current_user,require_role
 )
 
 from schemas.auth_schema import (
     CurrentUser,
 )
+
+from enums.user_role_enum import UserRole
 
 from schemas.resume_schema import (
     ReadResumeRequest,
@@ -45,3 +49,20 @@ def read_resume(
     return ReadResumeResponse(
         content=content,
     )
+    
+@router.post("/upload")
+def upload_resume(
+    file: UploadFile = File(...),
+    current_user: CurrentUser = Depends(
+    require_role(UserRole.CANDIDATE)
+),
+    
+):
+
+    resume_url = ResumeService.upload_resume(
+        file=file,
+    )
+
+    return {
+        "resume_url": resume_url,
+    }
