@@ -4,10 +4,10 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import OperationalError
 import time
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+from config.settings import settings
 
 engine = create_engine(
-    DATABASE_URL,
+    settings.DATABASE_URL,
     pool_pre_ping=True,
     pool_recycle=1800,
     pool_size=5,       

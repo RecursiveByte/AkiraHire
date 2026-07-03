@@ -86,6 +86,16 @@ class ApplicationRepository:
             raise
 
     @staticmethod
+    def get_all(
+        db: Session,
+    ) -> list[Application]:
+
+        return (
+            db.query(Application)
+            .all()
+        )
+
+    @staticmethod
     def delete(
         db: Session,
         application: Application,

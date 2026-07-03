@@ -30,6 +30,7 @@ from api.routes.application_routes import router as application_router
 from api.routes.resume_routes import router as resume_router
 
 from api.routes.application_evaluation_routes import router as application_evaluation_routes
+from api.routes.chat_bot_router import router as chatbot_router
 
 
 app.include_router(google_autoform_router)
@@ -49,3 +50,5 @@ app.include_router(application_router)
 app.include_router(resume_router)
 
 app.include_router(application_evaluation_routes)
+
+app.include_router(chatbot_router)

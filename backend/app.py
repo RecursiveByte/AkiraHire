@@ -10,15 +10,25 @@ from exceptions.job_exceptions import JobException
 from exceptions.base import AppException
 from fastapi.middleware.cors import CORSMiddleware
 
+from contextlib import asynccontextmanager
+
+from database.session import wait_for_db
+
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 load_dotenv()
 
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+    # wait_for_db()
+    # yield
+
 app = FastAPI(
     title="Google AutoForm API",
     version="1.0.0",
+    # lifespan=lifespan,
 )
 
 @app.exception_handler(AppException)
@@ -53,6 +63,9 @@ app.add_middleware(
     SessionMiddleware,
     secret_key=os.getenv("SECRET_KEY")
 )
+
+
+
 
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
