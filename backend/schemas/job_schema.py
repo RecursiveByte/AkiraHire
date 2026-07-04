@@ -66,6 +66,12 @@ class DeleteJobResponse(BaseModel):
 class GenerateJobDescriptionRequest(BaseModel):
     description: str
         
+# class GenerateJobDescriptionResponse(BaseModel):
+    # job_description: str
+
+
 class GenerateJobDescriptionResponse(BaseModel):
-    job_description: str
+    role: str = Field(description="The job title/role")
+    job_description: str = Field(description="The full generated job description")
+    application_deadline: datetime = Field(description="Suggested application deadline")
     

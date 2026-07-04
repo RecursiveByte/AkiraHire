@@ -50,7 +50,9 @@ def evaluate_all_applications() -> dict:
     """
 
     db = SessionLocal()
-
+    print("\n")
+    print("calling evaluate tool ")
+    print("\n")
     try:
         applications = ApplicationRepository.get_all(db=db)
 

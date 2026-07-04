@@ -1,4 +1,4 @@
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import SystemMessage,AIMessage
 
 from core.llm.llm_client import get_llm
 
@@ -28,4 +28,20 @@ def chatbot(state: ChatState):
 
     return {
         "messages": [response]
+    }
+    
+def ask_create_job_confirmation(state):
+
+    tool_message = state["messages"][-1]
+
+    return {
+        "messages": [
+            AIMessage(
+                content=f"""
+{tool_message.content}
+
+Would you like me to create this job as a draft?
+"""
+            )
+        ]
     }

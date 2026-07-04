@@ -12,3 +12,4 @@ from database.models.form_questions import FormQuestion
 from database.models.application_links import ApplicationLinks
 from database.models.application_questions import ApplicationQuestion
 from database.models.application_evaluation import ApplicationEvaluation
+from database.models.chat_session import ChatSession

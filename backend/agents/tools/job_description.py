@@ -19,29 +19,23 @@ from datetime import datetime
 
 @tool
 def generate_job_description(description: str) -> dict:
+
     """
-    Generate a complete professional job description.
+    PURPOSE:
+    Generate a professional job description.
 
-    Use this tool ONLY when the user explicitly asks you to create or
-    generate a job description and has already provided enough information
-    about the role.
+    ALWAYS use this tool when the user asks you to:
+    - generate a job description
+    - create a job description
+    - write a job description
+    - draft a job description
 
-    Required information inside `description` may include:
-    - Job title
-    - Responsibilities
-    - Required skills
-    - Experience
-    - Employment type
-    - Location
-    - Additional requirements
+    NEVER write the job description yourself.
 
-    Do NOT call this tool when:
-    - The user asks whether you can generate job descriptions.
-    - The user asks how job descriptions are created.
-    - The user asks what this tool does.
+    If information is missing, ask the user for it instead of calling this tool.
 
-    If the user has not provided enough information,
-    ask for more details instead of calling this tool.
+    Input:
+        description: User's description of the role.
 
     Returns:
         {
@@ -49,6 +43,9 @@ def generate_job_description(description: str) -> dict:
             "job_description": str
         }
     """
+
+    print(">>> generate_job_description tool called")
+
     try:
         result = JobDescriptionService.generate_job_description(
             description=description,

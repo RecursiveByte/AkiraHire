@@ -14,47 +14,27 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-
 class JobDescriptionService:
 
     @staticmethod
-    def generate_job_description(
-        description: str,
-    ) -> GenerateJobDescriptionResponse:
-
-        logger.info(
-            "Generating job description."
-        )
+    def generate_job_description(description: str) -> GenerateJobDescriptionResponse:
+        logger.info("Generating job description.")
 
         try:
-
             llm = get_llm()
+            structured_llm = llm.with_structured_output(GenerateJobDescriptionResponse)
 
-            response = llm.invoke(
+            response = structured_llm.invoke(
                 [
-                    (
-                        "system",
-                        SYSTEM_PROMPT,
-                    ),
-                    (
-                        "user",
-                        description,
-                    ),
+                    ("system", SYSTEM_PROMPT),
+                    ("user", description),
                 ]
             )
 
-            logger.info(
-                "Job description generated successfully."
-            )
+            logger.info("Job description generated successfully.")
 
-            return GenerateJobDescriptionResponse(
-                job_description=response.content.strip(),
-            )
+            return response
 
         except Exception:
-
-            logger.exception(
-                "Failed to generate job description."
-            )
-
+            logger.exception("Failed to generate job description.")
             raise

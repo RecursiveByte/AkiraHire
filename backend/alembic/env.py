@@ -13,16 +13,30 @@ load_dotenv()
 
 config = context.config
 
+
+
 config.set_main_option(
     "sqlalchemy.url",
     os.getenv("DATABASE_URL")
 )
+
+
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
 
+
+def include_object(object, name, type_, reflected, compare_to):
+    if type_ == "table" and name in {
+        "checkpoints",
+        "checkpoint_blobs",
+        "checkpoint_writes",
+        "checkpoint_migrations",
+    }:
+        return False
+    return True
 
 def run_migrations_offline():
     url = config.get_main_option("sqlalchemy.url")
@@ -31,6 +45,7 @@ def run_migrations_offline():
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        include_object=include_object,
     )
 
     with context.begin_transaction():
@@ -47,7 +62,8 @@ def run_migrations_online():
     with connectable.connect() as connection:
         context.configure(
             connection=connection,
-            target_metadata=target_metadata
+            target_metadata=target_metadata,
+            include_object=include_object,
         )
 
         with context.begin_transaction():
