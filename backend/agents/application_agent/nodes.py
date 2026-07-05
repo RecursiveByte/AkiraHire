@@ -21,7 +21,6 @@ llm = base_llm.bind_tools(
     ]
 )
 
-
 def chatbot(state: AgentState):
     return chatbot_node(
         state=state,

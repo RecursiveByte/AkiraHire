@@ -26,9 +26,11 @@ def router(state: RouterState):
         ]
     )
     print("=" * 50)
-    # print("User:", latest_message.content)
-    print("Selected Agent:", response.agent)
+    # print("Selected Agent:", response.agent)
+    print(response)
     print("=" * 50)
+    
+    
 
     return {
         "agent": response.agent,

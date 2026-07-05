@@ -7,6 +7,7 @@ class AgentType(str, Enum):
     JOB = "JOB"
     APPLICATION = "APPLICATION"
     GENERAL = "GENERAL"
+    FORM = "FORM"
 
 
 class RouterResponse(BaseModel):

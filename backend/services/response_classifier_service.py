@@ -1,3 +1,4 @@
+import re
 from enum import Enum
 
 
@@ -8,18 +9,19 @@ class ResponseDecision(str, Enum):
 
 
 class ResponseClassifierService:
-
     YES_WORDS: set[str] = {"yes", "y", "yeah", "yep", "sure", "ok", "okay", "confirm"}
     NO_WORDS: set[str] = {"no", "n", "nope", "nah"}
 
     @staticmethod
     def classify(message: str) -> ResponseDecision:
         normalized = message.strip().lower()
+        words = normalized.split()
+        first_word = re.sub(r"[^\w]", "", words[0]) if words else ""
 
-        if normalized in ResponseClassifierService.YES_WORDS:
+        if first_word in ResponseClassifierService.YES_WORDS:
             return ResponseDecision.YES
 
-        if normalized in ResponseClassifierService.NO_WORDS:
+        if first_word in ResponseClassifierService.NO_WORDS:
             return ResponseDecision.NO
 
         return ResponseDecision.UNCLEAR

@@ -11,12 +11,15 @@ from exceptions.form_exceptions import (
     FormAlreadyClosedError,
     FormCannotBeClosedError,
     FormAlreadyExistsError,
-    FormAlreadyPublishedError
+    FormAlreadyPublishedError,
+    InvalidExpiryDateError
 )
 
 from exceptions.job_exceptions import (
     JobNotFoundError,
 )
+
+
 
 from schemas.form_schema import (
     CreateFormRequest,
@@ -31,6 +34,10 @@ from enums.form_status_enum import FormStatus
 
 from utils.logger import get_logger
 
+from datetime import datetime,timezone
+
+
+
 logger = get_logger(__name__)
 
 class FormService:
@@ -42,6 +49,14 @@ class FormService:
     ) -> CreateFormResponse:
 
         logger.info(f"Creating form for job_id={payload.job_id}.")
+        
+        
+        expires_at = payload.expires_at
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+
+        if expires_at <= datetime.now(timezone.utc):
+            raise InvalidExpiryDateError()
 
         job = JobRepository.get_by_job_id(
             db=db,
@@ -264,3 +279,6 @@ class FormService:
         logger.info(f"Form deleted successfully. form_id={form_id}")
 
         return DeleteFormResponse(message="Form deleted successfully.")
+    
+    
+

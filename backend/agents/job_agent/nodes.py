@@ -1,33 +1,61 @@
 from langgraph.types import interrupt
-
-from agents.job_agent.state import JobAgentState
-from services.job_description_service import JobDescriptionService
-from services.job_service import JobService
-from langchain_core.messages import AIMessage
-
+from langchain_core.messages import AIMessage, ToolMessage
 from langchain_core.runnables import RunnableConfig
 
+from agents.job_agent.state import JobAgentState
+from agents.tools.job_description import generate_job_description
+from agents.job_agent.prompts import SYSTEM_PROMPT
+from core.llm.llm_client import get_llm
+
+from services.job_service import JobService
 from database.session import SessionLocal
-
 from schemas.job_schema import JobCreate
+import json
 
-from datetime import datetime, time,timezone
+from datetime import datetime,timezone
 
-def generate_jd_node(state: JobAgentState) -> dict:
+llm_with_tools = get_llm().bind_tools([generate_job_description])
+
+
+def chatbot_node(state: JobAgentState) -> dict:
+    from langchain_core.messages import SystemMessage
+
+    messages = [SystemMessage(content=SYSTEM_PROMPT), *state["messages"]]
+    response = llm_with_tools.invoke(messages)
+    return {"messages": [response]}
+
+
+def route_after_chatbot(state: JobAgentState) -> str:
     last_message = state["messages"][-1]
-    description = last_message.content
-    response = JobDescriptionService.generate_job_description(description)
-    
-    deadline_datetime = datetime.combine(
-        response.application_deadline, time.min
-    ).replace(tzinfo=timezone.utc)
-    
-    return {
-        "generated_jd": response.job_description,
-        "role": response.role,
-        "application_deadline": deadline_datetime,
-    }
+    if getattr(last_message, "tool_calls", None):
+        return "tools"
+    return "end"
 
+
+def apply_tool_result_node(state: JobAgentState) -> dict:
+    last_message = state["messages"][-1]
+    tool_result: dict = json.loads(last_message.content)
+
+    if not tool_result.get("success"):
+        return {
+            "messages": [
+                AIMessage(
+                    content=tool_result.get(
+                        "error", "Failed to generate the job description."
+                    )
+                )
+            ]
+        }
+        
+    deadline = datetime.fromisoformat(tool_result["application_deadline"])
+    if deadline.tzinfo is None:
+        deadline = deadline.replace(tzinfo=timezone.utc)
+
+    return {
+        "generated_jd": tool_result["generated_jd"],
+        "role": tool_result["role"],
+        "application_deadline": deadline,
+    }
 
 
 def confirm_draft_node(state: JobAgentState) -> dict:
@@ -39,9 +67,9 @@ def confirm_draft_node(state: JobAgentState) -> dict:
     )
     return {"confirmed": answer == "yes"}
 
+
 def create_draft_node(state: JobAgentState, config: RunnableConfig) -> dict:
     current_user = config["configurable"]["current_user"]
-
 
     job_data = JobCreate(
         role=state["role"],
@@ -51,9 +79,7 @@ def create_draft_node(state: JobAgentState, config: RunnableConfig) -> dict:
 
     db = SessionLocal()
     created_job = JobService.create_job(
-        current_user=current_user,
-        db=db,
-        job_data=job_data,
+        current_user=current_user, db=db, job_data=job_data
     )
 
     return {
@@ -61,12 +87,13 @@ def create_draft_node(state: JobAgentState, config: RunnableConfig) -> dict:
         "messages": [
             AIMessage(
                 content=(
-                    f"✅ Draft job created successfully (ID: {created_job.job_id}).\n\n"
+                    f"Draft job created successfully (ID: {created_job.job_id}).\n\n"
                     f"{state['generated_jd']}"
                 )
             )
         ],
     }
+
 
 def decline_draft_node(state: JobAgentState) -> dict:
     return {"messages": [AIMessage(content="Okay, I won't create a draft.")]}

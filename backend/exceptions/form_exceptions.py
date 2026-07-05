@@ -60,3 +60,11 @@ class FormCannotBeClosedError(FormException):
             message="Only open forms can be closed.",
             status_code=status.HTTP_400_BAD_REQUEST,
         )
+        
+
+class InvalidExpiryDateError(AppException):
+    def __init__(self):
+        super().__init__(
+            message="The expiry date must be in the future.",
+            status_code=400,
+        )

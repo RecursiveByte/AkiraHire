@@ -32,7 +32,11 @@ class JobDescriptionService:
             )
 
             logger.info("Job description generated successfully.")
-
+            
+            print("\n")
+            
+            print(response)
+            print("\n")
             return response
 
         except Exception:
