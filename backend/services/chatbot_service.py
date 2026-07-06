@@ -19,7 +19,12 @@ from exceptions.chatbot_exceptions import UnknownAgentError
 from repositories.chat_session_repository import ChatSessionRepository
 from schemas.auth_schema import CurrentUser
 from schemas.chat_schema import AssistantResponse
-from services.response_classifier_service import ResponseClassifierService, ResponseDecision
+
+from services.chat_message_service import ChatMessageService
+from services.response_classifier_service import (
+    ResponseClassifierService,
+    ResponseDecision,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +38,7 @@ AGENT_GRAPHS: dict[AgentType, Any] = {
 
 
 class ChatbotService:
-
+    
     @staticmethod
     def handle_message(
         db: Session,
@@ -47,6 +52,13 @@ class ChatbotService:
                 "current_user": current_user,
             }
         }
+
+        ChatMessageService.save_message(
+            db=db,
+            thread_id=thread_id,
+            role="user",
+            content=message,
+        )
 
         active_agent = ChatSessionRepository.get_active_agent(db, thread_id)
 
@@ -86,12 +98,6 @@ class ChatbotService:
             config=config,
         )
 
-    @staticmethod
-    def get_interrupt_payload(snapshot: StateSnapshot) -> dict | None:
-        for task in snapshot.tasks:
-            if task.interrupts:
-                return task.interrupts[0].value
-        return None
 
     @staticmethod
     def handle_pending_interrupt(
@@ -110,38 +116,96 @@ class ChatbotService:
                 "Expected interrupt payload but found none for thread_id=%s — clearing stale state",
                 thread_id,
             )
+
             ChatSessionRepository.set_active_agent(db, thread_id, None)
-            return AssistantResponse(
-                role="assistant",
-                content="It looks like the previous action was already resolved or something went wrong. Please try your request again.",
+
+            content = (
+                "It looks like the previous action was already resolved or "
+                "something went wrong. Please try your request again."
             )
 
-        print("RAW MESSAGE RECEIVED:", repr(message))
+            ChatMessageService.save_message(
+                db=db,
+                thread_id=thread_id,
+                role="assistant",
+                content=content,
+            )
+
+            return AssistantResponse(
+                role="assistant",
+                content=content,
+            )
+
         decision = ResponseClassifierService.classify(message)
-        print("CLASSIFIED AS:", decision)
 
         if decision == ResponseDecision.YES:
             logger.info("Resuming thread_id=%s with YES", thread_id)
-            result = graph.invoke(Command(resume=message), config=config)
-            ChatbotService.sync_active_agent(db, thread_id, active_agent, graph, config)
-            return ChatbotService.format_response(result)
+
+            result = graph.invoke(
+                Command(resume=message),
+                config=config,
+            )
+
+            ChatbotService.sync_active_agent(
+                db=db,
+                thread_id=thread_id,
+                agent_value=active_agent,
+                graph=graph,
+                config=config,
+            )
+
+            return ChatbotService.format_response(
+                db=db,
+                thread_id=thread_id,
+                result=result,
+            )
 
         if decision == ResponseDecision.NO:
             logger.info("Resuming thread_id=%s with NO", thread_id)
-            result = graph.invoke(Command(resume=message), config=config)
-            ChatSessionRepository.set_active_agent(db, thread_id, None)
-            return ChatbotService.format_response(result)
 
-        logger.info("Unclear reply for thread_id=%s — not invoking graph", thread_id)
+            result = graph.invoke(
+                Command(resume=message),
+                config=config,
+            )
+
+            ChatSessionRepository.set_active_agent(
+                db,
+                thread_id,
+                None,
+            )
+
+            return ChatbotService.format_response(
+                db=db,
+                thread_id=thread_id,
+                result=result,
+            )
+
+        logger.info(
+            "Unclear reply for thread_id=%s — not invoking graph",
+            thread_id,
+        )
+
         question = interrupt_payload.get("question", "Please confirm.")
         summary = interrupt_payload.get("summary", "")
+
         content = (
             f"{summary}\n\n{question}\n\nPlease reply with 'yes' or 'no' only."
             if summary
             else f"{question}\n\nPlease reply with 'yes' or 'no' only."
         )
 
-        return AssistantResponse(role="assistant", content=content)
+        ChatMessageService.save_message(
+            db=db,
+            thread_id=thread_id,
+            role="assistant",
+            content=content,
+        )
+
+        return AssistantResponse(
+            role="assistant",
+            content=content,
+        )
+
 
     @staticmethod
     def route_fresh_message(
@@ -154,13 +218,18 @@ class ChatbotService:
         router_result = router_graph.invoke(
             {"messages": [HumanMessage(content=message)]}
         )
+
         agent: AgentType = router_result["agent"]
 
         graph = AGENT_GRAPHS.get(agent)
         if graph is None:
             raise UnknownAgentError(agent.value)
 
-        logger.info("Routing thread_id=%s to agent=%s", thread_id, agent.value)
+        logger.info(
+            "Routing thread_id=%s to agent=%s",
+            thread_id,
+            agent.value,
+        )
 
         result = graph.invoke(
             {"messages": [HumanMessage(content=message)]},
@@ -170,7 +239,11 @@ class ChatbotService:
         snapshot = graph.get_state(config)
 
         if snapshot.next:
-            ChatSessionRepository.set_active_agent(db, thread_id, agent.value)
+            ChatSessionRepository.set_active_agent(
+                db,
+                thread_id,
+                agent.value,
+            )
 
             interrupt_payload = ChatbotService.get_interrupt_payload(snapshot)
 
@@ -179,20 +252,70 @@ class ChatbotService:
                     "Expected interrupt payload but found none for thread_id=%s",
                     thread_id,
                 )
-                ChatSessionRepository.set_active_agent(db, thread_id, None)
-                return AssistantResponse(
-                    role="assistant",
-                    content="Something went wrong with the previous action. Please try your request again.",
+
+                ChatSessionRepository.set_active_agent(
+                    db,
+                    thread_id,
+                    None,
                 )
 
-            question = interrupt_payload.get("question", "Please confirm.")
-            summary = interrupt_payload.get("summary", "")
+                content = (
+                    "It looks like the previous action was already resolved "
+                    "or something went wrong. Please try your request again."
+                )
 
-            content = f"{summary}\n\n{question}" if summary else question
-            return AssistantResponse(role="assistant", content=content)
+                ChatMessageService.save_message(
+                    db=db,
+                    thread_id=thread_id,
+                    role="assistant",
+                    content=content,
+                )
 
-        ChatSessionRepository.set_active_agent(db, thread_id, None)
-        return ChatbotService.format_response(result)
+                return AssistantResponse(
+                    role="assistant",
+                    content=content,
+                )
+
+            question = interrupt_payload.get(
+                "question",
+                "Please confirm.",
+            )
+
+            summary = interrupt_payload.get(
+                "summary",
+                "",
+            )
+
+            content = (
+                f"{summary}\n\n{question}"
+                if summary
+                else question
+            )
+
+            ChatMessageService.save_message(
+                db=db,
+                thread_id=thread_id,
+                role="assistant",
+                content=content,
+            )
+
+            return AssistantResponse(
+                role="assistant",
+                content=content,
+            )
+
+        ChatSessionRepository.set_active_agent(
+            db,
+            thread_id,
+            None,
+        )
+
+        return ChatbotService.format_response(
+            db=db,
+            thread_id=thread_id,
+            result=result,
+        )
+
 
     @staticmethod
     def sync_active_agent(
@@ -210,16 +333,52 @@ class ChatbotService:
                 thread_id,
                 agent_value,
             )
-            ChatSessionRepository.set_active_agent(db, thread_id, agent_value)
+
+            ChatSessionRepository.set_active_agent(
+                db,
+                thread_id,
+                agent_value,
+            )
+
         else:
             logger.info(
                 "Graph completed for thread_id=%s agent=%s — clearing active",
                 thread_id,
                 agent_value,
             )
-            ChatSessionRepository.set_active_agent(db, thread_id, None)
+
+            ChatSessionRepository.set_active_agent(
+                db,
+                thread_id,
+                None,
+            )
+
 
     @staticmethod
-    def format_response(result: dict) -> AssistantResponse:
+    def format_response(
+        db: Session,
+        thread_id: str,
+        result: dict,
+    ) -> AssistantResponse:
         last_message: BaseMessage = result["messages"][-1]
-        return AssistantResponse(role="assistant", content=last_message.content)
+
+        response = AssistantResponse(
+            role="assistant",
+            content=last_message.content,
+        )
+
+        ChatMessageService.save_message(
+            db=db,
+            thread_id=thread_id,
+            role=response.role,
+            content=response.content,
+        )
+
+        return response
+    
+    @staticmethod
+    def get_interrupt_payload(snapshot: StateSnapshot) -> dict | None:
+        for task in snapshot.tasks:
+            if task.interrupts:
+                return task.interrupts[0].value
+        return None

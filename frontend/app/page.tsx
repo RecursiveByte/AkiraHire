@@ -1,14 +1,19 @@
-"use client"
-import { usePathname } from "next/navigation";
-import path from "path";
+import Hero  from "@/components/home/Hero";
+import  Navbar  from "@/components/home/Navbar";
+import  FeaturesGrid  from "@/components/home/FeaturesGrid";
+import  Footer  from "@/components/home/Footer";
 
-export default function Home() {
-
-  const pathName = usePathname();
-  console.log(pathName)
+export default function HomePage() {
   return (
     <>
-      <div className="bg-red-500">hello</div>
+      <Navbar />
+      <main className="grow pt-24 pb-12">
+        <div className="max-w-300 mx-auto px-4 md:px-16">
+          <Hero />
+          <FeaturesGrid />
+        </div>
+      </main>
+      <Footer />
     </>
   );
 }

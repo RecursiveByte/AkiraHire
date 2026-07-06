@@ -11,3 +11,10 @@ class ChatRequest(BaseModel):
 class AssistantResponse(BaseModel):
     role: Literal["assistant"]
     content: str
+    
+class ChatMessageResponse(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str
+
+class ChatHistoryResponse(BaseModel):
+    messages: list[ChatMessageResponse]
