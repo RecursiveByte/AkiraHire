@@ -33,6 +33,7 @@ class JobRepository:
 
         return db.query(Job).filter(Job.job_id == job_id).first()
 
+
     @staticmethod
     def get_all(
         db: Session,

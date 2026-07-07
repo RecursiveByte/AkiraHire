@@ -38,7 +38,7 @@ const FEATURES = [
 
 export function DashboardFeaturesGrid() {
   return (
-    <div className="glass-card rounded-[24px] p-8 border border-white/10 bg-white/[0.01]">
+    <div className="glass-card rounded-3xl p-8 border border-white/10 bg-white/1">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {FEATURES.map((feature) => (
           <DashboardFeatureCard key={feature.title} {...feature} />

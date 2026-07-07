@@ -64,6 +64,21 @@ def create_job(
         job_data=job_data,
     )
 
+@router.get(
+    "/recruiter/",
+    response_model=list[JobResponse],
+)
+def get_jobs_by_recruiter_id(
+    db: Session = Depends(get_db),
+     current_user: CurrentUser = Depends(
+     require_role(UserRole.RECRUITER),
+ ),
+):
+    print("here")
+    return JobService.get_jobs_by_recruiter_id(
+        db=db,
+        recruiter_id=current_user.user_id,
+    )
 
 @router.get(
     "/{job_id}",

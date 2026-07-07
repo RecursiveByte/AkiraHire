@@ -2,7 +2,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from database.models.form import Form
-
+from database.models.job import Job
 
 class FormRepository:
 
@@ -50,7 +50,18 @@ class FormRepository:
             .filter(Form.job_id == job_id)
             .first()
         )
-
+        
+    @staticmethod
+    def get_forms_by_recruiter_id(
+        db: Session,
+        recruiter_id: int,
+    ) -> list[Form]:
+        return (
+            db.query(Form)
+            .join(Job, Form.job_id == Job.job_id)
+            .filter(Job.recruiter_id == recruiter_id)
+            .all()
+        )
 
     @staticmethod
     def update(

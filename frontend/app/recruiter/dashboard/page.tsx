@@ -1,4 +1,4 @@
-import { DashboardFeaturesGrid } from "@/components/dashboard/DashboardFeaturesGrid";
+import { DashboardFeaturesGrid } from "@/components/recruiter/dashboard/DashboardFeaturesGrid";
 
 export default function RecruiterDashboardPage() {
   return (

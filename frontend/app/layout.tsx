@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Toaster } from "sonner";
+
+
 
 export const metadata: Metadata = {
   title: "AkiraHire | AI Recruitment Reimagined",
   description: "Sovereign AI agents that source, screen, and schedule top-tier talent.",
 };
+
+
 
 export default function RootLayout({
   children,
@@ -23,6 +28,7 @@ export default function RootLayout({
       </head>
       <body className="font-inter text-[14px] overflow-x-hidden min-h-screen flex flex-col bg-black text-white antialiased">
         {children}
+      <Toaster richColors position="top-right" />
       </body>
     </html>
   );

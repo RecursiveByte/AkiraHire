@@ -3,6 +3,7 @@ import  Navbar  from "@/components/home/Navbar";
 import  FeaturesGrid  from "@/components/home/FeaturesGrid";
 import  Footer  from "@/components/home/Footer";
 
+
 export default function HomePage() {
   return (
     <>

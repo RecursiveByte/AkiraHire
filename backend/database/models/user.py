@@ -15,7 +15,7 @@ class User(Base):
     name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False, index=True)
     password_hash = Column(String, nullable=True)
-    
+
     role = Column(Enum(UserRole), default=UserRole.CANDIDATE, nullable=False)
 
     is_active = Column(Boolean, default=True)
@@ -28,7 +28,11 @@ class User(Base):
     )
 
     connected_accounts = relationship(
-        "ConnectedAccount",
+        "ConnectedAccount", back_populates="user", cascade="all, delete"
+    )
+
+    chat_threads = relationship(
+        "ChatThread",
         back_populates="user",
-        cascade="all, delete"
+        cascade="all, delete-orphan",
     )

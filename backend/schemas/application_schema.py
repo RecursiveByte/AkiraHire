@@ -15,6 +15,8 @@ class CandidateProfileRequest(BaseModel):
     resume_url: str
 
 
+
+
 class ApplicationLinkRequest(BaseModel):
     id: str
     url: str

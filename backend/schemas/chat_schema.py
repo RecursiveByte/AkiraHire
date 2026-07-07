@@ -1,7 +1,9 @@
-from typing import Literal
+from typing import Literal,Optional
 
 from pydantic import BaseModel
 
+from uuid import UUID
+from datetime import datetime
 
 class ChatRequest(BaseModel):
     thread_id: str
@@ -18,3 +20,13 @@ class ChatMessageResponse(BaseModel):
 
 class ChatHistoryResponse(BaseModel):
     messages: list[ChatMessageResponse]
+
+
+class ChatRequest(BaseModel):
+    thread_id: Optional[str] = None
+    message: str
+    
+class ChatThreadResponse(BaseModel):
+    id: UUID
+    title: str
+    updated_at: datetime

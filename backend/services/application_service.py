@@ -8,9 +8,7 @@ from repositories.application_repository import (
     ApplicationRepository,
 )
 
-from repositories.candidate_repository import (
-    CandidateRepository
-)
+from repositories.candidate_repository import CandidateRepository
 
 from repositories.application_link_repository import (
     ApplicationLinksRepository,
@@ -28,6 +26,8 @@ from services.candidate_service import (
     CandidateService,
 )
 
+from services.form_service import FormService
+
 from services.application_links_service import (
     ApplicationLinksService,
 )
@@ -42,7 +42,12 @@ from schemas.application_schema import (
     UpdateApplicationRequest,
     UpdateApplicationResponse,
     DeleteApplicationResponse,
+    GetApplicationResponse,
+    ApplicationLinkRequest,
+    CandidateProfileRequest,
+    ApplicationAnswerRequest,
 )
+
 
 from exceptions.application_exceptions import ApplicationNotFoundError
 
@@ -50,9 +55,7 @@ from exceptions.form_exceptions import (
     FormNotFoundError,
 )
 
-from exceptions.application_exceptions import (
-    CandidateProfileNotFoundError
-)
+from exceptions.application_exceptions import CandidateProfileNotFoundError
 
 from schemas.auth_schema import CurrentUser
 
@@ -62,7 +65,7 @@ logger = get_logger(__name__)
 
 
 class ApplicationService:
-   
+
     @staticmethod
     def create_application(
         current_user: CurrentUser,
@@ -70,9 +73,7 @@ class ApplicationService:
         db: Session,
     ) -> CreateApplicationResponse:
 
-        logger.info(
-            f"Creating application for form_id={payload.form_id}."
-        )
+        logger.info(f"Creating application for form_id={payload.form_id}.")
 
         form = FormRepository.get_by_id(
             db=db,
@@ -81,25 +82,19 @@ class ApplicationService:
 
         if not form:
 
-            logger.warning(
-                f"Form not found. form_id={payload.form_id}"
-            )
+            logger.warning(f"Form not found. form_id={payload.form_id}")
 
             raise FormNotFoundError()
 
-        candidate_profile = (
-            CandidateRepository.get_by_user_id(
-                db=db,
-                user_id=current_user.user_id,
-            )
+        candidate_profile = CandidateRepository.get_by_user_id(
+            db=db,
+            user_id=current_user.user_id,
         )
-        
 
         if not candidate_profile:
 
             logger.warning(
-                f"Candidate profile not found. "
-                f"user_id={current_user.user_id}"
+                f"Candidate profile not found. " f"user_id={current_user.user_id}"
             )
 
             raise CandidateProfileNotFoundError()
@@ -109,11 +104,9 @@ class ApplicationService:
             candidate_id=candidate_profile.candidate_id,
         )
 
-        created_application = (
-            ApplicationRepository.create(
-                db=db,
-                application=application,
-            )
+        created_application = ApplicationRepository.create(
+            db=db,
+            application=application,
         )
 
         ApplicationLinksService.create_links(
@@ -214,6 +207,151 @@ class ApplicationService:
             submitted_at=application.submitted_at,
         )
 
+    @staticmethod
+    def get_application_by_id(
+        application_id: int,
+        db: Session,
+    ) -> GetApplicationResponse:
+        print("in applic")
+
+        application = ApplicationRepository.get_by_id(
+            db=db,
+            application_id=application_id,
+        )
+
+        if application is None:
+            raise ApplicationNotFoundError()
+
+        candidate_profile = CandidateService.get_candidate_profile_by_application_id(
+            db=db,
+            application_id=application_id,
+        )
+
+        application_links = ApplicationLinksRepository.get_by_application_id(
+            db=db,
+            application_id=application_id,
+        )
+
+        application_answers = ApplicationQuestionRepository.get_by_application_id(
+            db=db,
+            application_id=application_id,
+        )
+
+        return GetApplicationResponse(
+            application_id=application.application_id,
+            form_id=application.form_id,
+            candidate_profile=CandidateProfileRequest(
+                full_name=candidate_profile.full_name,
+                email=candidate_profile.email,
+                phone=candidate_profile.phone,
+                resume_url=candidate_profile.resume_url,
+            ),
+            links=[
+                ApplicationLinkRequest(
+                    id=link["id"],
+                    url=link["url"],
+                )
+                for link in application_links.links_json
+            ],
+            answers=[
+                ApplicationAnswerRequest(
+                    id=answer["id"],
+                    answer=answer["answer"],
+                )
+                for answer in application_answers.answers_json
+            ],
+            submitted_at=application.submitted_at,
+        )
+
+    @staticmethod
+    def get_applications_by_recruiter_id(
+        recruiter_id: int,
+        db: Session,
+    ):
+        return ApplicationRepository.get_by_recruiter_id(
+            db=db,
+            recruiter_id=recruiter_id,
+        )
+
+    @staticmethod
+    def get_application_with_form(
+        application_id: int,
+        db: Session,
+    ):
+        application = ApplicationService.get_application_by_id(
+            application_id=application_id,
+            db=db,
+        )
+
+        form = FormService.get_form_by_id(
+            form_id=application.form_id,
+            db=db,
+        )
+
+        link_map = {link.id: link.url for link in application.links}
+
+        answer_map = {answer.id: answer.answer for answer in application.answers}
+
+        merged_links = []
+
+        for link in form.form_schema_json.links:
+            merged_links.append(
+                {
+                    "id": link.id,
+                    "label": link.label,
+                    "required": link.required,
+                    "value": link_map.get(link.id),
+                }
+            )
+
+        merged_questions = []
+
+        for question in form.form_schema_json.additional_questions:
+            merged_questions.append(
+                {
+                    "id": question.id,
+                    "question": question.question,
+                    "type": question.type,
+                    "required": question.required,
+                    "options": question.options,
+                    "accepted_file_types": question.accepted_file_types,
+                    "answer": answer_map.get(question.id),
+                }
+            )
+
+        return {
+            "application_id": application.application_id,
+            "submitted_at": application.submitted_at,
+            "candidate_profile": application.candidate_profile,
+            "form": {
+                "form_id": form.form_id,
+                "job_id": form.job_id,
+                "title": form.title,
+                "description": form.form_schema_json.description,
+                "status": form.status,
+            },
+            "links": merged_links,
+            "questions": merged_questions,
+        }
+
+
+    @staticmethod
+    def get_recruiter_applications(
+        recruiter_id: int,
+        db: Session,
+    ):
+        application_ids = ApplicationService.get_applications_by_recruiter_id(
+            recruiter_id=recruiter_id,
+            db=db,
+        )
+
+        return [
+            ApplicationService.get_application_with_form(
+                application_id=application["application_id"],
+                db=db,
+            )
+            for application in application_ids
+        ]
 
     @staticmethod
     def delete_application(

@@ -53,3 +53,11 @@ def evaluate_application(
             db=db,
         )
     )
+    
+@router.get("/")
+def get_all_application_evaluations(
+    db: Session = Depends(get_db),
+):
+    return ApplicationEvaluationService.get_all_evaluations(
+        db=db,
+    )

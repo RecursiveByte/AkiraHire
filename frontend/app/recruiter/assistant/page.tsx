@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { AssistantHeader } from "@/components/recruiter/assistant/AssistantHeader";
 import { ChatArea } from "@/components/recruiter/assistant/ChatArea";
 import { ChatInput } from "@/components/recruiter/assistant/ChatInput";
 import { HistorySidebar } from "@/components/recruiter/assistant/HistorySidebar";
-import { threadId } from "worker_threads";
+import { toast } from "sonner";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL!;
 
@@ -29,17 +30,25 @@ export default function RecruiterAssistantPage() {
   const [isThinking, setIsThinking] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isHistoryOpen, setIsHistoryOpen] = useState(true);
-  const [threadId,setThreadId] = useState("873f84d4-0253-434b-acea-d9ef782f2ef7")
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const threadId = searchParams.get("thread");
 
   useEffect(() => {
-    // fetchConversations();
+    fetchConversations();
   }, []);
 
+  const accessToken =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzIiwidXNlcl9pZCI6Mywicm9sZSI6InJlY3J1aXRlciIsImVtYWlsIjoicmVjcnV0MUBleGFtcGxlLmNvbSIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3ODMzNjUxNzUsImV4cCI6MTc4MzM3MjM3NX0.CZmDxjGg0MOrjX6SqxdMiTyzkgjYhCA2oeuNm4yhrJw";
 
   useEffect(() => {
     if (threadId) {
-      console.log("fetching..")
       fetchMessages(threadId);
+    } else {
+      setMessages([]);
+      setIsLoading(false);
     }
   }, [threadId]);
 
@@ -48,6 +57,10 @@ export default function RecruiterAssistantPage() {
       setIsLoading(true);
 
       const res = await fetch(`${BACKEND_URL}/chatbot/conversations/`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
         credentials: "include",
       });
 
@@ -60,8 +73,11 @@ export default function RecruiterAssistantPage() {
       if (data.length > 0) {
         setActiveId(data[0].id);
       }
+      toast.success("data fetching successfull");
     } catch (err) {
+      console.log("here");
       console.error(err);
+      toast.error("something went wrong");
     } finally {
       setIsLoading(false);
     }
@@ -79,15 +95,28 @@ export default function RecruiterAssistantPage() {
       if (!res.ok) throw new Error("Failed to load messages");
 
       const data = await res.json();
-      setIsLoading(false)
       setMessages(data.messages ?? []);
     } catch (err) {
       console.error(err);
+      toast.error("Unable to load chat history.", {
+        description: "Please check your connection or try again in a moment.",
+        duration: 5000,
+      });
+    } finally {
+      setIsLoading(false);
     }
   }
 
   async function handleSendMessage(text: string) {
-    if (!activeId || isThinking) return;
+    if (isThinking) return;
+
+    let currentThreadId = threadId;
+
+    if (!currentThreadId) {
+      currentThreadId = crypto.randomUUID();
+
+      router.replace(`/recruiter/assistant?thread=${currentThreadId}`);
+    }
 
     const userMessage: Message = {
       id: crypto.randomUUID(),
@@ -105,29 +134,59 @@ export default function RecruiterAssistantPage() {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzIiwidXNlcl9pZCI6Mywicm9sZSI6InJlY3J1aXRlciIsImVtYWlsIjoicmVjcnV0MUBleGFtcGxlLmNvbSIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3ODMzNjUxNzUsImV4cCI6MTc4MzM3MjM3NX0.CZmDxjGg0MOrjX6SqxdMiTyzkgjYhCA2oeuNm4yhrJw"}`,
         },
         body: JSON.stringify({
-          thread_id: activeId,
+          thread_id: currentThreadId,
           message: text,
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to send message");
+      if (!res.ok) {
+        throw new Error("Failed to send message");
+      }
 
       const assistant = await res.json();
 
       setMessages((prev) => [
         ...prev,
         {
-          id: assistant.id,
+          id: crypto.randomUUID(),
           role: "assistant",
           content: assistant.content,
         },
       ]);
     } catch (err) {
       console.error(err);
+
+      toast.error("Unable to send message.", {
+        description: "Please try again.",
+      });
     } finally {
       setIsThinking(false);
+    }
+  }
+
+  function handleNewConversation() {
+    const newThreadId = crypto.randomUUID();
+
+    setMessages([]);
+    setActiveId("");
+    setIsThinking(false);
+
+    router.push(`/recruiter/assistant?thread=${newThreadId}`);
+  }
+
+  function handleSelectConversation(threadId: string) {
+    setActiveId(threadId);
+    console.log("clicke the convero")
+    setMessages([]);
+    setIsThinking(false);
+
+    router.push(`/recruiter/assistant?thread=${threadId}`);
+
+    if (window.innerWidth < 1024) {
+      setIsHistoryOpen(false);
     }
   }
 
@@ -144,10 +203,7 @@ export default function RecruiterAssistantPage() {
 
         {!isLoading && (
           <>
-            <ChatArea
-              messages={messages}
-              isThinking={isThinking}
-            />
+            <ChatArea messages={messages} isThinking={isThinking} />
 
             <ChatInput
               onSendMessage={handleSendMessage}
@@ -158,12 +214,13 @@ export default function RecruiterAssistantPage() {
       </div>
 
       <HistorySidebar
+        loading={isLoading}
         conversations={conversations}
         activeId={activeId}
-        onSelectConversation={setActiveId}
-        onNewConversation={() => {}}
+        onSelectConversation={handleSelectConversation}
+        onNewConversation={handleNewConversation}
         isOpen={isHistoryOpen}
-        setIsHistoryOpen = {setIsHistoryOpen}
+        setIsHistoryOpen={setIsHistoryOpen}
       />
     </section>
   );

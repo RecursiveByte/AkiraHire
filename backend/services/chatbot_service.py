@@ -26,6 +26,9 @@ from services.response_classifier_service import (
     ResponseDecision,
 )
 
+from services.chat_thread_service import ChatThreadService
+from repositories.chat_thread_repository import ChatThreadRepository
+
 logger = logging.getLogger(__name__)
 
 
@@ -46,12 +49,24 @@ class ChatbotService:
         message: str,
         current_user: CurrentUser,
     ) -> AssistantResponse:
+
+        thread = ChatThreadRepository.get_by_id(db, thread_id)
+
+        if thread is None:
+            ChatThreadService.create_thread(
+                db=db,
+                thread_id=thread_id,
+                current_user=current_user,
+                title="New Chat",
+            )
+            
         config = {
             "configurable": {
                 "thread_id": thread_id,
                 "current_user": current_user,
             }
         }
+        
 
         ChatMessageService.save_message(
             db=db,

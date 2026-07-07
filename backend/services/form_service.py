@@ -107,6 +107,16 @@ class FormService:
         )
 
     @staticmethod
+    def get_forms_by_recruiter_id(
+        db: Session,
+        recruiter_id: int,
+    ) -> list[Form]:
+        return FormRepository.get_forms_by_recruiter_id(
+            db=db,
+            recruiter_id=recruiter_id,
+        )
+
+    @staticmethod
     def get_form_by_job_id(
         job_id: int,
         db: Session,

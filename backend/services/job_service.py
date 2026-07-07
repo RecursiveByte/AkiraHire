@@ -124,6 +124,16 @@ class JobService:
             raise UnauthorizedRecruiterError()
 
     @staticmethod
+    def get_jobs_by_recruiter_id(
+        db: Session,
+        recruiter_id: int,
+    ) -> list[Job]:
+        return JobRepository.get_jobs_by_recruiter_id(
+            db=db,
+            recruiter_id=recruiter_id,
+        )
+
+    @staticmethod
     def update_job(
         job_id: int,
         current_user: CurrentUser,

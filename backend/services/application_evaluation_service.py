@@ -229,3 +229,11 @@ class ApplicationEvaluationService:
         )
 
         return application_evaluation
+    
+    @staticmethod
+    def get_all_evaluations(
+        db: Session,
+    ):
+        return ApplicationEvaluationRepository.get_all(
+            db=db,
+        )

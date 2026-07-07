@@ -2,7 +2,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from database.models.application import Application
-
+from database.models.form import Form
+from database.models.job import Job
 
 class ApplicationRepository:
 
@@ -52,6 +53,21 @@ class ApplicationRepository:
             )
             .all()
         )
+        
+    @staticmethod
+    def get_by_recruiter_id(
+        recruiter_id: int,
+        db: Session,
+    ) -> list[int]:
+        rows = (
+            db.query(Application.application_id)
+            .join(Form, Application.form_id == Form.form_id)
+            .join(Job, Form.job_id == Job.job_id)
+            .filter(Job.recruiter_id == recruiter_id)
+            .all()
+        )
+
+        return [{"application_id": row.application_id} for row in rows]
 
     @staticmethod
     def get_by_candidate_id(

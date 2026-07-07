@@ -88,6 +88,7 @@ def get_form_by_id(
     )
 
 
+
 @router.get(
     "/job/{job_id}",
     response_model=GetFormResponse,
@@ -102,6 +103,19 @@ def get_form_by_job_id(
     return FormService.get_form_by_job_id(
         job_id=job_id,
         db=db,
+    )
+    
+@router.get(
+    "/recruiter/",
+    response_model=list[GetFormResponse],
+)
+def get_my_forms(
+    current_user: dict = Depends(require_role(UserRole.RECRUITER)),
+    db: Session = Depends(get_db),
+):
+    return FormService.get_forms_by_recruiter_id(
+        db=db,
+        recruiter_id=current_user.user_id,
     )
 
 

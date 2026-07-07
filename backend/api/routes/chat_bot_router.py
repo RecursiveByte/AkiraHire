@@ -24,8 +24,13 @@ from schemas.auth_schema import CurrentUser
 from schemas.chat_schema import ChatRequest, AssistantResponse
 from services.chatbot_service import ChatbotService
 
+from services.chat_thread_service import ChatThreadService
+
 from schemas.chat_schema import ChatHistoryResponse
 from services.chat_message_service import ChatMessageService
+
+
+from  schemas.chat_schema import ChatThreadResponse
 
 router = APIRouter(
     prefix="/chatbot",
@@ -57,5 +62,18 @@ def chat(
         db=db,
         thread_id=request.thread_id,
         message=request.message,
+        current_user=current_user,
+    )
+
+@router.get(
+    "/conversations",
+    response_model=list[ChatThreadResponse],
+)
+def get_conversations(
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(require_role(UserRole.RECRUITER,UserRole.ADMIN)),
+):
+    return ChatThreadService.get_all_threads(
+        db=db,
         current_user=current_user,
     )

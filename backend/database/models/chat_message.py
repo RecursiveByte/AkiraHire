@@ -1,7 +1,9 @@
+import uuid
+
 from sqlalchemy import Column, DateTime, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-import uuid
 
 from database.base import Base
 
@@ -17,6 +19,7 @@ class ChatMessage(Base):
 
     thread_id = Column(
         UUID(as_uuid=True),
+        ForeignKey("chat_threads.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
@@ -36,4 +39,9 @@ class ChatMessage(Base):
         server_default=func.now(),
         nullable=False,
         index=True,
+    )
+
+    thread = relationship(
+        "ChatThread",
+        back_populates="messages",
     )
