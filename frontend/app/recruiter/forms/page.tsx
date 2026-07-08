@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { toast } from "sonner";
 import { useForms } from "@/hooks/useForms";
 import { useFormModal } from "@/hooks/useFormModal";
 import FormDetailModal from "@/components/recruiter/form-detail/FormDetailModal";
@@ -9,6 +11,19 @@ export default function FormsPage() {
   const { forms, isLoading, error, refetch } = useForms();
   const { selectedForm, openForm, closeForm } = useFormModal(forms);
 
+  useEffect(() => {
+    if (error) {
+      toast.error(error, {
+        action: {
+          label: "Retry",
+          onClick: refetch,
+        },
+      });
+    }
+  }, [error, refetch]);
+
+  const showSkeleton = isLoading || (!!error && forms.length === 0);
+
   return (
     <div className="max-w-[1200px] mx-auto p-12 space-y-6">
       <div>
@@ -16,29 +31,13 @@ export default function FormsPage() {
         <p className="text-on-surface-variant">Manage application forms tied to your jobs.</p>
       </div>
 
-      {error && (
-        <div className="glass-panel rounded-xl p-6 flex items-center justify-between text-sm">
-          <span className="text-error">{error}</span>
-          <button onClick={refetch} className="text-primary underline">
-            Retry
-          </button>
-        </div>
-      )}
-
-      {isLoading ? (
-        <div className="glass-panel rounded-xl p-12 text-center text-on-surface-variant">
-          Loading forms...
-        </div>
-      ) : (
-        !error && (
-          <FormsTable
-            forms={forms}
-            onSelectForm={openForm}
-            onDeleteForm={(id) => console.log("Delete form", id)}
-            onPublishForm={(id) => console.log("Publish form", id)}
-          />
-        )
-      )}
+      <FormsTable
+        forms={forms}
+        isLoading={showSkeleton}
+        onSelectForm={openForm}
+        onDeleteForm={(id) => console.log("Delete form", id)}
+        onPublishForm={(id) => console.log("Publish form", id)}
+      />
 
       {selectedForm && (
         <FormDetailModal

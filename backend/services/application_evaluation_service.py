@@ -6,7 +6,13 @@ from core.document.service import (
     ResumeService,
 )
 
-from schemas.application_evaluation_schema import ApplicationEvaluationContext
+from schemas.application_evaluation_schema import (
+    ApplicationEvaluationContext,
+    ApplicationLinkRequest,
+    ApplicationAnswerRequest,
+)
+
+from schemas.form_schema import GetFormResponse
 
 from repositories.application_repository import (
     ApplicationRepository,
@@ -42,6 +48,8 @@ from exceptions.application_evaluation_exceptions import (
     ApplicationEvaluationFailedError,
 )
 
+from schemas.form_schema import GeneratedFormSchemaResponse
+
 from services.candidate_service import CandidateService
 
 from utils.logger import get_logger
@@ -58,9 +66,7 @@ class ApplicationEvaluationService:
         db: Session,
     ) -> EvaluateApplicationResponse:
 
-        logger.info(
-            f"Evaluating application. " f"application_id={application_id}"
-        )
+        logger.info(f"Evaluating application. " f"application_id={application_id}")
 
         existing_evaluation = ApplicationEvaluationRepository.get_by_application_id(
             db=db,
@@ -70,8 +76,7 @@ class ApplicationEvaluationService:
         if existing_evaluation:
 
             logger.warning(
-                f"Application already evaluated. "
-                f"application_id={application_id}"
+                f"Application already evaluated. " f"application_id={application_id}"
             )
 
             raise ApplicationAlreadyEvaluatedError()
@@ -105,8 +110,7 @@ class ApplicationEvaluationService:
         )
 
         logger.info(
-            f"Application evaluated successfully. "
-            f"application_id={application_id}"
+            f"Application evaluated successfully. " f"application_id={application_id}"
         )
 
         return EvaluateApplicationResponse(
@@ -118,7 +122,7 @@ class ApplicationEvaluationService:
 
     @staticmethod
     def _get_application_context(
-        application : Application,
+        application: Application,
         db: Session,
     ) -> ApplicationEvaluationContext:
 
@@ -150,15 +154,68 @@ class ApplicationEvaluationService:
             db=db,
             application_id=application.application_id,
         )
+        form_schema = GeneratedFormSchemaResponse.model_validate(form.form_schema_json)
+
+        answers = [
+            ApplicationAnswerRequest.model_validate(answer)
+            for answer in application_answers.answers_json
+        ]
+
+        links = [
+            ApplicationLinkRequest.model_validate(link)
+            for link in application_links.links_json
+        ]
+
+        formatted_answers, formatted_links = (
+            ApplicationEvaluationService._format_application_data(
+                form_schema=form_schema,
+                answers=answers,
+                links=links,
+            )
+        )
 
         return ApplicationEvaluationContext(
             job_description=job.job_description,
             resume=resume_content,
-            answers=application_answers.answers_json,
-            links=application_links.links_json,
+            answers=formatted_answers,
+            links=formatted_links,
             candidate_name=candidate_profile.full_name,
             candidate_email=candidate_profile.email,
         )
+
+    @staticmethod
+    def _format_application_data(
+        form_schema: GetFormResponse,
+        answers: list[ApplicationAnswerRequest],
+        links: list[ApplicationLinkRequest],
+    ) -> tuple[list, list]:
+
+        answer_map = {answer.id: answer.answer for answer in answers}
+
+        link_map = {link.id: link.url for link in links}
+
+        formatted_answers = []
+
+        for question in form_schema.additional_questions:
+            formatted_answers.append(
+                {
+                    "question": question.question,
+                    "type": question.type,
+                    "answer": answer_map.get(question.id),
+                }
+            )
+
+        formatted_links = []
+
+        for link in form_schema.links:
+            formatted_links.append(
+                {
+                    "title": link.label,
+                    "url": link_map.get(link.id),
+                }
+            )
+
+        return formatted_answers, formatted_links
 
     @staticmethod
     def _evaluate_with_llm(
@@ -186,6 +243,10 @@ class ApplicationEvaluationService:
                 ),
             ]
         )
+        
+        print("\n")
+        print(response)
+        print("\n")
 
         cleaned_response = clean_json(
             response.content,
@@ -211,7 +272,7 @@ class ApplicationEvaluationService:
     ) -> ApplicationEvaluation:
 
         logger.info(f"Saving evaluation for application_id={application_id}.")
-
+            
         application_evaluation = ApplicationEvaluation(
             application_id=application_id,
             match_score=evaluation.match_score,
@@ -229,7 +290,7 @@ class ApplicationEvaluationService:
         )
 
         return application_evaluation
-    
+
     @staticmethod
     def get_all_evaluations(
         db: Session,

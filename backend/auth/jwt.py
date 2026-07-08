@@ -91,3 +91,12 @@ def verify_token(
     except jwt.JWTError:
 
         raise InvalidTokenError()
+    
+    
+def verify_refresh_token(token: str):
+    payload = verify_token(token)
+
+    if payload.get("type") != "refresh":
+        raise InvalidTokenError()
+
+    return payload

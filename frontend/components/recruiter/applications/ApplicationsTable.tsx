@@ -4,15 +4,19 @@ import { useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { Application } from "@/types/application.types";
 import ApplicationRow from "./ApplicationRow";
+import ApplicationRowSkeleton from "./ApplicationRowSkeleton";
+import { SKELETON_ROW_COUNT } from "@/constants/skeleton";
 
 interface ApplicationsTableProps {
   applications: Application[];
+  isLoading: boolean;
   onSelectApplication: (applicationId: number) => void;
   onDeleteApplication: (applicationId: number) => void;
 }
 
 export default function ApplicationsTable({
   applications,
+  isLoading,
   onSelectApplication,
   onDeleteApplication,
 }: ApplicationsTableProps) {
@@ -25,7 +29,7 @@ export default function ApplicationsTable({
     overscan: 6,
   });
 
-  if (applications.length === 0) {
+  if (!isLoading && applications.length === 0) {
     return (
       <div className="glass-panel rounded-xl p-12 text-center text-on-surface-variant">
         No applications to show yet.
@@ -64,29 +68,33 @@ export default function ApplicationsTable({
             </span>
           </div>
 
-          <div
-            className="relative w-full divide-y divide-white/5"
-            style={{ height: `${virtualizer.getTotalSize()}px` }}
-          >
-            {virtualizer.getVirtualItems().map((virtualRow) => {
-              const application = applications[virtualRow.index];
-              return (
-                <div
-                  key={application.applicationId}
-                  ref={virtualizer.measureElement}
-                  data-index={virtualRow.index}
-                  className="absolute top-0 left-0 w-full"
-                  style={{ transform: `translateY(${virtualRow.start}px)` }}
-                >
-                  <ApplicationRow
-                    application={application}
-                    onClick={onSelectApplication}
-                    onDelete={onDeleteApplication}
-                  />
-                </div>
-              );
-            })}
-          </div>
+          {isLoading ? (
+            Array.from({ length: SKELETON_ROW_COUNT }).map((_, i) => <ApplicationRowSkeleton key={i} />)
+          ) : (
+            <div
+              className="relative w-full divide-y divide-white/5"
+              style={{ height: `${virtualizer.getTotalSize()}px` }}
+            >
+              {virtualizer.getVirtualItems().map((virtualRow) => {
+                const application = applications[virtualRow.index];
+                return (
+                  <div
+                    key={application.applicationId}
+                    ref={virtualizer.measureElement}
+                    data-index={virtualRow.index}
+                    className="absolute top-0 left-0 w-full"
+                    style={{ transform: `translateY(${virtualRow.start}px)` }}
+                  >
+                    <ApplicationRow
+                      application={application}
+                      onClick={onSelectApplication}
+                      onDelete={onDeleteApplication}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>

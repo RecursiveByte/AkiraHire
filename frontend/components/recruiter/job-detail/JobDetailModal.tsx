@@ -17,6 +17,7 @@ export default function JobDetailModal({
   onPublish,
   onCloseJob,
 }: JobDetailModalProps) {
+
   return (
     <div className="  fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm">
       <div className="bg-black border border-white/10 shadow-2xl w-full max-w-lg rounded-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300">
@@ -55,7 +56,7 @@ export default function JobDetailModal({
               Job Description
             </p>
             <div className="border border-white/10 rounded-xl p-4 bg-surface-container">
-              <p className="scrollbar-hide text-on-surface leading-relaxed text-sm max-h-40 overflow-y-auto scrollbar-hide">
+              <p className="scrollbar-hide whitespace-pre-line text-on-surface leading-relaxed text-sm max-h-40 overflow-y-auto scrollbar-hide">
                 {job.description}
               </p>
             </div>

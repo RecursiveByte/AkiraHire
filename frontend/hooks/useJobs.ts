@@ -23,7 +23,6 @@ export function useJobs(): UseJobsResult {
       setError(null);
 
       try {
-          console.log("in hre")
         const data = await jobService.getRecruiterJobs();
         if (isMounted) setJobs(data);
     } catch (err) {

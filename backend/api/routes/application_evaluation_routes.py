@@ -57,6 +57,11 @@ def evaluate_application(
 @router.get("/")
 def get_all_application_evaluations(
     db: Session = Depends(get_db),
+                current_user: dict = Depends(
+
+    require_role(UserRole.RECRUITER)
+
+),
 ):
     return ApplicationEvaluationService.get_all_evaluations(
         db=db,

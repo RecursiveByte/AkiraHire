@@ -1,0 +1,48 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { AuthService } from "@/services/auth.service";
+import { useAuthStore } from "@/store/authStore";
+import axios from "axios";
+
+import type { LoginFormValues } from "@/lib/validators";
+
+export function useLogin() {
+  const router = useRouter();
+
+  const { setAccessToken, setUser } = useAuthStore();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function login(payload: LoginFormValues) {
+    setIsSubmitting(true);
+
+    try {
+      const { accessToken ,user} = await AuthService.login(payload);
+        
+      setAccessToken(accessToken);
+      setUser(user);
+
+      toast.success("Welcome back!");
+
+      router.push(
+        user.role === "recruiter" ? "/recruiter/dashboard" : "/dashboard"
+      );
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.detail ?? "Login failed.");
+      } else {
+        toast.error("Something went wrong.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return {
+    login,
+    isSubmitting,
+  };
+}

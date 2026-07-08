@@ -18,7 +18,7 @@ export function ChatMessage({
       }`}
     >
       <div
-        className={`max-w-3xl rounded-2xl px-5 py-4 text-sm leading-relaxed whitespace-pre-wrap break-words shadow-sm ${
+        className={`max-w-3xl rounded-2xl px-5 py-4 text-sm leading-relaxed whitespace-pre-wrap wrap-break-word shadow-sm ${
           isUser
             ? "rounded-br-md bg-blue-600 text-white"
             : "rounded-bl-md border border-white/10 bg-white/3 text-white"

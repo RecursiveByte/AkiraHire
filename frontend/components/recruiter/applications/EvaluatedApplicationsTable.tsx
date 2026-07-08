@@ -3,16 +3,22 @@
 import { useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import EvaluatedApplicationRow from "./EvaluatedApplicationRow";
+import EvaluatedApplicationRowSkeleton from "./EvaluatedApplicationRowSkeleton";
 import { Evaluation } from "@/types/evaluatedApplication.types";
+import { SKELETON_ROW_COUNT } from "@/constants/skeleton";
+
+
 
 interface EvaluatedApplicationsTableProps {
   evaluatedApplications: Evaluation[];
+  isLoading: boolean;
   onSelectEvaluation: (applicationId: number) => void;
   onDeleteEvaluation: (applicationId: number) => void;
 }
 
 export default function EvaluatedApplicationsTable({
   evaluatedApplications,
+  isLoading,
   onSelectEvaluation,
   onDeleteEvaluation,
 }: EvaluatedApplicationsTableProps) {
@@ -25,7 +31,7 @@ export default function EvaluatedApplicationsTable({
     overscan: 6,
   });
 
-  if (evaluatedApplications.length === 0) {
+  if (!isLoading && evaluatedApplications.length === 0) {
     return (
       <div className="glass-panel rounded-xl p-12 text-center text-on-surface-variant">
         No evaluated applications yet.
@@ -58,29 +64,33 @@ export default function EvaluatedApplicationsTable({
             </span>
           </div>
 
-          <div
-            className="relative w-full divide-y divide-white/5"
-            style={{ height: `${virtualizer.getTotalSize()}px` }}
-          >
-            {virtualizer.getVirtualItems().map((virtualRow) => {
-              const evaluatedApplication = evaluatedApplications[virtualRow.index];
-              return (
-                <div
-                  key={evaluatedApplication.applicationId}
-                  ref={virtualizer.measureElement}
-                  data-index={virtualRow.index}
-                  className="absolute top-0 left-0 w-full"
-                  style={{ transform: `translateY(${virtualRow.start}px)` }}
-                >
-                  <EvaluatedApplicationRow
-                    evaluatedApplication={evaluatedApplication}
-                    onClick={onSelectEvaluation}
-                    onDelete={onDeleteEvaluation}
-                  />
-                </div>
-              );
-            })}
-          </div>
+          {isLoading ? (
+            Array.from({ length: SKELETON_ROW_COUNT }).map((_, i) => <EvaluatedApplicationRowSkeleton key={i} />)
+          ) : (
+            <div
+              className="relative w-full divide-y divide-white/5"
+              style={{ height: `${virtualizer.getTotalSize()}px` }}
+            >
+              {virtualizer.getVirtualItems().map((virtualRow) => {
+                const evaluatedApplication = evaluatedApplications[virtualRow.index];
+                return (
+                  <div
+                    key={evaluatedApplication.applicationId}
+                    ref={virtualizer.measureElement}
+                    data-index={virtualRow.index}
+                    className="absolute top-0 left-0 w-full"
+                    style={{ transform: `translateY(${virtualRow.start}px)` }}
+                  >
+                    <EvaluatedApplicationRow
+                      evaluatedApplication={evaluatedApplication}
+                      onClick={onSelectEvaluation}
+                      onDelete={onDeleteEvaluation}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>

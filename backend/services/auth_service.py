@@ -1,6 +1,4 @@
-from fastapi import (
-    Request,
-)
+from fastapi import Request, HTTPException
 
 from fastapi.responses import JSONResponse
 
@@ -30,7 +28,7 @@ from exceptions.auth_exceptions import (
 
 from repositories.user_repository import UserRepository
 
-from schemas.auth_schema import RegisterRequest
+from schemas.auth_schema import RegisterRequest, CurrentUser,CurrentUserResponse
 
 from utils.cookies import (
     set_refresh_cookie,
@@ -43,13 +41,64 @@ from exceptions.auth_exceptions import (
     InvalidCredentialsError,
 )
 
+from auth.jwt import (
+    create_access_token,
+    verify_refresh_token,
+)
+
+from exceptions.auth_exceptions import InvalidTokenError
+
 from utils.password import hash_password
 
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+
 class AuthService:
+
+    @staticmethod
+    def refresh_access_token(request: Request, db: Session):
+
+        refresh_token = request.cookies.get("refresh_token")
+
+        if refresh_token is None:
+            raise InvalidTokenError()
+
+        payload = verify_refresh_token(refresh_token)
+
+        user = UserRepository.get_by_id(db, payload["user_id"])
+
+        access_token = create_access_token(
+            user_id=user.id,
+            role=user.role,
+            email=user.email,
+        )
+
+        return {"accessToken": access_token}
+
+    @staticmethod
+    def get_current_user(
+        current_user: CurrentUser,
+        db: Session,
+    ):
+        user = UserRepository.get_by_id(
+            db=db,
+            user_id=current_user.user_id,
+        )
+
+        if user is None:
+            raise HTTPException(
+                status_code=404,
+                detail="User not found.",
+            )
+
+        return CurrentUserResponse(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            role=user.role,
+        )
 
     @staticmethod
     def login(
@@ -73,17 +122,11 @@ class AuthService:
             )
         ):
 
-            logger.warning(
-                f"Invalid login attempt. email={payload.email}"
-            )
+            logger.warning(f"Invalid login attempt. email={payload.email}")
 
             raise InvalidCredentialsError()
 
-        access_token = create_access_token(
-            user.id,
-            user.role,
-            user.email
-        )
+        access_token = create_access_token(user.id, user.role, user.email)
 
         refresh_token = create_refresh_token(
             user.id,
@@ -91,7 +134,7 @@ class AuthService:
 
         response = JSONResponse(
             {
-                "access_token": access_token,
+                "accessToken": access_token,
                 "user": {
                     "id": user.id,
                     "name": user.name,
@@ -106,12 +149,10 @@ class AuthService:
             refresh_token=refresh_token,
         )
 
-        logger.info(
-            f"User logged in successfully. user_id={user.id}"
-        )
+        logger.info(f"User logged in successfully. user_id={user.id}")
 
-        return response       
-    
+        return response
+
     @staticmethod
     async def google_login(
         request: Request,
@@ -123,7 +164,6 @@ class AuthService:
             request=request,
             redirect_uri=settings.GOOGLE_LOGIN_CALLBACK_URI,
         )
-
 
     @staticmethod
     async def google_callback(
@@ -159,15 +199,9 @@ class AuthService:
                     user=user,
                 )
 
-                logger.info(
-                    f"New Google user created. user_id={user.id}"
-                )
+                logger.info(f"New Google user created. user_id={user.id}")
 
-            access_token = create_access_token(
-                user.id,
-                user.role,
-                user.email
-            )
+            access_token = create_access_token(user.id, user.role, user.email)
 
             refresh_token = create_refresh_token(
                 user.id,
@@ -189,20 +223,15 @@ class AuthService:
                 refresh_token=refresh_token,
             )
 
-            logger.info(
-                f"Google login successful. user_id={user.id}"
-            )
+            logger.info(f"Google login successful. user_id={user.id}")
 
             return response
 
         except Exception:
 
-            logger.exception(
-                "Google authentication failed."
-            )
+            logger.exception("Google authentication failed.")
 
             raise GoogleAuthenticationError()
-
 
     @staticmethod
     def register(
@@ -239,11 +268,7 @@ class AuthService:
             user=user,
         )
 
-        access_token = create_access_token(
-            user.id,
-            user.role,
-            user.email
-        )
+        access_token = create_access_token(user.id, user.role, user.email)
 
         refresh_token = create_refresh_token(
             user.id,
@@ -265,12 +290,9 @@ class AuthService:
             refresh_token=refresh_token,
         )
 
-        logger.info(
-            f"User registered successfully. user_id={user.id}"
-        )
+        logger.info(f"User registered successfully. user_id={user.id}")
 
         return response
-
 
     @staticmethod
     def logout(

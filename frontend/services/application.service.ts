@@ -1,4 +1,4 @@
-import { apiClient } from "@/lib/api/client";
+import { apiClient } from "@/lib/api/apiClient";
 import { ApiApplication } from "@/types/api/application.types";
 import { mapApiApplicationToApplication } from "@/lib/mappers/application.mapper";
 import { Application } from "@/types/application.types";

@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { toast } from "sonner";
 import { useApplications } from "@/hooks/useApplications";
 import { useApplicationModal } from "@/hooks/useApplicationModal";
 import { useEvaluatedApplications } from "@/hooks/useEvaluatedApplications";
@@ -8,6 +10,8 @@ import ApplicationsTable from "@/components/recruiter/applications/ApplicationsT
 import ApplicationDetailModal from "@/components/recruiter/application-detail/ApplicationDetailModal";
 import EvaluatedApplicationsTable from "@/components/recruiter/applications/EvaluatedApplicationsTable";
 import EvaluatedApplicationDetailModal from "@/components/recruiter/application-detail/EvaluatedApplicationDetailModal";
+
+
 
 export default function ApplicationsPage() {
   const { applications, isLoading, error, refetch } = useApplications();
@@ -26,6 +30,33 @@ export default function ApplicationsPage() {
     closeEvaluation,
   } = useEvaluatedApplicationModal(evaluatedApplications);
 
+  useEffect(() => {
+    if (error) {
+      toast.error(error, {
+        action: {
+          label: "Retry",
+          onClick: refetch,
+        },
+      });
+    }
+  }, [error, refetch]);
+
+  useEffect(() => {
+    if (evaluatedApplicationsError) {
+      toast.error(evaluatedApplicationsError, {
+        action: {
+          label: "Retry",
+          onClick: refetchEvaluatedApplications,
+        },
+      });
+    }
+  }, [evaluatedApplicationsError, refetchEvaluatedApplications]);
+
+  const showApplicationsSkeleton = isLoading || (!!error && applications.length === 0);
+  const showEvaluatedSkeleton =
+    isEvaluatedApplicationsLoading ||
+    (!!evaluatedApplicationsError && evaluatedApplications.length === 0);
+
   return (
     <div className="max-w-[1200px] mx-auto p-12 space-y-12">
       {/* Applications Section */}
@@ -35,28 +66,12 @@ export default function ApplicationsPage() {
           <p className="text-on-surface-variant">Review candidate submissions across your forms.</p>
         </div>
 
-        {error && (
-          <div className="glass-panel rounded-xl p-6 flex items-center justify-between text-sm">
-            <span className="text-error">{error}</span>
-            <button onClick={refetch} className="text-primary underline">
-              Retry
-            </button>
-          </div>
-        )}
-
-        {isLoading ? (
-          <div className="glass-panel rounded-xl p-12 text-center text-on-surface-variant">
-            Loading applications...
-          </div>
-        ) : (
-          !error && (
-            <ApplicationsTable
-              applications={applications}
-              onSelectApplication={openApplication}
-              onDeleteApplication={(id) => console.log("Delete application", id)}
-            />
-          )
-        )}
+        <ApplicationsTable
+          applications={applications}
+          isLoading={showApplicationsSkeleton}
+          onSelectApplication={openApplication}
+          onDeleteApplication={(id) => console.log("Delete application", id)}
+        />
       </section>
 
       {/* Evaluated Applications Section */}
@@ -66,28 +81,12 @@ export default function ApplicationsPage() {
           <p className="text-on-surface-variant">AI-generated match scores and evaluation outcomes.</p>
         </div>
 
-        {evaluatedApplicationsError && (
-          <div className="glass-panel rounded-xl p-6 flex items-center justify-between text-sm">
-            <span className="text-error">{evaluatedApplicationsError}</span>
-            <button onClick={refetchEvaluatedApplications} className="text-primary underline">
-              Retry
-            </button>
-          </div>
-        )}
-
-        {isEvaluatedApplicationsLoading ? (
-          <div className="glass-panel rounded-xl p-12 text-center text-on-surface-variant">
-            Loading evaluated applications...
-          </div>
-        ) : (
-          !evaluatedApplicationsError && (
-            <EvaluatedApplicationsTable
-              evaluatedApplications={evaluatedApplications}
-              onSelectEvaluation={openEvaluation}
-              onDeleteEvaluation={(id) => console.log("Delete evaluation", id)}
-            />
-          )
-        )}
+        <EvaluatedApplicationsTable
+          evaluatedApplications={evaluatedApplications}
+          isLoading={showEvaluatedSkeleton}
+          onSelectEvaluation={openEvaluation}
+          onDeleteEvaluation={(id) => console.log("Delete evaluation", id)}
+        />
       </section>
 
       {selectedApplication && (

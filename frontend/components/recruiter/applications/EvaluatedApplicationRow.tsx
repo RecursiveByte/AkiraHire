@@ -13,10 +13,11 @@ export default function EvaluatedApplicationRow({
   onClick,
   onDelete,
 }: EvaluatedApplicationRowProps) {
+
   return (
     <div
       onClick={() => onClick(evaluatedApplication.applicationId)}
-      className="flex flex-col gap-3 lg:grid lg:grid-cols-[100px_100px_1fr_140px_140px_60px] lg:gap-4 lg:items-center px-6 py-5 hover:bg-white/5 cursor-pointer transition-colors duration-200"
+      className="flex  flex-col gap-3 lg:grid lg:grid-cols-[100px_100px_1fr_140px_140px_60px] lg:gap-4 lg:items-center px-6 py-5 hover:bg-white/5 cursor-pointer transition-colors duration-200"
     >
       <div className="flex items-center justify-between lg:block lg:min-w-[100px]">
         <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/50 lg:hidden">
@@ -40,7 +41,7 @@ export default function EvaluatedApplicationRow({
         <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/50 lg:hidden block mb-1">
           Reasoning
         </span>
-        <p className="text-on-surface-variant/80 text-sm line-clamp-2 lg:pr-4">
+        <p className="text-on-surface-variant/80 whitespace-pre-line text-sm line-clamp-2 lg:pr-4">
           {evaluatedApplication.reasoning}
         </p>
       </div>

@@ -4,9 +4,12 @@ import { useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { Job } from "@/types/job.types";
 import JobRow from "./JobRow";
+import JobRowSkeleton from "./JobRowSkeleton";
+import { SKELETON_ROW_COUNT } from "@/constants/skeleton";
 
 interface JobsTableProps {
   jobs: Job[];
+  isLoading?: boolean;
   onSelectJob: (jobId: string) => void;
   onDeleteJob: (jobId: string) => void;
   onPublishJob: (jobId: string) => void;
@@ -14,6 +17,7 @@ interface JobsTableProps {
 
 export default function JobsTable({
   jobs,
+  isLoading = false,
   onSelectJob,
   onDeleteJob,
   onPublishJob,
@@ -27,7 +31,7 @@ export default function JobsTable({
     overscan: 6,
   });
 
-  if (jobs.length === 0) {
+  if (!isLoading && jobs.length === 0) {
     return (
       <div className="glass-panel rounded-xl p-12 text-center text-on-surface-variant">
         No jobs to show yet.
@@ -65,33 +69,41 @@ export default function JobsTable({
             </span>
           </div>
 
-          <div
-            className="relative w-full divide-y divide-white/5"
-            style={{ height: `${virtualizer.getTotalSize()}px` }}
-          >
-            {virtualizer.getVirtualItems().map((virtualRow) => {
-              const job = jobs[virtualRow.index];
+          {isLoading ? (
+            <div className="divide-y divide-white/5">
+              {Array.from({ length: SKELETON_ROW_COUNT }).map((_, i) => (
+                <JobRowSkeleton key={i} />
+              ))}
+            </div>
+          ) : (
+            <div
+              className="relative w-full divide-y divide-white/5"
+              style={{ height: `${virtualizer.getTotalSize()}px` }}
+            >
+              {virtualizer.getVirtualItems().map((virtualRow) => {
+                const job = jobs[virtualRow.index];
 
-              return (
-                <div
-                  key={job.jobId}
-                  ref={virtualizer.measureElement}
-                  data-index={virtualRow.index}
-                  className="absolute top-0 left-0 w-full"
-                  style={{
-                    transform: `translateY(${virtualRow.start}px)`,
-                  }}
-                >
-                  <JobRow
-                    job={job}
-                    onClick={onSelectJob}
-                    onDelete={onDeleteJob}
-                    onPublish={onPublishJob}
-                  />
-                </div>
-              );
-            })}
-          </div>
+                return (
+                  <div
+                    key={job.jobId}
+                    ref={virtualizer.measureElement}
+                    data-index={virtualRow.index}
+                    className="absolute top-0 left-0 w-full"
+                    style={{
+                      transform: `translateY(${virtualRow.start}px)`,
+                    }}
+                  >
+                    <JobRow
+                      job={job}
+                      onClick={onSelectJob}
+                      onDelete={onDeleteJob}
+                      onPublish={onPublishJob}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>

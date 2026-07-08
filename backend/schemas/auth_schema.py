@@ -58,3 +58,9 @@ class CurrentUser(BaseModel):
     role: UserRole
     email: EmailStr
     type: str
+    
+class CurrentUserResponse(BaseModel):
+    id: int
+    name: str
+    email: str
+    role: str

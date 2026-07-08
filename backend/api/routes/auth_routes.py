@@ -2,8 +2,6 @@ from fastapi import (
     APIRouter,
     Depends,
     Request,
-    UploadFile,
-    File,
 )
 
 from fastapi.responses import FileResponse
@@ -12,14 +10,11 @@ from sqlalchemy.orm import Session
 
 from database.session import get_db
 
-from schemas.auth_schema import (
-    AuthResponse,
-    RegisterRequest,
-    LoginRequest
-)
+from schemas.auth_schema import AuthResponse, RegisterRequest, LoginRequest, CurrentUser
 
 from services.auth_service import AuthService
 
+from auth.dependencies import get_current_user
 
 router = APIRouter(
     prefix="/auth",
@@ -27,33 +22,35 @@ router = APIRouter(
 )
 
 
-@router.get("/")
-async def home():
+@router.post("/refresh")
+async def refresh(request: Request, db: Session = Depends(get_db)):
+    return AuthService.refresh_access_token(request, db)
 
-    return FileResponse(
-        "static/google_form_agent.html",
+
+@router.get("/me")
+async def get_current_user_details(
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return AuthService.get_current_user(
+        current_user=current_user,
+        db=db,
     )
 
-
-@router.get("/form")
-async def form():
-
-    return FileResponse(
-        "static/form.html",
-    )
 
 @router.post(
     "/login",
     response_model=AuthResponse,
 )
 def login(
-    payload: LoginRequest, 
+    payload: LoginRequest,
     db: Session = Depends(get_db),
 ):
     return AuthService.login(
         payload=payload,
         db=db,
     )
+
 
 @router.get("/google/login")
 async def google_login(

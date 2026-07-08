@@ -35,13 +35,9 @@ def generate_job_description(description: str) -> str:
         JSON string: {"success": bool, "generated_jd": str, "role": str,
             "application_deadline": str (ISO format), "error": str (if failed)}
     """
-    print(">>> generate_job_description tool called")
 
     try:
         result = JobDescriptionService.generate_job_description(description=description)
-        print("\n")
-        print(result)
-        print("\n")
         return json.dumps({
             "success": True,
             "generated_jd": result.job_description,

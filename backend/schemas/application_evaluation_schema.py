@@ -3,6 +3,8 @@ from pydantic import (
     ConfigDict,
 )
 
+from typing import Any
+
 from enums.application_evaluation_enum import (
     ApplicationEvaluationStatus,
 )
@@ -32,10 +34,20 @@ class GeneratedApplicationEvaluation(
     reasoning: str
     status: ApplicationEvaluationStatus
     
+    
+class EvaluationAnswer(BaseModel):
+    question: str
+    type: str
+    answer: Any
+    
+class EvaluationLink(BaseModel):
+    title: str
+    url: str
+        
 class ApplicationEvaluationContext(BaseModel):
     job_description: str
     resume: str
-    answers: list[ApplicationAnswerRequest]
-    links: list[ApplicationLinkRequest]
+    answers: list[EvaluationAnswer]
+    links: list[EvaluationLink]
     candidate_name: str
     candidate_email: str

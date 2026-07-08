@@ -1,4 +1,4 @@
-import { apiClient } from "@/lib/api/client";
+import { apiClient } from "@/lib/api/apiClient";
 import { ApiForm } from "@/types/form.types";
 import { mapApiFormToForm } from "@/lib/mappers/form.mapper";
 import { Form } from "@/types/form.types";

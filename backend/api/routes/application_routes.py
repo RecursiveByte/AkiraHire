@@ -62,9 +62,9 @@ def create_application(
 def get_application_by_id(
     application_id: int,
     db: Session = Depends(get_db),
-            # current_user: dict = Depends(
-    # get_current_user
-# ),
+            current_user: dict = Depends(
+    require_role(UserRole.RECRUITER)
+),
 ):
 
     return ApplicationService.get_application_by_id(
@@ -79,6 +79,11 @@ def get_application_by_id(
 def get_applications_by_recruiter_id(
     recruiter_id: int,
     db: Session = Depends(get_db),
+                current_user: dict = Depends(
+
+    require_role(UserRole.RECRUITER)
+
+),
 ):
     return ApplicationService.get_application_by_recruiter_id(
         recruiter_id=recruiter_id,
@@ -91,6 +96,12 @@ def get_applications_by_recruiter_id(
 def get_application_with_form(
     application_id: int,
     db: Session = Depends(get_db),
+                current_user: dict = Depends(
+
+    require_role(UserRole.RECRUITER)
+
+),
+
 ):
     return ApplicationService.get_applications_with_form(
         application_id=application_id,
@@ -101,6 +112,12 @@ def get_application_with_form(
 def get_all_applications_with_form_by_recruiter_id(
     recruiter_id: int,
     db: Session = Depends(get_db),
+                current_user: dict = Depends(
+
+    require_role(UserRole.RECRUITER)
+
+),
+
 ):
     return ApplicationService.get_recruiter_applications(
         recruiter_id=recruiter_id,
@@ -115,6 +132,11 @@ def get_all_applications_with_form_by_recruiter_id(
 def get_application_by_id(
     application_id: int,
     db: Session = Depends(get_db),
+                current_user: dict = Depends(
+
+    require_role(UserRole.RECRUITER)
+),
+
 ):
     return ApplicationService.get_application_by_id(
         application_id=application_id,
