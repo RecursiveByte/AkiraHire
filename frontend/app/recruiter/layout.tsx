@@ -1,15 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { useAuthStore } from "@/store/authStore";
+import { AppSidebar } from "@/components/layout/AppSidebar";
+import { RecruiterTopbar } from "@/components/recruiter/layout/RecruiterTopbar";
+import { useLogout } from "@/hooks/useLogout";
 
-import { RecruiterSidebar } from "@/components/recruiter/RecruiterSidebar";
-import { RecruiterTopbar } from "@/components/recruiter/RecruiterTopbar";
-
-const MOCK_USER = {
-  name: "Marcus",
-  title: "Senior Recruiter",
-  avatarUrl: undefined,
-};
+const RECRUITER_NAV_ITEMS = [
+  { href: "/recruiter/dashboard", icon: "dashboard", label: "Dashboard" },
+  { href: "/recruiter/assistant", icon: "bolt", label: "Akira AI Assistant" },
+  { href: "/recruiter/jobs", icon: "work", label: "Jobs" },
+  { href: "/recruiter/applications", icon: "person_search", label: "Applications" },
+  { href: "/recruiter/forms", icon: "assignment", label: "Forms" },
+];
 
 export default function RecruiterLayout({
   children,
@@ -18,31 +21,27 @@ export default function RecruiterLayout({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const user = useAuthStore((state) => state.user);
+  const userName = user?.name ?? "User";
+  const logout = useLogout();
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#050505]">
-
-      <RecruiterSidebar
+      <AppSidebar
+        onLogout={logout}
+        brandName="AkiraHire"
+        navItems={RECRUITER_NAV_ITEMS}
+        userName={userName}
         collapsed={collapsed}
         setCollapsed={setCollapsed}
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
-        userName={MOCK_USER.name}
-        userTitle={MOCK_USER.title}
-        avatarUrl={MOCK_USER.avatarUrl}
       />
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        <RecruiterTopbar
-          collapsed={collapsed}
-          userName={MOCK_USER.name}
-          avatarUrl={MOCK_USER.avatarUrl}
-          onOpenSidebar={() => setIsSidebarOpen(true)}
-        />
+        <RecruiterTopbar onOpenSidebar={() => setIsSidebarOpen(true)} />
 
-        <main className="flex-1 overflow-y-auto">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
   );

@@ -1,6 +1,5 @@
-"use client";
 
-export type AuthRole = "user" | "recruiter";
+import type { AuthRole } from "@/types/auth.types";
 
 interface RoleToggleProps {
   role: AuthRole;
@@ -17,12 +16,12 @@ export function RoleToggle({ role, onChange }: RoleToggleProps) {
       <div className="grid grid-cols-2 gap-2 rounded-lg border border-white/10 bg-white/5 p-1">
         <button
           type="button"
-          onClick={() => onChange("user")}
+          onClick={() => onChange("candidate")}
           className={`rounded-md py-2 text-xs font-bold transition-all cursor-pointer ${
-            role === "user" ? "bg-white text-black" : "text-white/60 hover:text-white"
+            role === "candidate" ? "bg-white text-black" : "text-white/60 hover:text-white"
           }`}
         >
-          User
+          Candidate
         </button>
 
         <button

@@ -9,7 +9,7 @@ import JobsTable from "@/components/recruiter/jobs/JobsTable";
 import JobDetailModal from "@/components/recruiter/job-detail/JobDetailModal";
 
 export default function JobsPage() {
-  const { jobs, isLoading, error, refetch } = useJobs();
+  const { jobs, isLoading, error, deleteJob,publishJob,CloseJob, refetch } = useJobs();
   const { selectedJob, openJob, closeJob } = useJobModal(jobs);
 
   useEffect(() => {
@@ -33,17 +33,19 @@ export default function JobsPage() {
         jobs={jobs}
         isLoading={showSkeleton}
         onSelectJob={openJob}
-        onDeleteJob={(id) => console.log("Delete job", id)}
-        onPublishJob={(id) => console.log("Publish job", id)}
+        onDeleteJob={deleteJob}
+        onPublishJob={publishJob}
+        onCloseJob={CloseJob}
+
       />
 
       {selectedJob && (
         <JobDetailModal
           job={selectedJob}
           onClose={closeJob}
-          onDelete={(id) => console.log("Delete job", id)}
-          onPublish={(id) => console.log("Publish job", id)}
-          onCloseJob={(id) => console.log("Close job", id)}
+          onDelete={deleteJob}
+          onPublish={publishJob}
+          onCloseJob={CloseJob}
         />
       )}
     </div>

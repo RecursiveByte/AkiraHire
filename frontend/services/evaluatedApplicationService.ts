@@ -5,7 +5,7 @@ import { Evaluation } from "@/types/evaluatedApplication.types";
 
 export class EvaluationService {
   static async getEvaluatedApplications(): Promise<Evaluation[]> {
-    const { data } = await apiClient.get<ApiEvaluation[]>("/application-evaluations");
+    const { data } = await apiClient.get<ApiEvaluation[]>("/application-evaluations/recruiter");
     return data.map(mapApiEvaluationToEvaluation);
   }
 }

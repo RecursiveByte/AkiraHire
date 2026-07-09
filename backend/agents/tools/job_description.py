@@ -37,6 +37,7 @@ def generate_job_description(description: str) -> str:
     """
 
     try:
+        print("using this tool")
         result = JobDescriptionService.generate_job_description(description=description)
         return json.dumps({
             "success": True,
@@ -95,7 +96,6 @@ def create_job(
         JSON string: {"success": bool, "job_id": ..., "role": ..., "status": ...,
             "message": ...} or {"success": false, "error": str} on failure.
     """
-    print(">>> create_job tool called")
 
     config = get_config()
     current_user = config["configurable"]["current_user"]

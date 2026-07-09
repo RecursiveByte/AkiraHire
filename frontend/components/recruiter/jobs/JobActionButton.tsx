@@ -1,7 +1,7 @@
 import { JobStatus } from "@/types/job.types";
 
 const ACTION_CONFIG: Record<JobStatus, { label: string; icon: string; classes: string }> = {
-  ACTIVE: {
+  OPEN: {
     label: "Published",
     icon: "check_circle",
     classes: "border border-emerald-400/30 text-emerald-400",
@@ -20,7 +20,7 @@ const ACTION_CONFIG: Record<JobStatus, { label: string; icon: string; classes: s
 
 interface JobActionButtonProps {
   status: JobStatus;
-  onPublish?: () => void;
+  onPublish: () => Promise<void>;
 }
 
 export default function JobActionButton({ status, onPublish }: JobActionButtonProps) {
@@ -30,8 +30,8 @@ export default function JobActionButton({ status, onPublish }: JobActionButtonPr
   return (
     <button
       onClick={(e) => {
-        e.stopPropagation(); // don't trigger the row's onClick (modal open)
-        if (isActionable) onPublish?.();
+        e.stopPropagation(); 
+        if (isActionable) onPublish();
       }}
       disabled={!isActionable}
       className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${config.classes} ${

@@ -1,3 +1,6 @@
+import { ApplicationStatus } from "@/types/application.types";
+
+
 export interface ApiApplicationCandidateProfile {
   full_name: string;
   email: string;
@@ -5,13 +8,20 @@ export interface ApiApplicationCandidateProfile {
   resume_url: string;
 }
 
+
 export interface ApiApplicationForm {
   form_id: number;
-  job_id: number;
   title: string;
   description: string;
   status: string;
 }
+
+
+export interface ApiApplicationJob {
+  job_id: number;
+  role: string;
+}
+
 
 export interface ApiApplicationLink {
   id: string;
@@ -19,6 +29,7 @@ export interface ApiApplicationLink {
   required: boolean;
   value: string;
 }
+
 
 export interface ApiApplicationQuestion {
   id: string;
@@ -30,11 +41,19 @@ export interface ApiApplicationQuestion {
   answer: string | number | null;
 }
 
+
 export interface ApiApplication {
   application_id: number;
   submitted_at: string;
+  status: ApplicationStatus;
+
   candidate_profile: ApiApplicationCandidateProfile;
+
+  job: ApiApplicationJob;
+
   form: ApiApplicationForm;
+
   links: ApiApplicationLink[];
+
   questions: ApiApplicationQuestion[];
 }

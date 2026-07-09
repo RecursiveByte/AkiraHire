@@ -4,9 +4,9 @@ import JobActionButton from "./JobActionButton";
 
 interface JobRowProps {
   job: Job;
-  onClick: (jobId: string) => void;
-  onDelete: (jobId: string) => void;
-  onPublish: (jobId: string) => void;
+  onClick: (jobId: number) => void;
+  onDelete: (jobId: number) => Promise<void>;
+  onPublish: (jobId: number) => Promise<void>;
 }
 
 export default function JobRow({
@@ -38,9 +38,7 @@ export default function JobRow({
           Job ID
         </span>
 
-        <span className="text-sm text-on-surface-variant">
-          #{job.jobId}
-        </span>
+        <span className="text-sm text-on-surface-variant">#{job.jobId}</span>
       </div>
 
       {/* Role */}
@@ -49,10 +47,7 @@ export default function JobRow({
           Role Title
         </span>
 
-        <p
-          className="text-primary font-medium truncate"
-          title={job.title}
-        >
+        <p className="text-primary font-medium truncate" title={job.title}>
           {job.title}
         </p>
       </div>
@@ -92,9 +87,7 @@ export default function JobRow({
           className="w-8 h-8 flex items-center justify-center rounded-lg text-on-surface-variant/60 hover:text-error hover:bg-white/5 transition-colors"
           aria-label={`Delete ${job.title}`}
         >
-          <span className="material-symbols-outlined text-[18px]">
-            delete
-          </span>
+          <span className="material-symbols-outlined text-[18px]">delete</span>
         </button>
       </div>
     </div>

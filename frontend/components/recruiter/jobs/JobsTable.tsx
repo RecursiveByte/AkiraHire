@@ -10,9 +10,10 @@ import { SKELETON_ROW_COUNT } from "@/constants/skeleton";
 interface JobsTableProps {
   jobs: Job[];
   isLoading?: boolean;
-  onSelectJob: (jobId: string) => void;
-  onDeleteJob: (jobId: string) => void;
-  onPublishJob: (jobId: string) => void;
+  onSelectJob: (jobId: number) => void;
+  onDeleteJob: (jobId: number) => Promise<void>;
+  onPublishJob: (jobId: number) => Promise<void>;
+  onCloseJob: (jobId: number) => void;
 }
 
 export default function JobsTable({

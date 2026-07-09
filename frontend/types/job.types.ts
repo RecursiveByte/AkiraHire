@@ -1,13 +1,12 @@
-export type JobStatus = "ACTIVE" | "DRAFT" | "CLOSED";
+export type JobStatus = "OPEN" | "DRAFT" | "CLOSED";
 
 export interface Candidate {
   id: string;
   name: string;
-  avatarUrl?: string;
 }
 
 export interface Job {
-  jobId: string; 
+  jobId: number; 
   title: string; 
   status: JobStatus;
   description: string;
@@ -15,10 +14,10 @@ export interface Job {
   createdAt: string; 
 }
 
-export type ApiJobStatus = "active" | "draft" | "closed";
+export type ApiJobStatus = "open" | "draft" | "closed";
 
 export interface ApiJob {
-  job_id: string;
+  job_id: number;
   role: string;
   status: ApiJobStatus;
   job_description: string;

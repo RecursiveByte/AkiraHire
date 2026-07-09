@@ -1,20 +1,16 @@
 from fastapi import Request, HTTPException
-
 from fastapi.responses import JSONResponse
-
 from sqlalchemy.orm import Session
 
 from auth.google_oauth import oauth
-
 from auth.jwt import (
     create_access_token,
     create_refresh_token,
+    verify_refresh_token,
 )
 
+
 from config.settings import settings
-
-from auth.helpers import get_user_id_from_request
-
 
 from database.models.user import (
     User,
@@ -24,31 +20,28 @@ from database.models.user import (
 from exceptions.auth_exceptions import (
     UserAlreadyExistsError,
     GoogleAuthenticationError,
+    InvalidCredentialsError,
+    InvalidTokenError,
 )
 
 from repositories.user_repository import UserRepository
 
-from schemas.auth_schema import RegisterRequest, CurrentUser,CurrentUserResponse
+from schemas.auth_schema import (
+    RegisterRequest,
+    CurrentUser,
+    CurrentUserResponse,
+    LoginRequest,
+)
 
 from utils.cookies import (
     set_refresh_cookie,
     clear_refresh_cookie,
 )
 
-from schemas.auth_schema import LoginRequest
-from utils.password import verify_password
-from exceptions.auth_exceptions import (
-    InvalidCredentialsError,
+from utils.password import (
+    verify_password,
+    hash_password,
 )
-
-from auth.jwt import (
-    create_access_token,
-    verify_refresh_token,
-)
-
-from exceptions.auth_exceptions import InvalidTokenError
-
-from utils.password import hash_password
 
 from utils.logger import get_logger
 
@@ -58,8 +51,10 @@ logger = get_logger(__name__)
 class AuthService:
 
     @staticmethod
-    def refresh_access_token(request: Request, db: Session):
-
+    def refresh_access_token(
+        request: Request,
+        db: Session,
+    ):
         refresh_token = request.cookies.get("refresh_token")
 
         if refresh_token is None:
@@ -67,7 +62,10 @@ class AuthService:
 
         payload = verify_refresh_token(refresh_token)
 
-        user = UserRepository.get_by_id(db, payload["user_id"])
+        user = UserRepository.get_by_id(
+            db=db,
+            user_id=payload["user_id"],
+        )
 
         access_token = create_access_token(
             user_id=user.id,
@@ -75,7 +73,10 @@ class AuthService:
             email=user.email,
         )
 
-        return {"accessToken": access_token}
+        return {
+            "accessToken": access_token,
+            "user": user,
+        }
 
     @staticmethod
     def get_current_user(
@@ -105,7 +106,6 @@ class AuthService:
         payload: LoginRequest,
         db: Session,
     ):
-
         logger.info("User login started.")
 
         user = UserRepository.get_by_email(
@@ -121,15 +121,18 @@ class AuthService:
                 user.password_hash,
             )
         ):
-
             logger.warning(f"Invalid login attempt. email={payload.email}")
-
             raise InvalidCredentialsError()
 
-        access_token = create_access_token(user.id, user.role, user.email)
+        access_token = create_access_token(
+            user.id,
+            user.role,
+            user.email,
+        )
 
         refresh_token = create_refresh_token(
             user.id,
+            user.role,
         )
 
         response = JSONResponse(
@@ -157,7 +160,6 @@ class AuthService:
     async def google_login(
         request: Request,
     ):
-
         logger.info("Google login initiated.")
 
         return await oauth.google.authorize_redirect(
@@ -170,11 +172,9 @@ class AuthService:
         request: Request,
         db: Session,
     ):
-
         logger.info("Google callback received.")
 
         try:
-
             token = await oauth.google.authorize_access_token(
                 request=request,
             )
@@ -187,7 +187,6 @@ class AuthService:
             )
 
             if user is None:
-
                 user = User(
                     name=user_info["name"],
                     email=user_info["email"],
@@ -201,10 +200,15 @@ class AuthService:
 
                 logger.info(f"New Google user created. user_id={user.id}")
 
-            access_token = create_access_token(user.id, user.role, user.email)
+            access_token = create_access_token(
+                user.id,
+                user.role,
+                user.email,
+            )
 
             refresh_token = create_refresh_token(
                 user.id,
+                user.role,
             )
 
             response = JSONResponse(
@@ -214,6 +218,7 @@ class AuthService:
                         "id": user.id,
                         "name": user.name,
                         "email": user.email,
+                        "role": user.role,
                     },
                 }
             )
@@ -228,9 +233,7 @@ class AuthService:
             return response
 
         except Exception:
-
             logger.exception("Google authentication failed.")
-
             raise GoogleAuthenticationError()
 
     @staticmethod
@@ -238,7 +241,6 @@ class AuthService:
         payload: RegisterRequest,
         db: Session,
     ):
-
         logger.info("User registration started.")
 
         existing_user = UserRepository.get_by_email(
@@ -247,11 +249,9 @@ class AuthService:
         )
 
         if existing_user:
-
             logger.warning(
                 f"Registration attempted with existing email={payload.email}"
             )
-
             raise UserAlreadyExistsError()
 
         user = User(
@@ -268,10 +268,15 @@ class AuthService:
             user=user,
         )
 
-        access_token = create_access_token(user.id, user.role, user.email)
+        access_token = create_access_token(
+            user.id,
+            user.role,
+            user.email,
+        )
 
         refresh_token = create_refresh_token(
             user.id,
+            user.role,
         )
 
         response = JSONResponse(
@@ -281,6 +286,7 @@ class AuthService:
                     "id": user.id,
                     "name": user.name,
                     "email": user.email,
+                    "role": user.role,
                 },
             }
         )
@@ -295,15 +301,8 @@ class AuthService:
         return response
 
     @staticmethod
-    def logout(
-        request: Request,
-    ):
-
+    def logout():
         logger.info("Logout request received.")
-
-        get_user_id_from_request(
-            request=request,
-        )
 
         response = JSONResponse(
             {

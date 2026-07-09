@@ -78,7 +78,7 @@ async def google_callback(
 
 
 @router.post(
-    "/register",
+    "/signup",
     response_model=AuthResponse,
 )
 async def register(
@@ -94,9 +94,9 @@ async def register(
 
 @router.post("/logout")
 async def logout(
-    request: Request,
+      current_user: CurrentUser = Depends(
+      get_current_user
+  ),
 ):
 
-    return AuthService.logout(
-        request=request,
-    )
+    return AuthService.logout()

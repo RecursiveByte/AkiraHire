@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 @theme {
-  /* Colors */
   --color-background: #000000;
   --color-surface: #131313;
   --color-surface-dim: #131313;
@@ -44,7 +43,6 @@
   --color-outline-variant: #444748;
   --color-surface-tint: #c6c6c7;
 
-  /* Font sizes (v4 pairs value + line-height) */
   --text-body-md: 14px;
   --text-body-md--line-height: 1.5;
   --text-body-lg: 16px;
@@ -61,7 +59,6 @@
   --text-headline-xl--line-height: 1.1;
   --text-headline-xl--letter-spacing: -0.04em;
 
-  /* Radius */
   --radius-sm: 0.125rem;
   --radius-lg: 0.25rem;
   --radius-xl: 0.5rem;
@@ -142,7 +139,6 @@ html::-webkit-scrollbar {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
 .bg-pattern {

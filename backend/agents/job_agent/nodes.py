@@ -3,7 +3,7 @@ from langchain_core.messages import AIMessage, ToolMessage
 from langchain_core.runnables import RunnableConfig
 
 from agents.job_agent.state import JobAgentState
-from agents.tools.job_description import generate_job_description
+from agents.tools.job_description import generate_job_description, create_job
 from agents.job_agent.prompts import SYSTEM_PROMPT
 from core.llm.llm_client import get_llm
 
@@ -12,7 +12,7 @@ from database.session import SessionLocal
 from schemas.job_schema import JobCreate
 import json
 
-from datetime import datetime,timezone
+from datetime import datetime, timezone
 
 llm_with_tools = get_llm().bind_tools([generate_job_description])
 
@@ -46,11 +46,12 @@ def apply_tool_result_node(state: JobAgentState) -> dict:
                 )
             ]
         }
-        
+
     deadline = datetime.fromisoformat(tool_result["application_deadline"])
     if deadline.tzinfo is None:
         deadline = deadline.replace(tzinfo=timezone.utc)
 
+    print("tools reslut ", tool_result["generated_jd"])
     return {
         "generated_jd": tool_result["generated_jd"],
         "role": tool_result["role"],
@@ -62,10 +63,13 @@ def confirm_draft_node(state: JobAgentState) -> dict:
     answer = interrupt(
         {
             "question": "Create this job as a draft?",
-            "summary": state["generated_jd"][:200],
+            "summary": state["generated_jd"],
         }
     )
     return {"confirmed": answer == "yes"}
+
+
+from exceptions.base import AppException
 
 
 def create_draft_node(state: JobAgentState, config: RunnableConfig) -> dict:
@@ -78,21 +82,28 @@ def create_draft_node(state: JobAgentState, config: RunnableConfig) -> dict:
     )
 
     db = SessionLocal()
-    created_job = JobService.create_job(
-        current_user=current_user, db=db, job_data=job_data
-    )
 
-    return {
-        "job_id": created_job.job_id,
-        "messages": [
-            AIMessage(
-                content=(
-                    f"Draft job created successfully (ID: {created_job.job_id}).\n\n"
-                    f"{state['generated_jd']}"
+    try:
+        created_job = JobService.create_job(
+            current_user=current_user,
+            db=db,
+            job_data=job_data,
+        )
+
+        return {
+            "job_id": created_job.job_id,
+            "messages": [
+                AIMessage(
+                    content=f"Draft job created successfully (ID: {created_job.job_id})."
                 )
-            )
-        ],
-    }
+            ],
+        }
+
+    except AppException as e:
+        return {"messages": [AIMessage(content=e.message)]}
+
+    finally:
+        db.close()
 
 
 def decline_draft_node(state: JobAgentState) -> dict:

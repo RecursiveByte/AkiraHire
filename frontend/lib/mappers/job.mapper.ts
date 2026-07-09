@@ -2,7 +2,7 @@ import { Job,ApiJob,JobStatus,ApiJobStatus } from "@/types/job.types";
 
 
 const STATUS_MAP: Record<ApiJobStatus, JobStatus> = {
-  active: "ACTIVE",
+  open: "OPEN",
   draft: "DRAFT",
   closed: "CLOSED",
 };

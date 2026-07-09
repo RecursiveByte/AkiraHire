@@ -50,6 +50,9 @@ def require_role(*required_roles: str):
             request=request,
         )
         
+        
+        print(" this user ",current_user)
+        print(" this user 2 ",required_roles)
         if current_user.role not in required_roles:
             raise HTTPException(
                 status_code=403,

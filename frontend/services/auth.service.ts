@@ -6,6 +6,8 @@ import {
   RefreshSessionResponse,
 } from "@/types/api/auth.response";
 
+import { SignupFormValues } from "@/lib/validators/auth.validator";
+
 import type { User } from "@/types/user.types";
 
 export class AuthService {
@@ -14,7 +16,14 @@ export class AuthService {
       "/auth/login",
       payload
     );
-    
+
+    return response.data;
+  }
+
+
+  static async signup(payload: SignupFormValues) {
+    const response = await authClient.post("/auth/signup", payload);
+
     return response.data;
   }
 

@@ -1,4 +1,4 @@
-import EvaluatedApplicationStatusBadge from "./EvaluatedApplicationStatusBadge";
+import ApplicationStatusBadge from "@/components/recruiter/applications/ApplicationStatusBadge";
 import { formatDate } from "@/lib/utils";
 import { Evaluation } from "@/types/evaluatedApplication.types";
 
@@ -50,7 +50,7 @@ export default function EvaluatedApplicationRow({
         <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/50 lg:hidden">
           Status
         </span>
-        <EvaluatedApplicationStatusBadge status={evaluatedApplication.status} />
+        <ApplicationStatusBadge status={evaluatedApplication.status} />
       </div>
 
       <div className="flex items-center justify-between lg:block lg:min-w-[140px]">

@@ -72,6 +72,7 @@ def confirm_create_form_node(state: FormAgentState) -> dict:
         f"Links:\n{links_text}\n\n"
         f"Questions:\n{questions_text}"
     )
+    
 
 
     answer = interrupt(

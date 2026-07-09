@@ -243,10 +243,7 @@ class ApplicationEvaluationService:
                 ),
             ]
         )
-        
-        print("\n")
-        print(response)
-        print("\n")
+
 
         cleaned_response = clean_json(
             response.content,
@@ -272,7 +269,7 @@ class ApplicationEvaluationService:
     ) -> ApplicationEvaluation:
 
         logger.info(f"Saving evaluation for application_id={application_id}.")
-            
+
         application_evaluation = ApplicationEvaluation(
             application_id=application_id,
             match_score=evaluation.match_score,
@@ -290,6 +287,27 @@ class ApplicationEvaluationService:
         )
 
         return application_evaluation
+
+
+    @staticmethod
+    def get_all_by_recruiter_id(
+        db: Session,
+        recruiter_id: int,
+    ):
+        return ApplicationEvaluationRepository.get_all_by_recruiter_id(
+            db=db,
+            recruiter_id=recruiter_id,
+        )
+        
+    @staticmethod
+    def get_by_application_id(
+        application_id: int,
+        db: Session,
+    ):
+        return ApplicationEvaluationRepository.get_by_application_id(
+            db=db,
+            application_id=application_id,
+        )
 
     @staticmethod
     def get_all_evaluations(

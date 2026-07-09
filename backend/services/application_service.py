@@ -32,9 +32,13 @@ from services.application_links_service import (
     ApplicationLinksService,
 )
 
+from services.application_evaluation_service import ApplicationEvaluationService
+
 from services.application_question_service import (
     ApplicationQuestionService,
 )
+
+from services.job_service import JobService
 
 from schemas.application_schema import (
     CreateApplicationRequest,
@@ -212,7 +216,6 @@ class ApplicationService:
         application_id: int,
         db: Session,
     ) -> GetApplicationResponse:
-        print("in applic")
 
         application = ApplicationRepository.get_by_id(
             db=db,
@@ -278,6 +281,7 @@ class ApplicationService:
         application_id: int,
         db: Session,
     ):
+
         application = ApplicationService.get_application_by_id(
             application_id=application_id,
             db=db,
@@ -287,6 +291,18 @@ class ApplicationService:
             form_id=application.form_id,
             db=db,
         )
+
+        job = JobService.get_job_by_job_id(
+            job_id=form.job_id,
+            db=db,
+        )
+
+        evaluation = ApplicationEvaluationService.get_by_application_id(
+            application_id=application_id,
+            db=db,
+        )
+
+        status = evaluation.status if evaluation else "UNDER_REVIEW"
 
         link_map = {link.id: link.url for link in application.links}
 
@@ -318,14 +334,17 @@ class ApplicationService:
                     "answer": answer_map.get(question.id),
                 }
             )
-
         return {
             "application_id": application.application_id,
             "submitted_at": application.submitted_at,
+            "status": status,
             "candidate_profile": application.candidate_profile,
+            "job": {
+                "job_id": job.job_id,
+                "role": job.role,
+            },
             "form": {
                 "form_id": form.form_id,
-                "job_id": form.job_id,
                 "title": form.title,
                 "description": form.form_schema_json.description,
                 "status": form.status,
@@ -333,7 +352,6 @@ class ApplicationService:
             "links": merged_links,
             "questions": merged_questions,
         }
-
 
     @staticmethod
     def get_recruiter_applications(
@@ -344,13 +362,42 @@ class ApplicationService:
             recruiter_id=recruiter_id,
             db=db,
         )
-
         return [
             ApplicationService.get_application_with_form(
                 application_id=application["application_id"],
                 db=db,
             )
             for application in application_ids
+        ]
+
+
+    @staticmethod
+    def get_applications_by_candidate_id(
+        candidate_id: int,
+        db: Session,
+    ):
+        return ApplicationRepository.get_by_candidate_id(
+            db=db,
+            candidate_id=candidate_id,
+        )
+
+
+    @staticmethod
+    def get_candidate_applications(
+        candidate_id: int,
+        db: Session,
+    ):
+        applications = ApplicationService.get_applications_by_candidate_id(
+            candidate_id=candidate_id,
+            db=db,
+        )
+
+        return [
+            ApplicationService.get_application_with_form(
+                application_id=application.application_id,
+                db=db,
+            )
+            for application in applications
         ]
 
     @staticmethod

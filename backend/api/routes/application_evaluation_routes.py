@@ -17,7 +17,7 @@ from schemas.auth_schema import (
 )
 
 from schemas.application_evaluation_schema import (
-    EvaluateApplicationResponse,
+    EvaluateApplicationResponse,ApplicationEvaluationResponse
 )
 
 from services.application_evaluation_service import (
@@ -52,6 +52,19 @@ def evaluate_application(
             application_id=application_id,
             db=db,
         )
+    )
+    
+@router.get(
+    "/recruiter",
+    response_model=list[ApplicationEvaluationResponse],
+)
+def get_my_evaluated_applications(
+    current_user: CurrentUser = Depends(require_role(UserRole.RECRUITER)),
+    db: Session = Depends(get_db),
+):
+    return ApplicationEvaluationService.get_all_by_recruiter_id(
+        db=db,
+        recruiter_id=current_user.user_id,
     )
     
 @router.get("/")

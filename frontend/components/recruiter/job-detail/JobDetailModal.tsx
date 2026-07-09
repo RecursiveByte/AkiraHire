@@ -5,9 +5,9 @@ import JobActionButton from "@/components/recruiter/jobs/JobActionButton";
 interface JobDetailModalProps {
   job: Job;
   onClose: () => void;
-  onDelete: (jobId: string) => void;
-  onPublish: (jobId: string) => void;
-  onCloseJob: (jobId: string) => void;
+  onDelete: (jobId: number) => Promise<void>;
+  onPublish: (jobId: number) => Promise<void>;
+  onCloseJob: (jobId: number) => void;
 }
 
 export default function JobDetailModal({
@@ -81,7 +81,6 @@ export default function JobDetailModal({
           </div>
         </div>
 
-        {/* Footer — Delete, Close Job, and the same Publish/Published action as the table */}
         <div className="p-8 pt-0 flex items-center justify-between gap-3">
           <button
             onClick={() => onDelete(job.jobId)}

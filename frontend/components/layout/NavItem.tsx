@@ -3,19 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-interface RecruiterNavItemProps {
+interface NavItemProps {
   href: string;
   icon: string;
   label: string;
   collapsed: boolean;
 }
 
-export function RecruiterNavItem({
-  href,
-  icon,
-  label,
-  collapsed,
-}: RecruiterNavItemProps) {
+export function NavItem({ href, icon, label, collapsed }: NavItemProps) {
   const pathname = usePathname();
   const isActive = pathname === href;
 
@@ -23,9 +18,7 @@ export function RecruiterNavItem({
     <Link
       href={href}
       className={`flex items-center rounded-xl transition-all duration-300 ${
-        collapsed
-          ? "justify-center px-0 py-3"
-          : "gap-4 px-4 py-3"
+        collapsed ? "justify-center px-0 py-3" : "gap-4 px-4 py-3"
       } ${
         isActive
           ? "bg-white text-black font-medium"
@@ -33,10 +26,7 @@ export function RecruiterNavItem({
       }`}
     >
       <span className="msi shrink-0 text-[20px]">{icon}</span>
-
-      {!collapsed && (
-        <span className="whitespace-nowrap">{label}</span>
-      )}
+      {!collapsed && <span className="whitespace-nowrap">{label}</span>}
     </Link>
   );
 }

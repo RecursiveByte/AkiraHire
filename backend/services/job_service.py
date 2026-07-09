@@ -263,19 +263,3 @@ class JobService:
             current_user=current_user,
             db=db,
         )
-
-    @staticmethod
-    def cancel_job(
-        job_id: int,
-        current_user: CurrentUser,
-        db: Session,
-    ) -> Job:
-
-        logger.info(f"Cancelling job. job_id={job_id}")
-
-        return JobService.change_job_status(
-            job_id=job_id,
-            new_status=JobStatus.CANCELLED,
-            current_user=current_user,
-            db=db,
-        )

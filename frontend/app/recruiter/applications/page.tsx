@@ -90,7 +90,7 @@ export default function ApplicationsPage() {
       </section>
 
       {selectedApplication && (
-        <ApplicationDetailModal application={selectedApplication} onClose={closeApplication} />
+        <ApplicationDetailModal application={selectedApplication} onClose={closeApplication} onDelete={()=>{}}/>
       )}
 
       {selectedEvaluation && (

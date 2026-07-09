@@ -23,7 +23,7 @@ export function useApplications(): UseApplicationsResult {
       setError(null);
 
       try {
-        const data = await applicationService.getRecruiterApplications();
+        const data = await applicationService.getApplications();
         if (isMounted) setApplications(data);
       } catch (err) {
         if (isMounted) setError(err instanceof Error ? err.message : "Failed to load applications.");

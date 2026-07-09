@@ -43,33 +43,45 @@ export default function ApplicationsTable({
         ref={parentRef}
         className="lg:overflow-x-auto overflow-y-auto max-h-140"
       >
-        <div className="lg:min-w-275">
-          <div className="hidden lg:grid lg:grid-cols-[150px_110px_110px_1fr_140px_120px_60px] lg:gap-4 px-6 py-4 border-b border-white/5 sticky top-0 bg-surface-container z-10">
-            <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold lg:min-w-37.5">
+        <div className="lg:min-w-300">
+          <div className="hidden lg:grid lg:grid-cols-[150px_110px_110px_1fr_130px_120px_140px_60px] lg:gap-4 px-6 py-4 border-b border-white/5 sticky top-0 bg-surface-container z-10">
+            <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold">
               Application ID
             </span>
-            <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold lg:min-w-27.5">
+
+            <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold">
               Form ID
             </span>
-            <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold lg:min-w-27.5">
+
+            <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold">
               Job ID
             </span>
-            <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold lg:min-w-45">
+
+            <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold">
               Applicant
             </span>
-            <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold lg:min-w-[120px]">
+
+            <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold">
+              Status
+            </span>
+
+            <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold">
               Resume
             </span>
-            <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold lg:min-w-[140px]">
+
+            <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold">
               Submitted At
             </span>
+
             <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold text-right">
               Actions
             </span>
           </div>
 
           {isLoading ? (
-            Array.from({ length: SKELETON_ROW_COUNT }).map((_, i) => <ApplicationRowSkeleton key={i} />)
+            Array.from({ length: SKELETON_ROW_COUNT }).map((_, i) => (
+              <ApplicationRowSkeleton key={i} />
+            ))
           ) : (
             <div
               className="relative w-full divide-y divide-white/5"
@@ -77,13 +89,16 @@ export default function ApplicationsTable({
             >
               {virtualizer.getVirtualItems().map((virtualRow) => {
                 const application = applications[virtualRow.index];
+
                 return (
                   <div
                     key={application.applicationId}
                     ref={virtualizer.measureElement}
                     data-index={virtualRow.index}
                     className="absolute top-0 left-0 w-full"
-                    style={{ transform: `translateY(${virtualRow.start}px)` }}
+                    style={{
+                      transform: `translateY(${virtualRow.start}px)`,
+                    }}
                   >
                     <ApplicationRow
                       application={application}

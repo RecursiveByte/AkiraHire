@@ -1,26 +1,22 @@
 "use client";
 
 import { Dispatch, SetStateAction } from "react";
+import { NavItem } from "./NavItem";
+import { UserProfileCard } from "@/components/common/UserProfileCard";
+import Link from "next/link";
 
-import { RecruiterNavItem } from "./RecruiterNavItem";
-import { UserProfileCard } from "./UserProfileCard";
+interface NavItemConfig {
+  href: string;
+  icon: string;
+  label: string;
+}
 
-const NAV_ITEMS = [
-  { href: "/recruiter/dashboard", icon: "dashboard", label: "Dashboard" },
-  { href: "/recruiter/assistant", icon: "bolt", label: "Akira AI Assistant" },
-  { href: "/recruiter/jobs", icon: "work", label: "Jobs" },
-  {
-    href: "/recruiter/applications",
-    icon: "person_search",
-    label: "Applications",
-  },
-  { href: "/recruiter/forms", icon: "assignment", label: "Forms" },
-];
+interface AppSidebarProps {
+  brandName: string;
+  navItems: NavItemConfig[];
 
-interface RecruiterSidebarProps {
   userName: string;
-  userTitle: string;
-  avatarUrl?: string;
+  onLogout: () => void;
 
   collapsed: boolean;
   setCollapsed: Dispatch<SetStateAction<boolean>>;
@@ -29,15 +25,16 @@ interface RecruiterSidebarProps {
   setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export function RecruiterSidebar({
+export function AppSidebar({
+  brandName,
+  navItems,
   userName,
-  userTitle,
-  avatarUrl,
+  onLogout,
   collapsed,
   setCollapsed,
   isSidebarOpen,
   setIsSidebarOpen,
-}: RecruiterSidebarProps) {
+}: AppSidebarProps) {
   return (
     <aside
       className={`
@@ -47,11 +44,7 @@ export function RecruiterSidebar({
         border-r border-white/5
         bg-[#050505]
         transition-all duration-300 ease-in-out
-        ${
-          isSidebarOpen
-            ? "translate-x-0"
-            : "-translate-x-full md:translate-x-0"
-        }
+        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
         ${collapsed ? "md:w-20" : "md:w-65"}
         w-72
       `}
@@ -65,10 +58,11 @@ export function RecruiterSidebar({
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white">
             <span className="msi text-black">bolt</span>
           </div>
-
           {!collapsed && (
             <span className="whitespace-nowrap text-xl font-bold text-white">
-              AkiraHire
+              <Link href="/">
+              {brandName}
+              </Link>
             </span>
           )}
         </div>
@@ -82,8 +76,8 @@ export function RecruiterSidebar({
       </div>
 
       <nav className="flex flex-1 flex-col gap-1 px-2">
-        {NAV_ITEMS.map((item) => (
-          <RecruiterNavItem
+        {navItems.map((item) => (
+          <NavItem
             key={item.href}
             href={item.href}
             icon={item.icon}
@@ -92,30 +86,27 @@ export function RecruiterSidebar({
           />
         ))}
 
-        <div className="mt-auto space-y-3 pb-5">
-          {!collapsed && (
-            <UserProfileCard
-              name={userName}
-              title={userTitle}
-              avatarUrl={avatarUrl}
-            />
-          )}
+        <div className="mt-auto space-y-2 pb-5">
+          {!collapsed && <UserProfileCard name={userName} />}
+
+          <button
+            onClick={onLogout}
+            className={`flex w-full items-center rounded-xl text-white/60 transition hover:bg-white/5 hover:text-white ${
+              collapsed ? "justify-center px-0 py-3" : "gap-4 px-4 py-3"
+            }`}
+          >
+            <span className="msi shrink-0 text-[20px]">logout</span>
+            {!collapsed && <span className="text-sm font-medium">Logout</span>}
+          </button>
 
           <button
             onClick={() => setCollapsed((prev) => !prev)}
             className="hidden md:flex w-full items-center justify-center rounded-xl border border-white/10 bg-white/5 py-3 text-white transition hover:bg-white/10"
           >
             <span className="msi">
-              {collapsed
-                ? "keyboard_double_arrow_right"
-                : "keyboard_double_arrow_left"}
+              {collapsed ? "keyboard_double_arrow_right" : "keyboard_double_arrow_left"}
             </span>
-
-            {!collapsed && (
-              <span className="ml-2 text-sm font-medium">
-                Collapse
-              </span>
-            )}
+            {!collapsed && <span className="ml-2 text-sm font-medium">Collapse</span>}
           </button>
         </div>
       </nav>

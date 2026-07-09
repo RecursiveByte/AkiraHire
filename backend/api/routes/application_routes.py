@@ -1,8 +1,4 @@
-from fastapi import (
-    APIRouter,
-    Depends,
-    status
-)
+from fastapi import APIRouter, Depends, status
 
 from sqlalchemy.orm import Session
 
@@ -10,7 +6,7 @@ from database.session import (
     get_db,
 )
 
-from auth.dependencies import require_role,get_current_user
+from auth.dependencies import require_role, get_current_user
 
 from enums.user_role_enum import UserRole
 
@@ -33,18 +29,36 @@ router = APIRouter(
 )
 
 
-@router.post(
-    "/",
-    response_model=CreateApplicationResponse,
-    status_code=status.HTTP_201_CREATED
+@router.get(
+    "/candidate/view",
 )
+def get_candidate_applications(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_role(UserRole.CANDIDATE)),
+):
 
+    return ApplicationService.get_candidate_applications(
+        candidate_id=current_user.user_id,
+        db=db,
+    )
+    
+@router.get("/recruiter/view")
+def get_recruiter_applications(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_role(UserRole.RECRUITER)),
+):
+    return ApplicationService.get_recruiter_applications(
+        recruiter_id=current_user.user_id,
+        db=db,
+    )
+
+@router.post(
+    "/", response_model=CreateApplicationResponse, status_code=status.HTTP_201_CREATED
+)
 def create_application(
     payload: CreateApplicationRequest,
     db: Session = Depends(get_db),
-        current_user: dict = Depends(
-    require_role(UserRole.CANDIDATE)
-),
+    current_user: dict = Depends(require_role(UserRole.CANDIDATE)),
 ):
 
     return ApplicationService.create_application(
@@ -58,20 +72,17 @@ def create_application(
     "/{application_id}",
     response_model=GetApplicationResponse,
 )
-
 def get_application_by_id(
     application_id: int,
     db: Session = Depends(get_db),
-            current_user: dict = Depends(
-    require_role(UserRole.RECRUITER)
-),
+    current_user: dict = Depends(require_role(UserRole.RECRUITER)),
 ):
 
     return ApplicationService.get_application_by_id(
         application_id=application_id,
         db=db,
     )
-    
+
 
 @router.get(
     "/recruiter/{recruiter_id}",
@@ -79,45 +90,45 @@ def get_application_by_id(
 def get_applications_by_recruiter_id(
     recruiter_id: int,
     db: Session = Depends(get_db),
-                current_user: dict = Depends(
-
-    require_role(UserRole.RECRUITER)
-
-),
+    current_user: dict = Depends(require_role(UserRole.RECRUITER)),
 ):
     return ApplicationService.get_application_by_recruiter_id(
         recruiter_id=recruiter_id,
         db=db,
     )
-    
+
+
 @router.get(
     "/{application_id}/view",
 )
 def get_application_with_form(
     application_id: int,
     db: Session = Depends(get_db),
-                current_user: dict = Depends(
-
-    require_role(UserRole.RECRUITER)
-
-),
-
+    current_user: dict = Depends(require_role(UserRole.RECRUITER)),
 ):
-    return ApplicationService.get_applications_with_form(
+    return ApplicationService.get_application_with_form(
         application_id=application_id,
         db=db,
     )
-    
+
+
 @router.get("/recruiter/{recruiter_id}/view")
 def get_all_applications_with_form_by_recruiter_id(
     recruiter_id: int,
     db: Session = Depends(get_db),
-                current_user: dict = Depends(
+    current_user: dict = Depends(require_role(UserRole.RECRUITER)),
+):
+    return ApplicationService.get_recruiter_applications(
+        recruiter_id=recruiter_id,
+        db=db,
+    )
 
-    require_role(UserRole.RECRUITER)
 
-),
-
+@router.get("/candidate/{candidate_id}/view")
+def get_all_applications_with_form_by_recruiter_id(
+    recruiter_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_role(UserRole.CANDIDATE)),
 ):
     return ApplicationService.get_recruiter_applications(
         recruiter_id=recruiter_id,
@@ -132,29 +143,23 @@ def get_all_applications_with_form_by_recruiter_id(
 def get_application_by_id(
     application_id: int,
     db: Session = Depends(get_db),
-                current_user: dict = Depends(
-
-    require_role(UserRole.RECRUITER)
-),
-
+    current_user: dict = Depends(require_role(UserRole.RECRUITER)),
 ):
     return ApplicationService.get_application_by_id(
         application_id=application_id,
         db=db,
     )
 
+
 @router.patch(
     "/{application_id}",
     response_model=UpdateApplicationResponse,
 )
-
 def update_application(
     application_id: int,
     payload: UpdateApplicationRequest,
     db: Session = Depends(get_db),
-            current_user: dict = Depends(
-    require_role(UserRole.CANDIDATE,UserRole.ADMIN)
-),
+    current_user: dict = Depends(require_role(UserRole.CANDIDATE, UserRole.ADMIN)),
 ):
 
     return ApplicationService.update_application(
@@ -168,12 +173,9 @@ def update_application(
     "/{application_id}",
     response_model=DeleteApplicationResponse,
 )
-
 def delete_application(
     application_id: int,
-        current_user: dict = Depends(
-    require_role(UserRole.CANDIDATE,UserRole.ADMIN)
-),
+    current_user: dict = Depends(require_role(UserRole.CANDIDATE, UserRole.ADMIN)),
     db: Session = Depends(get_db),
 ):
 

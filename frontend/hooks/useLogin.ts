@@ -28,7 +28,7 @@ export function useLogin() {
       toast.success("Welcome back!");
 
       router.push(
-        user.role === "recruiter" ? "/recruiter/dashboard" : "/dashboard"
+        user.role === "recruiter" ? "/recruiter/dashboard" : "/candidate/dashboard"
       );
     } catch (error: any) {
       if (axios.isAxiosError(error)) {

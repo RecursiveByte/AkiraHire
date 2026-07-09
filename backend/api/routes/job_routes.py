@@ -74,7 +74,6 @@ def get_jobs_by_recruiter_id(
      require_role(UserRole.RECRUITER),
  ),
 ):
-    print("here")
     return JobService.get_jobs_by_recruiter_id(
         db=db,
         recruiter_id=current_user.user_id,
@@ -178,21 +177,3 @@ def close_job(
         db=db,
     )
 
-
-@router.patch(
-    "/{job_id}/cancel",
-    response_model=JobResponse,
-)
-def cancel_job(
-    job_id: int,
-    current_user: CurrentUser = Depends(
-        require_role(UserRole.RECRUITER, UserRole.ADMIN),
-    ),
-    db: Session = Depends(get_db),
-):
-
-    return JobService.cancel_job(
-        job_id=job_id,
-        current_user=current_user,
-        db=db,
-    )

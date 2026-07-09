@@ -30,7 +30,7 @@ class JobRepository:
         db: Session,
         job_id: int,
     ) -> Job | None:
-
+        
         return db.query(Job).filter(Job.job_id == job_id).first()
 
 

@@ -6,7 +6,8 @@ from database.models.application_evaluation import (
 )
 
 from database.models.application import Application
-
+from database.models.form import Form
+from database.models.job import Job
 
 class ApplicationEvaluationRepository:
 
@@ -36,7 +37,6 @@ class ApplicationEvaluationRepository:
 
             raise
 
-
     @staticmethod
     def get_by_application_id(
         db: Session,
@@ -48,12 +48,10 @@ class ApplicationEvaluationRepository:
                 ApplicationEvaluation,
             )
             .filter(
-                ApplicationEvaluation.application_id
-                == application_id,
+                ApplicationEvaluation.application_id == application_id,
             )
             .first()
         )
-
 
     @staticmethod
     def get_by_form_id(
@@ -74,6 +72,31 @@ class ApplicationEvaluationRepository:
             .all()
         )
 
+
+    @staticmethod
+    def get_all_by_recruiter_id(
+        db: Session,
+        recruiter_id: int,
+    ) -> list[ApplicationEvaluation]:
+        return (
+            db.query(ApplicationEvaluation)
+            .join(
+                Application,
+                Application.application_id == ApplicationEvaluation.application_id,
+            )
+            .join(
+                Form,
+                Form.form_id == Application.form_id,
+            )
+            .join(
+                Job,
+                Job.job_id == Form.job_id,
+            )
+            .filter(
+                Job.recruiter_id == recruiter_id,
+            )
+            .all()
+        )
 
     @staticmethod
     def update(
@@ -101,12 +124,9 @@ class ApplicationEvaluationRepository:
     def get_all(
         db: Session,
     ) -> list[ApplicationEvaluation]:
-        return (
-            db.query(
-                ApplicationEvaluation,
-            )
-            .all()
-        )
+        return db.query(
+            ApplicationEvaluation,
+        ).all()
 
     @staticmethod
     def delete(

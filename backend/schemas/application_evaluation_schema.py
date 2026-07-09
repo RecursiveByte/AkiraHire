@@ -9,6 +9,8 @@ from enums.application_evaluation_enum import (
     ApplicationEvaluationStatus,
 )
 
+from datetime import datetime
+
 
 from schemas.application_schema import (
     ApplicationAnswerRequest,
@@ -51,3 +53,15 @@ class ApplicationEvaluationContext(BaseModel):
     links: list[EvaluationLink]
     candidate_name: str
     candidate_email: str
+    
+class ApplicationEvaluationResponse(BaseModel):
+    application_id: int
+    match_score: int
+    reasoning: str
+    status: ApplicationEvaluationStatus
+    evaluated_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
