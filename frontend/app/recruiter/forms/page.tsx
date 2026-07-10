@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { useForms } from "@/hooks/useForms";
-import { useFormModal } from "@/hooks/useFormModal";
+import { useForms } from "@/hooks/form/useForms";
+import { useFormModal } from "@/hooks/form/useFormModal";
 import FormDetailModal from "@/components/recruiter/form-detail/FormDetailModal";
 import FormsTable from "@/components/recruiter/form/FormsTable";
 

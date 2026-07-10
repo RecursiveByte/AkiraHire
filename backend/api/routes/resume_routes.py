@@ -52,17 +52,12 @@ def read_resume(
     
 @router.post("/upload")
 def upload_resume(
-    file: UploadFile = File(...),
+    resume: UploadFile = File(...),
     current_user: CurrentUser = Depends(
     require_role(UserRole.CANDIDATE)
 ),
     
 ):
-
-    resume_url = ResumeService.upload_resume(
-        file=file,
+    return ResumeService.upload_resume(
+        file=resume,
     )
-
-    return {
-        "resume_url": resume_url,
-    }

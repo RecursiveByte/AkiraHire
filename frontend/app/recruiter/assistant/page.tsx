@@ -7,8 +7,8 @@ import { AssistantHeader } from "@/components/recruiter/assistant/AssistantHeade
 import { ChatArea } from "@/components/recruiter/assistant/ChatArea";
 import { ChatInput } from "@/components/recruiter/assistant/ChatInput";
 import { HistorySidebar } from "@/components/recruiter/assistant/HistorySidebar";
-import { useConversations } from "@/hooks/useConversations";
-import { useChatThread } from "@/hooks/useChatThread";
+import { useConversations } from "@/hooks/chat/useConversations";
+import { useChatThread } from "@/hooks/chat/useChatThread";
 
 export default function RecruiterAssistantPage() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(true);

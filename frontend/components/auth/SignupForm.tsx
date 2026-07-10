@@ -7,7 +7,7 @@ import {
   signupSchema,
   type SignupFormValues,
 } from "@/lib/validators/auth.validator";
-import { useSignup } from "@/hooks/useSignup";
+import { useSignup } from "@/hooks/auth/useSignup";
 import { RoleToggle} from "./RoleToggle";
 
 import type { AuthRole } from "@/types/auth.types";

@@ -20,7 +20,7 @@ class ChatMessageResponse(BaseModel):
 
 class ChatHistoryResponse(BaseModel):
     messages: list[ChatMessageResponse]
-
+    
 
 class ChatRequest(BaseModel):
     thread_id: Optional[str] = None

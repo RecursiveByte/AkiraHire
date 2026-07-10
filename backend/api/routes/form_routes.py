@@ -1,8 +1,4 @@
-from fastapi import (
-    APIRouter,
-    Depends,
-    status
-)
+from fastapi import APIRouter, Depends, status
 
 from sqlalchemy.orm import Session
 
@@ -17,6 +13,7 @@ from schemas.form_schema import (
     DeleteFormResponse,
     GenerateFormSchemaRequest,
     GeneratedFormSchemaResponse,
+    GetFormWithJobResponse,
 )
 
 from services.form_service import (
@@ -25,7 +22,7 @@ from services.form_service import (
 
 from services.form_schema_generator_service import FormSchemaService
 
-from auth.dependencies import require_role
+from auth.dependencies import get_current_user,require_role
 
 from enums.user_role_enum import UserRole
 
@@ -41,9 +38,7 @@ router = APIRouter(
 )
 def generate_form_schema(
     payload: GenerateFormSchemaRequest,
-    current_user: dict = Depends(
-        require_role(UserRole.ADMIN, UserRole.RECRUITER)
-    ),
+    current_user: dict = Depends(require_role(UserRole.ADMIN, UserRole.RECRUITER)),
 ):
 
     return FormSchemaService.generate_form_schema(
@@ -59,9 +54,7 @@ def generate_form_schema(
 def create_form(
     payload: CreateFormRequest,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(
-        require_role(UserRole.ADMIN, UserRole.RECRUITER)
-    ),
+    current_user: dict = Depends(require_role(UserRole.ADMIN, UserRole.RECRUITER)),
 ):
 
     return FormService.create_form(
@@ -71,22 +64,44 @@ def create_form(
 
 
 @router.get(
+    "/with-job",
+    response_model=list[GetFormWithJobResponse],
+)
+def get_all_forms_with_job(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    
+    return FormService.get_all_forms_with_jobs(db=db)
+
+@router.get(
     "/{form_id}",
     response_model=GetFormResponse,
-    
 )
 def get_form_by_id(
     form_id: int,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(
-        require_role(UserRole.ADMIN, UserRole.RECRUITER)
-    ),
+    current_user: dict = Depends(require_role(UserRole.ADMIN, UserRole.RECRUITER)),
 ):
     return FormService.get_form_by_id(
         form_id=form_id,
         db=db,
     )
 
+@router.get(
+    "/{form_id}/with-job",
+    response_model=GetFormWithJobResponse,
+)
+def get_form_with_job(
+    form_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    return FormService.get_form_with_job_by_id(
+        form_id=form_id,
+        db=db,
+    )
+    
 
 
 @router.get(
@@ -96,15 +111,14 @@ def get_form_by_id(
 def get_form_by_job_id(
     job_id: int,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(
-        require_role(UserRole.ADMIN, UserRole.RECRUITER)
-    ),
+    current_user: dict = Depends(require_role(UserRole.ADMIN, UserRole.RECRUITER)),
 ):
     return FormService.get_form_by_job_id(
         job_id=job_id,
         db=db,
     )
-    
+
+
 @router.get(
     "/recruiter/",
     response_model=list[GetFormResponse],
@@ -112,13 +126,11 @@ def get_form_by_job_id(
 def get_my_forms(
     current_user: dict = Depends(require_role(UserRole.RECRUITER)),
     db: Session = Depends(get_db),
-    
 ):
     return FormService.get_forms_by_recruiter_id(
         db=db,
         recruiter_id=current_user.user_id,
     )
-
 
 
 @router.patch(
@@ -128,9 +140,7 @@ def get_my_forms(
 def publish_form(
     form_id: int,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(
-        require_role(UserRole.ADMIN, UserRole.RECRUITER)
-    ),
+    current_user: dict = Depends(require_role(UserRole.ADMIN, UserRole.RECRUITER)),
 ):
     return FormService.publish_form(
         form_id=form_id,
@@ -145,15 +155,12 @@ def publish_form(
 def close_form(
     form_id: int,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(
-        require_role(UserRole.ADMIN, UserRole.RECRUITER)
-    ),
+    current_user: dict = Depends(require_role(UserRole.ADMIN, UserRole.RECRUITER)),
 ):
     return FormService.close_form(
         form_id=form_id,
         db=db,
     )
-
 
 
 @router.delete(
@@ -163,9 +170,7 @@ def close_form(
 def delete_form(
     form_id: int,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(
-        require_role(UserRole.ADMIN, UserRole.RECRUITER)
-    ),
+    current_user: dict = Depends(require_role(UserRole.ADMIN, UserRole.RECRUITER)),
 ):
     return FormService.delete_form(
         form_id=form_id,

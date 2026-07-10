@@ -1,28 +1,23 @@
+# services/resume_service.py
 import uuid
+from datetime import datetime, timezone
 
 from fastapi import UploadFile
 
-from core.document.downloader import (
-    download_document,
-)
-
-from core.document.readers.pdf_reader import (
-    extract_pdf_text,
-)
-
+from core.document.downloader import download_document
+from core.document.readers.pdf_reader import extract_pdf_text
 from core.storage.supabase_client import supabase_client
-
 from exceptions.resume_exceptions import (
     UnsupportedResumeFormatError,
-    ResumeUploadError
-    
+    ResumeUploadError,
 )
-
+from schemas.resume_schema import ResumeUploadResponse
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 from config.constants import RESUME_BUCKET
+
 
 class ResumeService:
 
@@ -50,11 +45,16 @@ class ResumeService:
     @staticmethod
     def upload_resume(
         file: UploadFile,
-    ) -> str:
+    ) -> ResumeUploadResponse:
 
         logger.info("Uploading resume.")
+        print("\n")
+        print("Uploading the resume ")
+        print("\n")
 
-        file_extension = file.filename.split(".")[-1]
+        original_file_name = file.filename
+
+        file_extension = original_file_name.split(".")[-1]
 
         file_path = f"{uuid.uuid4()}.{file_extension}"
 
@@ -76,4 +76,8 @@ class ResumeService:
             file_path
         )
 
-        return public_url
+        return ResumeUploadResponse(
+            document_url=public_url,
+            file_name=original_file_name,
+            updated_at=datetime.now(timezone.utc),
+        )

@@ -7,7 +7,7 @@ import { AuthService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/authStore";
 import axios from "axios";
 
-import type { LoginFormValues } from "@/lib/validators";
+import { LoginFormValues } from "@/lib/validators/auth.validator";
 
 export function useLogin() {
   const router = useRouter();

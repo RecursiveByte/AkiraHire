@@ -113,10 +113,21 @@ class GetFormResponse(BaseModel):
     updated_at: datetime
 
 
+class GetFormWithJobResponse(BaseModel):
+    form_id: int
+    job_id: int
+    job_role: str
+    job_description: str
+    title: str
+    status: FormStatus
+    form_schema_json: GeneratedFormSchemaResponse
+    expires_at: datetime 
+    created_at: datetime
+    updated_at: datetime
+
 class PublishFormResponse(BaseModel):
     form_id: int
     status: FormStatus
-
 
 class CloseFormResponse(BaseModel):
     form_id: int

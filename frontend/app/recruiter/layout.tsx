@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { RecruiterTopbar } from "@/components/recruiter/layout/RecruiterTopbar";
-import { useLogout } from "@/hooks/useLogout";
+import { useLogout } from "@/hooks/auth/useLogout";
 
 const RECRUITER_NAV_ITEMS = [
   { href: "/recruiter/dashboard", icon: "dashboard", label: "Dashboard" },

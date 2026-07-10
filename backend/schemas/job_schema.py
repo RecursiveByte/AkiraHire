@@ -69,6 +69,8 @@ class GenerateJobDescriptionRequest(BaseModel):
 # class GenerateJobDescriptionResponse(BaseModel):
     # job_description: str
 
+
+
 class GenerateJobDescriptionResponse(BaseModel):
     role: str = Field(description="The job title/role")
     job_description: str = Field(description="The full generated job description")

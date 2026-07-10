@@ -2,6 +2,8 @@ from pydantic import BaseModel, EmailStr, Field, ConfigDict, HttpUrl
 
 from schemas.validators import PhoneNumber
 
+from datetime import datetime
+
 
 class CandidateProfileInput(BaseModel):
 
@@ -23,7 +25,6 @@ class CandidateProfileInput(BaseModel):
 
 
 class CandidateProfileCreate(CandidateProfileInput):
-
     resume_url: HttpUrl
 
 
@@ -34,15 +35,11 @@ class CandidateProfileUpdate(BaseModel):
         max_length=100,
     )
 
-    email: EmailStr | None = None
-
-    phone: str | None = Field(
-        default=None,
-        min_length=10,
+    phone: PhoneNumber = Field(
+        ...,
+        min_length=11,
         max_length=20,
     )
-
-    resume_url: HttpUrl | None = None
 
     model_config = ConfigDict(
         str_strip_whitespace=True,
@@ -62,6 +59,7 @@ class CandidateProfileResponse(BaseModel):
     email: str
     phone: str
     resume_url: str
+    updated_at: datetime
 
     model_config = ConfigDict(
         from_attributes=True,

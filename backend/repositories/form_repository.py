@@ -52,6 +52,10 @@ class FormRepository:
         )
         
     @staticmethod
+    def get_all(db: Session) -> list[Form]:
+        return db.query(Form).all()
+        
+    @staticmethod
     def get_forms_by_recruiter_id(
         db: Session,
         recruiter_id: int,

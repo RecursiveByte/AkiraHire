@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { useApplications } from "@/hooks/useApplications";
-import { useApplicationModal } from "@/hooks/useApplicationModal";
+import { useApplications } from "@/hooks/application/useApplications";
+import { useApplicationModal } from "@/hooks/application/useApplicationModal";
 import ApplicationSearchBar from "./ApplicationSearchBar";
 import ApplicationsTable from "@/components/recruiter/applications/ApplicationsTable";
 import ApplicationDetailModal from "@/components/recruiter/application-detail/ApplicationDetailModal";

@@ -2,10 +2,10 @@
 
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { useApplications } from "@/hooks/useApplications";
-import { useApplicationModal } from "@/hooks/useApplicationModal";
-import { useEvaluatedApplications } from "@/hooks/useEvaluatedApplications";
-import { useEvaluatedApplicationModal } from "@/hooks/useEvaluatedApplicationModal";
+import { useApplications } from "@/hooks/application/useApplications";
+import { useApplicationModal } from "@/hooks/application/useApplicationModal";
+import { useEvaluatedApplications } from "@/hooks/application/useEvaluatedApplications";
+import { useEvaluatedApplicationModal } from "@/hooks/application/useEvaluatedApplicationModal";
 import ApplicationsTable from "@/components/recruiter/applications/ApplicationsTable";
 import ApplicationDetailModal from "@/components/recruiter/application-detail/ApplicationDetailModal";
 import EvaluatedApplicationsTable from "@/components/recruiter/applications/EvaluatedApplicationsTable";
