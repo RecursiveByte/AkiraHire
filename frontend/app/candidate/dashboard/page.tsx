@@ -3,9 +3,9 @@ import ApplicationsSection from "@/components/candidate/dashboard/ApplicationsSe
 
 export default function CandidateDashboardPage() {
   return (
-    <>
+    <div >
       <WelcomeHeader />
       <ApplicationsSection />
-    </>
+    </div>
   );
 }

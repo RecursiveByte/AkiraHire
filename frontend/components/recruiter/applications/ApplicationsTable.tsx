@@ -7,6 +7,7 @@ import ApplicationRow from "./ApplicationRow";
 import ApplicationRowSkeleton from "./ApplicationRowSkeleton";
 import { SKELETON_ROW_COUNT } from "@/constants/skeleton";
 import { useAuthStore } from "@/store/authStore";
+import { useApplications } from "@/hooks/application/useApplications";
 
 interface ApplicationsTableProps {
   applications: Application[];
@@ -24,6 +25,7 @@ export default function ApplicationsTable({
   const parentRef = useRef<HTMLDivElement>(null);
 
   const { user } = useAuthStore();
+  const {error} = useApplications();
 
   const virtualizer = useVirtualizer({
     count: applications.length,
@@ -32,7 +34,7 @@ export default function ApplicationsTable({
     overscan: 6,
   });
 
-  if (!isLoading && applications.length === 0) {
+  if (!isLoading && applications.length === 0 || error) {
     return (
       <div className="glass-panel rounded-xl p-12 text-center text-on-surface-variant">
         No applications to show yet.

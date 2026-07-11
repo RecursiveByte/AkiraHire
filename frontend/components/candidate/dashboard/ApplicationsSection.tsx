@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
+import { useMemo, useState } from "react";
 
 import { useApplications } from "@/hooks/application/useApplications";
 import { useApplicationModal } from "@/hooks/application/useApplicationModal";
+import { useApplicationDelete } from "@/hooks/application/useApplicationDelete";
 
 import ApplicationSearchBar from "./ApplicationSearchBar";
 import ApplicationsTable from "@/components/recruiter/applications/ApplicationsTable";
@@ -15,10 +15,8 @@ export default function ApplicationsSection() {
   const {
     applications,
     isLoading,
-    isDeleting,
     error,
-    refetch,
-    deleteApplication,
+    refetchApplications,
   } = useApplications();
 
   const {
@@ -27,19 +25,19 @@ export default function ApplicationsSection() {
     closeApplication,
   } = useApplicationModal(applications);
 
-  const [query, setQuery] = useState("");
-  const [applicationToDeleteId, setApplicationToDeleteId] = useState<number | null>(null);
+  const {
+    applicationToDeleteId,
+    setApplicationToDeleteId,
+    isDeleting,
+    handleDeleteConfirm,
+  } = useApplicationDelete({
+    selectedApplicationId:
+      selectedApplication?.applicationId ?? null,
+    closeApplication,
+    refetchApplications,
+  });
 
-  useEffect(() => {
-    if (error) {
-      toast.error(error, {
-        action: {
-          label: "Retry",
-          onClick: refetch,
-        },
-      });
-    }
-  }, [error, refetch]);
+  const [query, setQuery] = useState("");
 
   const filteredApplications = useMemo(() => {
     if (!query.trim()) return applications;
@@ -51,20 +49,6 @@ export default function ApplicationsSection() {
 
   const showApplicationsSkeleton =
     isLoading || (!!error && applications.length === 0);
-
-  const handleDeleteConfirm = async () => {
-    if (applicationToDeleteId === null) return;
-
-    await deleteApplication(applicationToDeleteId);
-
-    if (
-      selectedApplication?.applicationId === applicationToDeleteId
-    ) {
-      closeApplication();
-    }
-
-    setApplicationToDeleteId(null);
-  };
 
   return (
     <section className="space-y-6">

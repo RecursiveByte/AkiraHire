@@ -180,8 +180,6 @@ class ApplicationEvaluationService:
             resume=resume_content,
             answers=formatted_answers,
             links=formatted_links,
-            # candidate_name=candidate_profile.full_name,
-            # candidate_email=candidate_profile.email,
         )
 
     @staticmethod
@@ -244,9 +242,6 @@ class ApplicationEvaluationService:
                 ),
             ]
         )
-        print("\nRAW response.content (repr):")
-        print(repr(response.content))
-        print("\n")
 
         try:
 
@@ -276,10 +271,6 @@ class ApplicationEvaluationService:
     ) -> ApplicationEvaluation:
 
         logger.info(f"Saving evaluation for application_id={application_id}.")
-
-        print("\nBEFORE SAVE evaluation.reasoning (repr):")
-        print(repr(evaluation.reasoning))
-        print("\n")
 
         application_evaluation = ApplicationEvaluation(
             application_id=application_id,

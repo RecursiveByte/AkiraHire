@@ -23,7 +23,6 @@ load_dotenv()
 app = FastAPI(
     title="Google AutoForm API",
     version="1.0.0",
-    # lifespan=lifespan,
 )
 
 

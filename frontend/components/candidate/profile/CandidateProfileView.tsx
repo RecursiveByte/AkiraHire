@@ -28,7 +28,7 @@ export default function CandidateProfileView({
   });
 
   return (
-    <div className="mx-auto max-w-4xl  space-y-6">
+    <div className="mx-auto max-w-4xl min-h-screen p-2 overflow-y-auto space-y-6">
       <ProfileHeader profile={profile} onEditClick={editModal.openModal} />
 
       <div className="grid grid-cols-12 gap-6">

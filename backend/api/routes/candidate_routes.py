@@ -48,9 +48,6 @@ def create_candidate_profile(
     ),
     db: Session = Depends(get_db),
 ):
-    print("RAW candidate_data:", candidate_data)
-    print("resume filename:", resume.filename)
-    print("resume content_type:", resume.content_type)
     
     try:
         data = json.loads(candidate_data)

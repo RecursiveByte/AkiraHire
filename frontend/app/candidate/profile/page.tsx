@@ -18,7 +18,7 @@ export default function CandidateProfilePage() {
 
   if (isNotFound) {
     return (
-      <>
+      <div >
         <CandidateProfileEmptyState
           onCreateProfile={createProfileModal.openModal}
         />
@@ -40,7 +40,7 @@ export default function CandidateProfilePage() {
           onReplaceResumeClick={createProfileModal.triggerFileSelect}
           onResumeFileChange={createProfileModal.handleFileChange}
         />
-      </>
+      </div>
     );
   }
 

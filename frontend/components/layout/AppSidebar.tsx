@@ -96,7 +96,7 @@ export function AppSidebar({
             }`}
           >
             <span className="msi shrink-0 text-[20px]">logout</span>
-            {!collapsed && <span className="text-sm font-medium">Logout</span>}
+            {!collapsed && <span className="text-sm  font-medium">Logout</span>}
           </button>
 
           <button
