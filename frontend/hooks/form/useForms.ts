@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Form } from "@/types/form.types";
-import { formService } from "@/services/form.service";
+import { FormService } from "@/services/form.service";
 
 interface UseFormsResult {
   forms: Form[];
@@ -23,7 +23,7 @@ export function useForms(): UseFormsResult {
       setError(null);
 
       try {
-        const data = await formService.getRecruiterForms();
+        const data = await FormService.getRecruiterForms();
         if (isMounted) setForms(data);
       } catch (err) {
         if (isMounted) setError(err instanceof Error ? err.message : "Failed to load forms.");

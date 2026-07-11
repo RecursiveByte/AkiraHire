@@ -20,6 +20,8 @@ export const applicationService = {
         ? "/applications/recruiter/view"
         : "/applications/candidate/view";
 
+      console.log(url)
+
 
     const { data } = await apiClient.get<ApiApplication[]>(url);
 

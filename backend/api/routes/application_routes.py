@@ -28,6 +28,15 @@ router = APIRouter(
     tags=["Applications"],
 )
 
+@router.get("/applied-form-ids")
+def get_applied_form_ids(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_role(UserRole.CANDIDATE)),
+):
+    return ApplicationService.get_applied_form_ids(
+        user_id=current_user.user_id,
+        db=db,
+    )
 
 @router.get(
     "/candidate/view",
@@ -36,9 +45,8 @@ def get_candidate_applications(
     db: Session = Depends(get_db),
     current_user: dict = Depends(require_role(UserRole.CANDIDATE)),
 ):
-
     return ApplicationService.get_candidate_applications(
-        candidate_id=current_user.user_id,
+        user_id=current_user.user_id,
         db=db,
     )
     

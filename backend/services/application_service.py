@@ -53,7 +53,10 @@ from schemas.application_schema import (
 )
 
 
-from exceptions.application_exceptions import ApplicationNotFoundError
+from exceptions.application_exceptions import (
+    ApplicationNotFoundError,
+    ApplicationAlreadyExistsError,
+)
 
 from exceptions.form_exceptions import (
     FormNotFoundError,
@@ -108,6 +111,19 @@ class ApplicationService:
             candidate_id=candidate_profile.candidate_id,
         )
 
+        existing_application = ApplicationRepository.get_by_form_id_and_candidate_id(
+            db=db,
+            form_id=payload.form_id,
+            candidate_id=candidate_profile.candidate_id,
+        )
+
+        if existing_application:
+            logger.warning(
+                f"Duplicate application attempt. "
+                f"form_id={payload.form_id}, candidate_id={candidate_profile.candidate_id}"
+            )
+            raise ApplicationAlreadyExistsError()
+
         created_application = ApplicationRepository.create(
             db=db,
             application=application,
@@ -133,7 +149,6 @@ class ApplicationService:
         return CreateApplicationResponse(
             application_id=created_application.application_id,
             form_id=created_application.form_id,
-            candidate_id=created_application.candidate_id,
             submitted_at=created_application.submitted_at,
         )
 
@@ -370,7 +385,6 @@ class ApplicationService:
             for application in application_ids
         ]
 
-
     @staticmethod
     def get_applications_by_candidate_id(
         candidate_id: int,
@@ -380,15 +394,36 @@ class ApplicationService:
             db=db,
             candidate_id=candidate_id,
         )
+        
+    @staticmethod
+    def get_applied_form_ids(user_id: int, db: Session) -> list[int]:
+        candidate_profile = CandidateRepository.get_by_user_id(db=db, user_id=user_id)
+
+        if not candidate_profile:
+            raise CandidateProfileNotFoundError()
+
+        return ApplicationRepository.get_form_ids_by_candidate_id(
+            db=db,
+            candidate_id=candidate_profile.candidate_id,
+        )
 
 
     @staticmethod
     def get_candidate_applications(
-        candidate_id: int,
+        user_id: int,
         db: Session,
     ):
+        candidate_profile = CandidateRepository.get_by_user_id(
+            db=db,
+            user_id=user_id,
+        )
+
+        if not candidate_profile:
+            logger.warning(f"Candidate profile not found. user_id={user_id}")
+            raise CandidateProfileNotFoundError()
+
         applications = ApplicationService.get_applications_by_candidate_id(
-            candidate_id=candidate_id,
+            candidate_id=candidate_profile.candidate_id,
             db=db,
         )
 

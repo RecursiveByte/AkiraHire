@@ -21,7 +21,6 @@ class ApplicationNotFoundError(
 class ApplicationAlreadyExistsError(
     ApplicationException,
 ):
-
     def __init__(self):
         super().__init__(
             message="An application already exists for this form.",

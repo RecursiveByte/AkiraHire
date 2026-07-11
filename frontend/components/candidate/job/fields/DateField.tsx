@@ -31,6 +31,9 @@ export default function DateField({
       <Controller
         control={control}
         name={name}
+        rules={{
+          required: required ? `${label} is required` : false,
+      }}
         defaultValue=""
         render={({ field }) => (
           <Input

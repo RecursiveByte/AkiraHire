@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import useGlassCardEffect from "@/hooks/useGlassCardEffect";
 
 interface DashboardFeatureCardProps {
   icon: string;
@@ -20,10 +19,9 @@ export function DashboardFeatureCard({
   ctaIcon = "arrow_forward",
   href,
 }: DashboardFeatureCardProps) {
-  const ref = useGlassCardEffect<HTMLDivElement>();
 
   return (
-    <div ref={ref} className="glass-card p-8 rounded-[20px] flex flex-col h-full">
+    <div  className="glass-card p-8 rounded-[20px] flex flex-col h-full">
       <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-4 border border-white/10">
         <span className="msi text-white text-[28px]">{icon}</span>
       </div>

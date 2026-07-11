@@ -34,6 +34,9 @@ export default function TextAreaField({
         name={name}
         control={control}
         defaultValue=""
+        rules={{
+          required: required ? `${label} is required` : false,
+      }}
         render={({ field }) => (
           <Textarea
             id={name}

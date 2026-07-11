@@ -43,6 +43,9 @@ export default function SelectField({
         control={control}
         name={name}
         defaultValue=""
+        rules={{
+          required: required ? `${label} is required` : false,
+      }}
         render={({ field }) => (
           <Select
             value={field.value}

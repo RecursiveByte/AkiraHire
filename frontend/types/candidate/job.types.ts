@@ -19,8 +19,15 @@ export interface JobApplicationForm {
 export interface FormSchema {
   title: string;
   description: string;
-  links: string[];
+  links: LinkField[];
   additionalQuestions: AdditionalQuestion[];
+}
+
+
+export interface LinkField {
+  id: string;
+  label: string;
+  required: boolean;
 }
 
 export interface AdditionalQuestion {

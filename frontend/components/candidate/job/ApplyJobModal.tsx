@@ -15,48 +15,52 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import QuestionRenderer from "./QuestionRenderer";
-import TextField from "./fields/TextField";
 
 import { JobApplicationForm } from "@/types/candidate/job.types";
 import { useAuthStore } from "@/store/authStore";
+import { useCreateApplication } from "@/hooks/candidate/useCreateApplication";
 
 interface ApplyJobModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   job: JobApplicationForm | null;
+  onSuccess?: () => void;
 }
 
 export default function ApplyJobModal({
   open,
   onOpenChange,
   job,
+  onSuccess
 }: ApplyJobModalProps) {
-  const { control, handleSubmit } = useForm();
+  const { register, control, handleSubmit } = useForm();
 
   const user = useAuthStore((state) => state.user);
+  const { submitApplication, isSubmitting } = useCreateApplication();
 
   if (!job) return null;
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     const payload = {
       form_id: job.formId,
-      links: [],
+      links: job.formSchema.links.map((link) => ({
+        id: link.id,
+        url: data.links?.[link.id] || "",
+      })),
       answers: job.formSchema.additionalQuestions.map((question) => ({
         id: question.id,
         answer: data[question.id],
       })),
     };
-  
-    console.log("React Hook Form Data");
-    console.log(data);
-  
-    console.log("Backend Payload");
-    console.log(payload);
+
+    const result = await submitApplication(payload);
+    if (result) onOpenChange(false);
+    onSuccess?.(); 
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] sm:max-w-5xl overflow-y-auto">
+      <DialogContent className="max-h-[90vh] sm:min-w-3xl   overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Apply for {job.jobRole}</DialogTitle>
 
@@ -66,7 +70,6 @@ export default function ApplyJobModal({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-8">
-
           <section className="space-y-6 rounded-xl border p-6">
             <div>
               <h2 className="text-lg font-semibold">Candidate Information</h2>
@@ -75,39 +78,41 @@ export default function ApplyJobModal({
                 Verify your information before submitting your application.
               </p>
             </div>
-
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <TextField
-                control={control}
-                name="fullName"
-                label="Full Name"
-                required
-              />
-
-              <div className="space-y-2">
-                <Label>Email</Label>
-
-                <Input value={user?.email ?? ""} readOnly disabled />
-              </div>
-
-              <TextField
-                control={control}
-                name="phone"
-                label="Phone Number"
-                required
-              />
-
-              <div className="space-y-2">
-                <Label htmlFor="resume">
-                  Resume
-                  <span className="ml-1 text-destructive">*</span>
-                </Label>
-
-                <Input id="resume" type="file" accept=".pdf,.doc,.doc,.docx" />
-              </div>
-            </div>
           </section>
 
+          {job.formSchema.links.length > 0 && (
+            <section className="space-y-6 rounded-xl border p-6">
+              <div>
+                <h2 className="text-lg font-semibold">Links</h2>
+                <p className="text-sm text-muted-foreground">
+                  Please provide the following links.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                {job.formSchema.links.map((link) => (
+                  <div key={link.id} className="space-y-2">
+                    <Label htmlFor={link.id}>
+                      {link.label}
+                      {link.required && (
+                        <span className="text-red-500 ml-1">*</span>
+                      )}
+                    </Label>
+                    <Input
+                      id={link.id}
+                      type="url"
+                      placeholder={`https://...`}
+                      {...register(`links.${link.id}`, {
+                        required: link.required
+                          ? `${link.label} is required`
+                          : false,
+                      })}
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {job.formSchema.additionalQuestions.length > 0 && (
             <section className="space-y-6 rounded-xl border p-6">
@@ -132,7 +137,9 @@ export default function ApplyJobModal({
           )}
 
           <div className="flex justify-end">
-            <Button type="submit">Submit Application</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Submitting..." : "Submit Application"}
+            </Button>
           </div>
         </form>
       </DialogContent>

@@ -14,9 +14,6 @@ class CandidateProfileRequest(BaseModel):
     phone: str
     resume_url: str
 
-
-
-
 class ApplicationLinkRequest(BaseModel):
     id: str
     url: str
@@ -28,7 +25,6 @@ class ApplicationAnswerRequest(BaseModel):
 
 class CreateApplicationRequest(BaseModel):
     form_id: int
-    # candidate_profile: CandidateProfileRequest
     links: list[ApplicationLinkRequest] = []
     answers: list[ApplicationAnswerRequest] = []
 

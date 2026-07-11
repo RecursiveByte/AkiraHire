@@ -5,6 +5,7 @@ from database.models.application import Application
 from database.models.form import Form
 from database.models.job import Job
 
+
 class ApplicationRepository:
 
     @staticmethod
@@ -25,6 +26,16 @@ class ApplicationRepository:
 
             db.rollback()
             raise
+
+
+    @staticmethod
+    def get_form_ids_by_candidate_id(db: Session, candidate_id: int) -> list[int]:
+        results = (
+            db.query(Application.form_id)
+            .filter(Application.candidate_id == candidate_id)
+            .all()
+        )
+        return [row[0] for row in results]
 
     @staticmethod
     def get_by_id(
@@ -53,7 +64,22 @@ class ApplicationRepository:
             )
             .all()
         )
-        
+
+    @staticmethod
+    def get_by_form_id_and_candidate_id(
+        db: Session,
+        form_id: int,
+        candidate_id: int,
+    ) -> Application | None:
+        return (
+            db.query(Application)
+            .filter(
+                Application.form_id == form_id,
+                Application.candidate_id == candidate_id,
+            )
+            .first()
+        )
+
     @staticmethod
     def get_by_recruiter_id(
         recruiter_id: int,
@@ -106,10 +132,7 @@ class ApplicationRepository:
         db: Session,
     ) -> list[Application]:
 
-        return (
-            db.query(Application)
-            .all()
-        )
+        return db.query(Application).all()
 
     @staticmethod
     def delete(
@@ -126,6 +149,3 @@ class ApplicationRepository:
 
             db.rollback()
             raise
-        
-        
-        

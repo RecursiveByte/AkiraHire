@@ -1,6 +1,7 @@
 import { Application } from "@/types/application.types";
 import { formatDate } from "@/lib/utils";
 import ApplicationStatusBadge from "./ApplicationStatusBadge";
+import { useAuthStore } from "@/store/authStore";
 
 interface ApplicationRowProps {
   application: Application;
@@ -13,6 +14,8 @@ export default function ApplicationRow({
   onClick,
   onDelete,
 }: ApplicationRowProps) {
+
+  const {user} = useAuthStore();
   return (
     <div
       onClick={() => onClick(application.applicationId)}
@@ -29,7 +32,6 @@ export default function ApplicationRow({
         </span>
       </div>
 
-
       {/* Form ID */}
       <div className="flex items-center justify-between lg:block lg:min-w-[110px]">
         <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/50 lg:hidden">
@@ -40,7 +42,6 @@ export default function ApplicationRow({
           #{application.form.formId}
         </span>
       </div>
-
 
       {/* Job ID */}
       <div className="flex items-center justify-between lg:block lg:min-w-[110px]">
@@ -53,21 +54,22 @@ export default function ApplicationRow({
         </span>
       </div>
 
-
       {/* Applicant */}
-      <div className="flex items-center justify-between lg:block lg:min-w-[180px]">
-        <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/50 lg:hidden">
-          Applicant
-        </span>
 
-        <span
-          className="text-primary font-medium truncate block"
-          title={application.candidateProfile.fullName}
-        >
-          {application.candidateProfile.fullName}
-        </span>
-      </div>
+      {user?.role == "recruiter" && (
+        <div className="flex items-center justify-between lg:block lg:min-w-[180px]">
+          <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/50 lg:hidden">
+            Applicant
+          </span>
 
+          <span
+            className="text-primary font-medium truncate block"
+            title={application.candidateProfile.fullName}
+          >
+            {application.candidateProfile.fullName}
+          </span>
+        </div>
+      )}
 
       {/* Status */}
       <div className="flex items-center justify-between lg:block lg:min-w-[130px]">
@@ -77,7 +79,6 @@ export default function ApplicationRow({
 
         <ApplicationStatusBadge status={application.status} />
       </div>
-
 
       {/* Resume */}
       <div className="flex items-center justify-between lg:block lg:min-w-[120px]">
@@ -96,7 +97,6 @@ export default function ApplicationRow({
         </a>
       </div>
 
-
       {/* Submitted At */}
       <div className="flex items-center justify-between lg:block lg:min-w-[140px]">
         <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/50 lg:hidden">
@@ -108,7 +108,6 @@ export default function ApplicationRow({
         </span>
       </div>
 
-
       {/* Actions */}
       <div className="flex items-center justify-end pt-2 lg:pt-0 border-t border-white/5 lg:border-0">
         <button
@@ -119,9 +118,7 @@ export default function ApplicationRow({
           className="w-8 h-8 flex items-center justify-center rounded-lg text-on-surface-variant/60 hover:text-error hover:bg-white/5 transition-colors"
           aria-label={`Delete application ${application.applicationId}`}
         >
-          <span className="material-symbols-outlined text-[18px]">
-            delete
-          </span>
+          <span className="material-symbols-outlined text-[18px]">delete</span>
         </button>
       </div>
     </div>

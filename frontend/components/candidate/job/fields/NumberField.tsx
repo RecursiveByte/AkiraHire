@@ -32,12 +32,17 @@ export default function NumberField({
         name={name}
         control={control}
         defaultValue=""
+        rules={{
+          required: required ? `${label} is required` : false,
+      }}
         render={({ field }) => (
           <Input
             id={name}
             type="number"
             placeholder={`Enter ${label}`}
+            
             min={0}
+            
             {...field}
             value={field.value ?? ""}
             onChange={(e) => {

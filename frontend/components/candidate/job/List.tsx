@@ -10,9 +10,11 @@ import JobDetailsModal from "@/components/candidate/job/JobDetailsModal";
 import ApplyJobModal from "@/components/candidate/job/ApplyJobModal";
 import { useJobs } from "@/hooks/candidate/useJobs";
 import { JobApplicationForm } from "@/types/candidate/job.types";
+import { useAppliedFormIds } from "@/hooks/candidate/useAppliedFormIds";
 
 export default function List() {
   const parentRef = useRef<HTMLDivElement>(null);
+  const { appliedFormIds, markAsApplied } = useAppliedFormIds();
 
   const { jobs, isLoading, error } = useJobs();
 
@@ -61,6 +63,7 @@ export default function List() {
         >
           {virtualizer.getVirtualItems().map((virtualItem) => {
             const job = jobs[virtualItem.index];
+            const applied = appliedFormIds.has(job.formId);
 
             return (
               <div
@@ -73,6 +76,7 @@ export default function List() {
               >
                 <Card
                   job={job}
+                  applied={applied}
                   onViewDetails={(job) => {
                     setSelectedJob(job);
                     setIsDetailsOpen(true);
@@ -95,6 +99,7 @@ export default function List() {
       />
       <ApplyJobModal
         open={isApplyOpen}
+        onSuccess={() => selectedJob && markAsApplied(selectedJob.formId)}
         onOpenChange={setIsApplyOpen}
         job={selectedJob}
       />

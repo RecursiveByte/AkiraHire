@@ -4,7 +4,7 @@ import { mapApiFormToForm } from "@/lib/mappers/form.mapper";
 import { Form } from "@/types/form.types";
 
 export class FormService {
-  async getRecruiterForms(): Promise<Form[]> {
+  static async getRecruiterForms(): Promise<Form[]> {
     const { data } = await apiClient.get<ApiForm[]>("/forms/recruiter/");
     console.log(data)
     return data.map(mapApiFormToForm);

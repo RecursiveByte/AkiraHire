@@ -225,6 +225,7 @@ class ApplicationEvaluationService:
         logger.info("Evaluating application using LLM.")
 
         llm = get_llm()
+        llm = get_llm().bind(response_format={"type": "json_object"})
 
         response = llm.invoke(
             [
@@ -243,16 +244,15 @@ class ApplicationEvaluationService:
                 ),
             ]
         )
-
-
-        cleaned_response = clean_json(
-            response.content,
-        )
+        
+        print("\n")
+        print(response.content)
+        print("\n")
 
         try:
 
             return GeneratedApplicationEvaluation.model_validate_json(
-                cleaned_response,
+                response.content,
             )
 
         except Exception as e:

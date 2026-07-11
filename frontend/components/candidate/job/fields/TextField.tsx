@@ -31,7 +31,12 @@ export default function TextField({
       <Controller
         name={name}
         control={control}
+        rules={{
+          required: required ? `${label} is required` : false,
+      }}
+        
         defaultValue=""
+        
         render={({ field }) => (
           <Input
             id={name}

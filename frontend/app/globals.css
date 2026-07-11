@@ -124,6 +124,7 @@
 html {
   scrollbar-width: none;
   -ms-overflow-style: none;
+  white-space: pre-line;
 }
 html::-webkit-scrollbar {
   display: none;

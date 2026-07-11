@@ -38,6 +38,9 @@ export default function RadioField({
         control={control}
         name={name}
         defaultValue=""
+        rules={{
+          required: required ? `${label} is required` : false,
+      }}
         render={({ field }) => (
           <RadioGroup
             value={field.value}

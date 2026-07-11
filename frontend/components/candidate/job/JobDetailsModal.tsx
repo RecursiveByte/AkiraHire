@@ -52,8 +52,10 @@ export default function JobDetailsModal({
             <section className="space-y-4">
               <h2 className="text-xl font-semibold">Job Description</h2>
 
-              <article className="prose prose-neutral dark:prose-invert max-w-none">
-                <ReactMarkdown>{job.jobDescription}</ReactMarkdown>
+              <article className="prose whitespace-pre-line prose-neutral dark:prose-invert max-w-none">
+                <ReactMarkdown>
+                  {job.jobDescription}
+                  </ReactMarkdown>
               </article>
             </section>
           </div>

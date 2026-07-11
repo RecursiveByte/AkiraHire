@@ -34,6 +34,9 @@ export default function CheckboxField({
         control={control}
         name={name}
         defaultValue={[]}
+        rules={{
+          required: required ? `${label} is required` : false,
+      }}
         render={({ field }) => (
           <div className="space-y-3">
             {options.map((option) => {

@@ -6,6 +6,7 @@ import { Application } from "@/types/application.types";
 import ApplicationRow from "./ApplicationRow";
 import ApplicationRowSkeleton from "./ApplicationRowSkeleton";
 import { SKELETON_ROW_COUNT } from "@/constants/skeleton";
+import { useAuthStore } from "@/store/authStore";
 
 interface ApplicationsTableProps {
   applications: Application[];
@@ -21,6 +22,8 @@ export default function ApplicationsTable({
   onDeleteApplication,
 }: ApplicationsTableProps) {
   const parentRef = useRef<HTMLDivElement>(null);
+
+  const { user } = useAuthStore();
 
   const virtualizer = useVirtualizer({
     count: applications.length,
@@ -57,9 +60,11 @@ export default function ApplicationsTable({
               Job ID
             </span>
 
-            <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold">
-              Applicant
-            </span>
+            {user?.role == "recruiter" && (
+              <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold">
+                Applicant
+              </span>
+            )}
 
             <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold">
               Status
