@@ -13,8 +13,10 @@ interface JobsTableProps {
   onSelectJob: (jobId: number) => void;
   onDeleteJob: (jobId: number) => Promise<void>;
   onPublishJob: (jobId: number) => Promise<void>;
-  onCloseJob: (jobId: number) => void;
+  onCloseJob: (jobId: number) => Promise<void>;
 }
+
+
 
 export default function JobsTable({
   jobs,
@@ -22,6 +24,7 @@ export default function JobsTable({
   onSelectJob,
   onDeleteJob,
   onPublishJob,
+  onCloseJob,
 }: JobsTableProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -99,6 +102,7 @@ export default function JobsTable({
                       onClick={onSelectJob}
                       onDelete={onDeleteJob}
                       onPublish={onPublishJob}
+                      onCloseJob={onCloseJob}
                     />
                   </div>
                 );

@@ -1,5 +1,4 @@
 export interface AssistantMessage {
-    id: string;
     role: "assistant" | "user";
     content: string;
   }

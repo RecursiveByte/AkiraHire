@@ -12,13 +12,13 @@ from agents.form_agent.nodes import (
     decline_form_node,
     route_after_confirm,
 )
-from core.checkpointer import checkpointer
 
+from core.checkpointer import checkpointer
 
 def build_form_graph():
     builder = StateGraph(FormAgentState)
 
-    builder.add_node("chatbot",chatbot )
+    builder.add_node("chatbot", chatbot)
     builder.add_node("tools", ToolNode([generate_form_schema]))
     builder.add_node("apply_tool_result_node", apply_tool_result_node)
     builder.add_node("confirm_create_form_node", confirm_create_form_node)

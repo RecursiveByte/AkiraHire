@@ -17,6 +17,10 @@ export default function RecruiterAssistantPage() {
   const searchParams = useSearchParams();
   const threadId = searchParams.get("thread");
 
+  // if (!threadId) {
+    // return null;
+  // }
+
   const { conversations, activeId, setActiveId, isLoading: isConversationsLoading } =
     useConversations();
 
@@ -41,7 +45,7 @@ export default function RecruiterAssistantPage() {
 
   return (
     <section className="flex h-[calc(100vh-80px)] w-full overflow-hidden">
-      <div className="flex flex-1 flex-col bg-[#050505] overflow-hidden">
+      <div className="flex flex-1 flex-col  bg-[#050505] overflow-hidden">
         <AssistantHeader
           threadTitle={conversations.find((c) => c.id === activeId)?.title || "New Chat"}
           isHistoryOpen={isHistoryOpen}

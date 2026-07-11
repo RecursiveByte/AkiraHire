@@ -134,7 +134,8 @@ class ApplicationEvaluationService:
         resume_content = ResumeService.read_resume(
             resume_url=candidate_profile.resume_url,
         )
-
+        
+        
         form = FormRepository.get_by_id(
             db=db,
             form_id=application.form_id,
@@ -179,8 +180,8 @@ class ApplicationEvaluationService:
             resume=resume_content,
             answers=formatted_answers,
             links=formatted_links,
-            candidate_name=candidate_profile.full_name,
-            candidate_email=candidate_profile.email,
+            # candidate_name=candidate_profile.full_name,
+            # candidate_email=candidate_profile.email,
         )
 
     @staticmethod
@@ -223,7 +224,6 @@ class ApplicationEvaluationService:
     ) -> GeneratedApplicationEvaluation:
 
         logger.info("Evaluating application using LLM.")
-
         llm = get_llm()
         llm = get_llm().bind(response_format={"type": "json_object"})
 
@@ -244,16 +244,23 @@ class ApplicationEvaluationService:
                 ),
             ]
         )
-        
-        print("\n")
-        print(response.content)
+        print("\nRAW response.content (repr):")
+        print(repr(response.content))
         print("\n")
 
         try:
 
-            return GeneratedApplicationEvaluation.model_validate_json(
+            evaluation = GeneratedApplicationEvaluation.model_validate_json(
                 response.content,
             )
+            
+            evaluation.reasoning = (
+                evaluation.reasoning
+                .replace("\\n", "\n")
+                .replace("\\t", "\t")
+            )
+
+            return evaluation
 
         except Exception as e:
 
@@ -269,6 +276,10 @@ class ApplicationEvaluationService:
     ) -> ApplicationEvaluation:
 
         logger.info(f"Saving evaluation for application_id={application_id}.")
+
+        print("\nBEFORE SAVE evaluation.reasoning (repr):")
+        print(repr(evaluation.reasoning))
+        print("\n")
 
         application_evaluation = ApplicationEvaluation(
             application_id=application_id,

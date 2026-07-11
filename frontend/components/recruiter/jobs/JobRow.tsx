@@ -1,12 +1,15 @@
 import { Job } from "@/types/job.types";
 import StatusIndicator from "./StatusIndicator";
 import JobActionButton from "./JobActionButton";
+import { ConfirmActionModal } from "@/components/common/ConfirmActionModal";
+import { useJobConfirmAction } from "@/hooks/job/useJobConfirmAction";
 
 interface JobRowProps {
   job: Job;
   onClick: (jobId: number) => void;
   onDelete: (jobId: number) => Promise<void>;
   onPublish: (jobId: number) => Promise<void>;
+  onCloseJob: (jobId: number) => Promise<void>;
 }
 
 export default function JobRow({
@@ -14,7 +17,11 @@ export default function JobRow({
   onClick,
   onDelete,
   onPublish,
+  onCloseJob,
 }: JobRowProps) {
+  const { config, modalAction, requestAction, closeModal, handleConfirm } =
+    useJobConfirmAction({ job, onDelete, onPublish, onCloseJob });
+
   return (
     <div
       onClick={() => onClick(job.jobId)}
@@ -37,7 +44,6 @@ export default function JobRow({
         <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/50 lg:hidden">
           Job ID
         </span>
-
         <span className="text-sm text-on-surface-variant">#{job.jobId}</span>
       </div>
 
@@ -46,7 +52,6 @@ export default function JobRow({
         <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/50 lg:hidden">
           Role Title
         </span>
-
         <p className="text-primary font-medium truncate" title={job.title}>
           {job.title}
         </p>
@@ -57,7 +62,6 @@ export default function JobRow({
         <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/50 lg:hidden">
           Status
         </span>
-
         <StatusIndicator status={job.status} />
       </div>
 
@@ -66,7 +70,6 @@ export default function JobRow({
         <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/50 lg:hidden">
           Date Created
         </span>
-
         <span className="text-sm text-on-surface-variant whitespace-nowrap">
           {job.createdAt}
         </span>
@@ -76,13 +79,13 @@ export default function JobRow({
       <div className="flex items-center justify-between lg:justify-end gap-3 pt-2 lg:pt-0 border-t border-white/5 lg:border-0">
         <JobActionButton
           status={job.status}
-          onPublish={() => onPublish(job.jobId)}
+          onPublish={async () => requestAction("publish")}
         />
 
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onDelete(job.jobId);
+            requestAction("delete");
           }}
           className="w-8 h-8 flex items-center justify-center rounded-lg text-on-surface-variant/60 hover:text-error hover:bg-white/5 transition-colors"
           aria-label={`Delete ${job.title}`}
@@ -90,6 +93,18 @@ export default function JobRow({
           <span className="material-symbols-outlined text-[18px]">delete</span>
         </button>
       </div>
+
+      {config && (
+        <ConfirmActionModal
+          isOpen={modalAction !== null}
+          onClose={closeModal}
+          onConfirm={handleConfirm}
+          title={config.title(job.title)}
+          description={config.description}
+          confirmLabel={config.confirmLabel}
+          action={config.action}
+        />
+      )}
     </div>
   );
 }

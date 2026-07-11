@@ -183,7 +183,7 @@ def update_application(
 )
 def delete_application(
     application_id: int,
-    current_user: dict = Depends(require_role(UserRole.CANDIDATE, UserRole.ADMIN)),
+    current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
 

@@ -5,9 +5,8 @@ import { ApiApplication } from "@/types/api/application.types";
 import { mapApiApplicationToApplication } from "@/lib/mappers/application.mapper";
 import { Application } from "@/types/application.types";
 
-
-export const applicationService = {
-  async getApplications(): Promise<Application[]> {
+export class ApplicationService {
+  private static getCurrentUser() {
     const user = useAuthStore.getState().user;
 
     if (!user) {
@@ -15,16 +14,23 @@ export const applicationService = {
       throw new Error("User is not authenticated.");
     }
 
+    return user;
+  }
+
+  static async getApplications(): Promise<Application[]> {
+    const user = this.getCurrentUser();
+
     const url =
       user.role === "recruiter"
         ? "/applications/recruiter/view"
         : "/applications/candidate/view";
 
-      console.log(url)
-
-
     const { data } = await apiClient.get<ApiApplication[]>(url);
 
     return data.map(mapApiApplicationToApplication);
-  },
-};
+  }
+
+  static async deleteApplication(applicationId: number): Promise<void> {
+    await apiClient.delete(`/applications/${applicationId}`);
+  }
+}

@@ -1,7 +1,6 @@
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
 
-from core.checkpointer import checkpointer
 
 from agents.common.state import AgentState
 from agents.application_agent.nodes import chatbot
@@ -10,6 +9,8 @@ from agents.tools.application_evaluation import (
     evaluate_application,
     evaluate_all_applications,
 )
+
+from core.checkpointer import checkpointer
 
 builder = StateGraph(AgentState)
 
@@ -43,6 +44,7 @@ builder.add_edge(
     "chatbot",
 )
 
-graph = builder.compile(
-    checkpointer=checkpointer,
-)
+
+
+graph = builder.compile(checkpointer=checkpointer)
+

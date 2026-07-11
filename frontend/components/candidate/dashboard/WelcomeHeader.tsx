@@ -17,9 +17,6 @@ export default function WelcomeHeader() {
             Review your recent applications, explore jobs, and keep your profile up to date to improve your chances of getting hired.
             </p>
           </div>
-          <button className="btn-premium px-6 py-3 rounded-xl font-bold text-body-md">
-            Complete Profile
-          </button>
         </div>
       </section>
     );

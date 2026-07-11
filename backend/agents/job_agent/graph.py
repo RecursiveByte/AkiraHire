@@ -12,8 +12,9 @@ from agents.job_agent.nodes import (
     decline_draft_node,
     route_after_confirm,
 )
-from core.checkpointer import checkpointer
 
+
+from core.checkpointer import checkpointer
 
 def build_job_graph():
     builder = StateGraph(JobAgentState)

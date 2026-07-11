@@ -17,7 +17,7 @@ export const useCreateApplication = () => {
       toast.success("Your application has been submitted successfully.");
       return response;
     } catch (err: any) {
-      const message = err?.response?.data?.message || "Failed to submit application.";
+      const message = err?.response?.data?.detail || "Failed to submit application.";
       setError(message);
       toast.error(message);
       return null;

@@ -1,13 +1,15 @@
 import { Job } from "@/types/job.types";
 import StatusIndicator from "@/components/recruiter/jobs/StatusIndicator";
 import JobActionButton from "@/components/recruiter/jobs/JobActionButton";
+import { ConfirmActionModal } from "@/components/common/ConfirmActionModal";
+import { useJobConfirmAction } from "@/hooks/job/useJobConfirmAction";
 
 interface JobDetailModalProps {
   job: Job;
   onClose: () => void;
   onDelete: (jobId: number) => Promise<void>;
   onPublish: (jobId: number) => Promise<void>;
-  onCloseJob: (jobId: number) => void;
+  onCloseJob: (jobId: number) => Promise<void> | void;
 }
 
 export default function JobDetailModal({
@@ -17,9 +19,11 @@ export default function JobDetailModal({
   onPublish,
   onCloseJob,
 }: JobDetailModalProps) {
+  const { config, modalAction, requestAction, closeModal, handleConfirm } =
+    useJobConfirmAction({ job, onDelete, onPublish, onCloseJob });
 
   return (
-    <div className="  fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm">
       <div className="bg-black border border-white/10 shadow-2xl w-full max-w-lg rounded-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300">
         {/* Header */}
         <div className="p-8 border-b border-white/10 flex justify-between items-start">
@@ -52,11 +56,11 @@ export default function JobDetailModal({
           </div>
 
           <div>
-            <p className=" text-[10px] uppercase text-on-surface-variant/60 tracking-widest mb-2">
+            <p className="text-[10px] uppercase text-on-surface-variant/60 tracking-widest mb-2">
               Job Description
             </p>
             <div className="border border-white/10 rounded-xl p-4 bg-surface-container">
-              <p className="scrollbar-hide whitespace-pre-line text-on-surface leading-relaxed text-sm max-h-40 overflow-y-auto scrollbar-hide">
+              <p className="whitespace-pre-line text-on-surface leading-relaxed text-sm max-h-40 overflow-y-auto scrollbar-hide">
                 {job.description}
               </p>
             </div>
@@ -81,9 +85,10 @@ export default function JobDetailModal({
           </div>
         </div>
 
+        {/* Footer */}
         <div className="p-8 pt-0 flex items-center justify-between gap-3">
           <button
-            onClick={() => onDelete(job.jobId)}
+            onClick={() => requestAction("delete")}
             className="text-on-surface-variant hover:text-error transition-colors flex items-center gap-2 text-sm"
           >
             <span className="material-symbols-outlined text-[18px]">
@@ -93,9 +98,9 @@ export default function JobDetailModal({
           </button>
 
           <div className="flex items-center gap-3">
-            {job.status !== "CLOSED" && (
+            { (job.status !== "CLOSED" &&  job.status !== "DRAFT" ) && (
               <button
-                onClick={() => onCloseJob(job.jobId)}
+                onClick={() => requestAction("close")}
                 className="flex items-center gap-2 px-4 py-2.5 border border-white/15 rounded-lg text-sm text-on-surface-variant hover:bg-white/5 hover:text-primary transition-colors"
               >
                 <span className="material-symbols-outlined text-[18px]">
@@ -106,11 +111,23 @@ export default function JobDetailModal({
             )}
             <JobActionButton
               status={job.status}
-              onPublish={() => onPublish(job.jobId)}
+              onPublish={async() => requestAction("publish")}
             />
           </div>
         </div>
       </div>
+
+      {config && (
+        <ConfirmActionModal
+          isOpen={modalAction !== null}
+          onClose={closeModal}
+          onConfirm={handleConfirm}
+          title={config.title(job.title)}
+          description={config.description}
+          confirmLabel={config.confirmLabel}
+          action={config.action}
+        />
+      )}
     </div>
   );
 }

@@ -1,15 +1,15 @@
 "use client";
 
+import { AssistantMessage } from "@/types/assistant.types";
+
 interface ChatMessageProps {
-  role: "assistant" | "user";
-  message: string;
+  message: AssistantMessage;
 }
 
 export function ChatMessage({
-  role,
   message,
 }: ChatMessageProps) {
-  const isUser = role === "user";
+  const isUser = message.role === "user";
 
   return (
     <div
@@ -24,7 +24,7 @@ export function ChatMessage({
             : "rounded-bl-md border border-white/10 bg-white/3 text-white"
         }`}
       >
-        {message}
+        {message.content}
       </div>
     </div>
   );

@@ -31,7 +31,7 @@ export default function ApplyJobModal({
   open,
   onOpenChange,
   job,
-  onSuccess
+  onSuccess,
 }: ApplyJobModalProps) {
   const { register, control, handleSubmit } = useForm();
 
@@ -54,8 +54,11 @@ export default function ApplyJobModal({
     };
 
     const result = await submitApplication(payload);
-    if (result) onOpenChange(false);
-    onSuccess?.(); 
+    if (result) {
+      onOpenChange(false);
+
+      onSuccess?.();
+    }
   };
 
   return (

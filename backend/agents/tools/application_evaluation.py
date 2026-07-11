@@ -8,6 +8,11 @@ from services.application_evaluation_service import (
 from database.session import SessionLocal
 
 from exceptions.base import AppException
+from exceptions.application_evaluation_exceptions import (
+    ApplicationAlreadyEvaluatedError,
+)
+
+from repositories.application_repository import ApplicationRepository
 
 
 @tool
@@ -42,6 +47,23 @@ def evaluate_application(application_id: int) -> dict:
             "data": result.model_dump(),
         }
 
+    except ApplicationAlreadyEvaluatedError:
+        existing = ApplicationEvaluationService.get_by_application_id(
+            application_id=application_id,
+            db=db,
+        )
+
+        return {
+            "success": True,
+            "already_evaluated": True,
+            "data": {
+                "application_id": application_id,
+                "match_score": existing.match_score,
+                "reasoning": existing.reasoning,
+                "status": existing.status,
+            },
+        }
+
     except AppException as e:
         return {
             "success": False,
@@ -50,9 +72,6 @@ def evaluate_application(application_id: int) -> dict:
 
     finally:
         db.close()
-
-
-from repositories.application_repository import ApplicationRepository
 
 
 @tool
@@ -75,11 +94,8 @@ def evaluate_all_applications() -> dict:
         The official evaluation results for every application.
     """
 
-
     db = SessionLocal()
-    print("\n")
-    print("calling evaluate tool ")
-    print("\n")
+
     try:
         applications = ApplicationRepository.get_all(db=db)
 
@@ -98,6 +114,24 @@ def evaluate_all_applications() -> dict:
                         "success": True,
                         "status": evaluation.status,
                         "match_score": evaluation.match_score,
+                        "reasoning": evaluation.reasoning,
+                    }
+                )
+
+            except ApplicationAlreadyEvaluatedError:
+                existing = ApplicationEvaluationService.get_by_application_id(
+                    application_id=application.application_id,
+                    db=db,
+                )
+
+                results.append(
+                    {
+                        "application_id": application.application_id,
+                        "success": True,
+                        "already_evaluated": True,
+                        "status": existing.status,
+                        "match_score": existing.match_score,
+                        "reasoning": existing.reasoning,
                     }
                 )
 

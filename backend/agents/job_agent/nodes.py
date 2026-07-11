@@ -36,6 +36,10 @@ def apply_tool_result_node(state: JobAgentState) -> dict:
     last_message = state["messages"][-1]
     tool_result: dict = json.loads(last_message.content)
 
+
+    print("=" * 50)
+    print("RAW TOOL RESULT:", tool_result)
+    print("=" * 50)
     if not tool_result.get("success"):
         return {
             "messages": [

@@ -9,6 +9,7 @@ from core.checkpointer import checkpointer
 from agents.general_agent.nodes import chatbot
 from agents.common.state import AgentState
 
+from core.checkpointer import checkpointer
 
 builder = StateGraph(AgentState)
 
@@ -30,3 +31,5 @@ builder.add_edge(
 graph = builder.compile(
     checkpointer=checkpointer,
 )
+
+graph = builder.compile(checkpointer=checkpointer)

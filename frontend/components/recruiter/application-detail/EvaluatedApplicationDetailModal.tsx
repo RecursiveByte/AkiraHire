@@ -54,7 +54,7 @@ export default function EvaluatedApplicationDetailModal({
               Reasoning
             </p>
             <div className="border border-white/10 rounded-xl p-4 bg-surface-container">
-              <p className="text-on-surface whitespace-pre-line leading-relaxed text-sm">
+              <p className="text-on-surface whitespace-pre-line  leading-relaxed text-sm">
                 {evaluatedApplication.reasoning}
               </p>
             </div>

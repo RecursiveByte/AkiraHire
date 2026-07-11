@@ -15,6 +15,7 @@ class AssistantResponse(BaseModel):
     
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from fastapi.responses import StreamingResponse
 
 from auth.dependencies import require_role
 from enums.user_role_enum import UserRole
@@ -44,7 +45,7 @@ router = APIRouter(
 )
 def get_chat_history(
     thread_id: str,
-    # current_user: CurrentUser = Depends(require_role(UserRole.RECRUITER)),
+    current_user: CurrentUser = Depends(require_role(UserRole.RECRUITER)),
     db: Session = Depends(get_db),
 ) -> ChatHistoryResponse:
     return ChatMessageService.get_chat_history(
@@ -64,6 +65,22 @@ def chat(
         message=request.message,
         current_user=current_user,
     )
+    
+# @router.post("/chat/stream")
+# async def chat_stream(
+    # request: ChatRequest,
+    # current_user: CurrentUser = Depends(require_role(UserRole.RECRUITER)),
+    # db: Session = Depends(get_db),
+# ):
+    # return StreamingResponse(
+        # ChatbotService.stream_message(
+            # db=db,
+            # thread_id=request.thread_id,
+            # message=request.message,
+            # current_user=current_user,
+        # ),
+        # media_type="text/event-stream",
+    # )
 
 @router.get(
     "/conversations",

@@ -51,8 +51,8 @@ class ApplicationEvaluationContext(BaseModel):
     resume: str
     answers: list[EvaluationAnswer]
     links: list[EvaluationLink]
-    candidate_name: str
-    candidate_email: str
+    # candidate_name: str
+    # candidate_email: str
     
 class ApplicationEvaluationResponse(BaseModel):
     application_id: int

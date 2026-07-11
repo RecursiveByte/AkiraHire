@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { AssistantService } from "@/services/assistantService";
+import { AssistantService } from "@/services/assistant.service";
 import type { AssistantConversation } from "@/types/assistant.types";
 
 interface UseConversationsResult {
