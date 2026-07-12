@@ -4,6 +4,9 @@ from sqlalchemy.orm import Session
 from database.models.form import Form
 from database.models.job import Job
 
+from enums.form_status_enum import FormStatus
+from enums.job_status_enum  import JobStatus
+
 class FormRepository:
 
     @staticmethod
@@ -101,3 +104,25 @@ class FormRepository:
 
             db.rollback()
             raise
+        
+        
+    @staticmethod
+    def get_published_forms(
+        db: Session,
+    ) -> list[Form]:
+        return (
+            db.query(Form)
+            .filter(Form.status == FormStatus.OPEN)
+            .all()
+        )
+
+
+    @staticmethod
+    def get_published_jobs(
+        db: Session,
+    ) -> list[Job]:
+        return (
+            db.query(Job)
+            .filter(Job.status == JobStatus.OPEN)
+            .all()
+        )

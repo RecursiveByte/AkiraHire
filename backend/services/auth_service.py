@@ -9,6 +9,13 @@ from auth.jwt import (
     verify_refresh_token,
 )
 
+from utils.cookies import set_refresh_cookie, clear_refresh_cookie
+
+from utils.password import verify_password, hash_password
+
+from utils.otp import generate_otp, hash_otp, verify_otp
+
+from datetime import datetime, timezone, timedelta
 
 from config.settings import settings
 
@@ -22,15 +29,23 @@ from exceptions.auth_exceptions import (
     GoogleAuthenticationError,
     InvalidCredentialsError,
     InvalidTokenError,
+    UserNotFoundError,
+    InvalidOTPError
 )
 
 from repositories.user_repository import UserRepository
+
+from repositories.password_reset_repository import PasswordResetRepository
+
+from services.email_service import EmailService
 
 from schemas.auth_schema import (
     RegisterRequest,
     CurrentUser,
     CurrentUserResponse,
     LoginRequest,
+    ResetPasswordRequest,
+    
 )
 
 from utils.cookies import (
@@ -46,6 +61,9 @@ from utils.password import (
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+
+OTP_EXPIRY_MINUTES = 2
 
 
 class AuthService:
@@ -288,3 +306,56 @@ class AuthService:
         logger.info("User logged out successfully.")
 
         return response
+
+    @staticmethod
+    async def forgot_password(email: str, db: Session):
+        logger.info("Forgot password requested.")
+
+        user = UserRepository.get_by_email(db=db, email=email)
+
+        if user is None:
+            raise UserNotFoundError()
+
+        otp = generate_otp()
+        otp_hash = hash_otp(otp)
+        expires_at = datetime.now(timezone.utc) + timedelta(minutes=OTP_EXPIRY_MINUTES)
+
+        PasswordResetRepository.create(
+            db=db,
+            user_id=user.id,
+            otp_hash=otp_hash,
+            expires_at=expires_at,
+        )
+
+        await EmailService.send_otp_email(
+            to=user.email,
+            otp=otp,
+            expiry_minutes=OTP_EXPIRY_MINUTES,
+        )
+
+        logger.info(f"OTP sent. user_id={user.id}")
+
+        return {"message": "OTP sent to your email."}
+
+    @staticmethod
+    def reset_password(payload: ResetPasswordRequest, db: Session):
+        logger.info("Password reset attempted.")
+
+        user = UserRepository.get_by_email(db=db, email=payload.email)
+
+        if user is None:
+            raise UserNotFoundError()
+
+        record = PasswordResetRepository.get_latest_valid(db=db, user_id=user.id)
+
+        if record is None or not verify_otp(payload.otp, record.otp_hash):
+            raise InvalidOTPError()
+
+        user.password_hash = hash_password(payload.new_password)
+        db.commit()
+
+        PasswordResetRepository.mark_used(db=db, record=record)
+
+        logger.info(f"Password reset successful. user_id={user.id}")
+
+        return {"message": "Password reset successful."}

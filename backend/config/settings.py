@@ -27,6 +27,13 @@ class Settings(BaseSettings):
     
     SUPABASE_URL: str
     SUPABASE_KEY: str
+    
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+    MAIL_PORT: int = 587
+    MAIL_SERVER: str = "smtp.gmail.com"
+    MAIL_FROM_NAME: str = "AkiraHire"
 
     model_config = SettingsConfigDict(
         env_file=".env",

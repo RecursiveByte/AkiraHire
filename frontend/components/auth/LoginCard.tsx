@@ -6,7 +6,7 @@ import { AuthFooter } from "./AuthFooter";
 
 export function LoginCard() {
   return (
-    <div className="glass-card flex flex-col gap-8 rounded-xl p-8 md:p-10">
+    <div className="glass-card flex flex-col gap-8 mt-10 rounded-xl p-8 md:p-10">
       <div className="text-center">
         <h1 className="mb-2 text-3xl font-semibold tracking-tight">Welcome Back</h1>
         <p className="text-white/60">Sign in to continue to your account.</p>

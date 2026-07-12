@@ -1,5 +1,7 @@
 "use client";
 
+import ReactMarkdown from "react-markdown";
+
 import { AssistantMessage } from "@/types/assistant.types";
 
 interface ChatMessageProps {
@@ -24,7 +26,9 @@ export function ChatMessage({
             : "rounded-bl-md border border-white/10 bg-white/3 text-white"
         }`}
       >
-        {message.content}
+         <ReactMarkdown >
+          {message.content}
+        </ReactMarkdown>
       </div>
     </div>
   );

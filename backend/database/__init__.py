@@ -15,3 +15,4 @@ from database.models.application_evaluation import ApplicationEvaluation
 from database.models.chat_session import ChatSession
 from database.models.chat_message import ChatMessage
 from database.models.chat_thread import ChatThread
+from database.models.password_reset_otp import PasswordResetOTP

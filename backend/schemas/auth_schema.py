@@ -3,6 +3,7 @@ from pydantic import (
     ConfigDict,
     EmailStr,
     Field,
+    field_validator
 )
 
 from enums.user_role_enum import UserRole
@@ -64,3 +65,20 @@ class CurrentUserResponse(BaseModel):
     name: str
     email: str
     role: str
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    otp: str
+    new_password: str
+    confirm_password: str
+
+    @field_validator("confirm_password")
+    @classmethod
+    def passwords_match(cls, v, info):
+        if "new_password" in info.data and v != info.data["new_password"]:
+            raise ValueError("Passwords do not match.")
+        return v

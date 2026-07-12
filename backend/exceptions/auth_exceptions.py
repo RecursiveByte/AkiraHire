@@ -65,3 +65,13 @@ class InvalidTokenError(AuthException):
             message="Invalid token.",
             status_code=status.HTTP_401_UNAUTHORIZED,
         )
+        
+
+class InvalidOTPError(AppException):
+    def __init__(self):
+        super().__init__(message="Invalid or expired OTP.", status_code=400)
+
+
+class UserNotFoundError(AppException):
+    def __init__(self):
+        super().__init__(message="No account found with this email.", status_code=404)

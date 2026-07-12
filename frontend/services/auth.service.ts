@@ -20,7 +20,6 @@ export class AuthService {
     return response.data;
   }
 
-
   static async signup(payload: SignupFormValues) {
     const response = await authClient.post("/auth/signup", payload);
 
@@ -42,5 +41,31 @@ export class AuthService {
 
   static async logout(): Promise<void> {
     await apiClient.post("/auth/logout");
+  }
+
+  static async forgotPassword(email: string): Promise<{ message: string }> {
+    const { data } = await apiClient.post<{ message: string }>(
+      "/auth/forgot-password",
+      { email }
+    );
+    return data;
+  }
+
+  static async resetPassword(payload: {
+    email: string;
+    otp: string;
+    newPassword: string;
+    confirmPassword: string;
+  }): Promise<{ message: string }> {
+    const { data } = await apiClient.post<{ message: string }>(
+      "/auth/reset-password",
+      {
+        email: payload.email,
+        otp: payload.otp,
+        new_password: payload.newPassword,
+        confirm_password: payload.confirmPassword,
+      }
+    );
+    return data;
   }
 }

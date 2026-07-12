@@ -85,3 +85,11 @@ class JobFormNotFoundError(JobException):
             message="No application form is associated with this job.",
             status_code=status.HTTP_404_NOT_FOUND,
         )
+        
+class JobNotPublishedError(JobException):
+
+    def __init__(self):
+        super().__init__(
+            message="The job must be published before an application form can be created.",
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )

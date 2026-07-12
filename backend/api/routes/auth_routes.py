@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from database.session import get_db
 
-from schemas.auth_schema import AuthResponse, RegisterRequest, LoginRequest, CurrentUser
+from schemas.auth_schema import AuthResponse, RegisterRequest, LoginRequest, CurrentUser,ForgotPasswordRequest,ResetPasswordRequest
 
 from services.auth_service import AuthService
 
@@ -93,9 +93,23 @@ async def register(
 
 @router.post("/logout")
 async def logout(
-      current_user: CurrentUser = Depends(
-      get_current_user
-  ),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
 
     return AuthService.logout()
+
+
+@router.post("/forgot-password")
+async def forgot_password(
+    payload: ForgotPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    return await AuthService.forgot_password(email=payload.email, db=db)
+
+
+@router.post("/reset-password")
+def reset_password(
+    payload: ResetPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    return AuthService.reset_password(payload=payload, db=db)

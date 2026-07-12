@@ -16,6 +16,7 @@ from exceptions.form_exceptions import (
 
 from exceptions.job_exceptions import (
     JobNotFoundError,
+    JobNotPublishedError
 )
 
 
@@ -29,6 +30,7 @@ from schemas.form_schema import (
     GetFormWithJobResponse,
 )
 
+from enums.job_status_enum import JobStatus
 from enums.form_status_enum import FormStatus
 
 from utils.logger import get_logger
@@ -65,6 +67,12 @@ class FormService:
             logger.warning(f"Job not found. job_id={payload.job_id}")
 
             raise JobNotFoundError()
+        
+        if job.status != JobStatus.PUBLISHED:
+            logger.warning(
+                f"Cannot create form for unpublished job. job_id={payload.job_id}, status={job.status}"
+            )
+            raise JobNotPublishedError()
 
         existing_form = FormRepository.get_by_job_id(
             db=db,
@@ -307,7 +315,7 @@ class FormService:
     ) -> list[GetFormWithJobResponse]:
         logger.info("Fetching all forms with job details.")
     
-        forms = FormRepository.get_all(db=db)
+        forms = FormRepository.get_published_forms(db=db)
     
         results: list[GetFormWithJobResponse] = []
     
