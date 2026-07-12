@@ -35,3 +35,12 @@ class ChatThreadRepository:
             .order_by(ChatThread.updated_at.desc())
             .all()
         )
+        
+        
+    @staticmethod
+    def delete(
+        db: Session,
+        thread: ChatThread,
+    ) -> None:
+        db.delete(thread)
+        db.commit()

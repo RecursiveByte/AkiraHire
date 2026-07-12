@@ -3,7 +3,7 @@ import { ApiForm, ApiFormStatus } from "@/types/form.types";
 
 const STATUS_MAP: Record<ApiFormStatus, FormStatus> = {
   draft: "DRAFT",
-  active: "ACTIVE",
+  open: "OPEN",
   closed: "CLOSED",
 };
 

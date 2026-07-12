@@ -51,8 +51,6 @@ class ApplicationEvaluationContext(BaseModel):
     resume: str
     answers: list[EvaluationAnswer]
     links: list[EvaluationLink]
-    # candidate_name: str
-    # candidate_email: str
     
 class ApplicationEvaluationResponse(BaseModel):
     application_id: int
@@ -65,3 +63,9 @@ class ApplicationEvaluationResponse(BaseModel):
     model_config = ConfigDict(
         from_attributes=True,
     )
+    
+    
+
+
+class DeleteApplicationEvaluationResponse(BaseModel):
+    message: str

@@ -17,7 +17,7 @@ from schemas.auth_schema import (
 )
 
 from schemas.application_evaluation_schema import (
-    EvaluateApplicationResponse,ApplicationEvaluationResponse
+    EvaluateApplicationResponse,ApplicationEvaluationResponse,DeleteApplicationEvaluationResponse
 )
 
 from services.application_evaluation_service import (
@@ -77,5 +77,19 @@ def get_all_application_evaluations(
 ),
 ):
     return ApplicationEvaluationService.get_all_evaluations(
+        db=db,
+    )
+    
+@router.delete(
+    "/{application_id}",
+    response_model=DeleteApplicationEvaluationResponse,
+)
+def delete_application_evaluation(
+    application_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_role(UserRole.ADMIN, UserRole.RECRUITER)),
+):
+    return ApplicationEvaluationService.delete_application_evaluation(
+        application_id=application_id,
         db=db,
     )

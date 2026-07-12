@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { EvaluationService } from "@/services/evaluatedApplicationService";
+import { toast } from "sonner";
+
+import { EvaluationService } from "@/services/evaluated-application.service";
 import { Evaluation } from "@/types/evaluatedApplication.types";
 
 interface UseEvaluatedApplicationsResult {
@@ -9,6 +11,7 @@ interface UseEvaluatedApplicationsResult {
   isLoading: boolean;
   error: string | null;
   refetch: () => void;
+  deleteEvaluation: (applicationId: number) => Promise<void>;
 }
 
 export function useEvaluatedApplications(): UseEvaluatedApplicationsResult {
@@ -30,5 +33,33 @@ export function useEvaluatedApplications(): UseEvaluatedApplicationsResult {
     fetchEvaluatedApplications();
   }, [fetchEvaluatedApplications]);
 
-  return { evaluatedApplications, isLoading, error, refetch: fetchEvaluatedApplications };
+  const deleteEvaluation = useCallback(
+    async (applicationId: number) => {
+      try {
+        await EvaluationService.deleteEvaluation(applicationId);
+
+        toast.success("Evaluation deleted successfully.");
+
+        fetchEvaluatedApplications();
+      } catch (err) {
+        const message =
+          err instanceof Error
+            ? err.message
+            : "Failed to delete evaluation.";
+
+        toast.error(message);
+
+        throw err;
+      }
+    },
+    [fetchEvaluatedApplications]
+  );
+
+  return {
+    evaluatedApplications,
+    isLoading,
+    error,
+    refetch: fetchEvaluatedApplications,
+    deleteEvaluation,
+  };
 }

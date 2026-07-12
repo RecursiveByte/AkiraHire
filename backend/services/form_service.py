@@ -68,7 +68,7 @@ class FormService:
 
             raise JobNotFoundError()
         
-        if job.status != JobStatus.PUBLISHED:
+        if job.status != JobStatus.OPEN:
             logger.warning(
                 f"Cannot create form for unpublished job. job_id={payload.job_id}, status={job.status}"
             )

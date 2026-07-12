@@ -2,16 +2,20 @@
 
 import { useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
+
 import { Form } from "@/types/form.types";
+
 import FormRow from "./FormRow";
 import FormRowSkeleton from "@/components/recruiter/form/FormRowSkeleton";
+
 import { SKELETON_ROW_COUNT } from "@/constants/skeleton";
 
 interface FormsTableProps {
   forms: Form[];
   onSelectForm: (formId: number) => void;
-  onDeleteForm: (formId: number) => void;
-  onPublishForm: (formId: number) => void;
+  onDeleteForm: (formId: number) => Promise<void>;
+  onPublishForm: (formId: number) => Promise<void>;
+  onCloseForm: (formId: number) => Promise<void>;
   isLoading: boolean;
 }
 
@@ -21,6 +25,7 @@ export default function FormsTable({
   onSelectForm,
   onDeleteForm,
   onPublishForm,
+  onCloseForm,
 }: FormsTableProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -46,46 +51,56 @@ export default function FormsTable({
         className="lg:overflow-x-auto overflow-y-auto max-h-140"
       >
         <div className="lg:min-w-225">
-          <div className="hidden lg:grid lg:grid-cols-[110px_110px_1fr_110px_190px] lg:gap-4 px-6 py-4 border-b border-white/5  sticky top-0 bg-surface-container z-10">
+          <div className="hidden lg:grid lg:grid-cols-[110px_110px_1fr_110px_190px] lg:gap-4 px-6 py-4 border-b border-white/5 sticky top-0 bg-surface-container z-10">
             <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold lg:min-w-27.5">
               Form ID
             </span>
+
             <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold lg:min-w-27.5">
               Job ID
             </span>
-            <span className="text-[11px]  uppercase tracking-widest text-on-surface-variant/60 font-semibold lg:min-w-55">
+
+            <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold lg:min-w-55">
               Form Title
             </span>
+
             <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold lg:min-w-27.5">
               Status
             </span>
+
             <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold text-center lg:min-w-47.5">
               Actions
             </span>
           </div>
 
           {isLoading ? (
-            Array.from({ length: SKELETON_ROW_COUNT }).map((_, i) => <FormRowSkeleton key={i} />)
+            Array.from({ length: SKELETON_ROW_COUNT }).map((_, i) => (
+              <FormRowSkeleton key={i} />
+            ))
           ) : (
             <div
-              className="relative w-full divide-y divide-white/5 "
+              className="relative w-full divide-y divide-white/5"
               style={{ height: `${virtualizer.getTotalSize()}px` }}
             >
               {virtualizer.getVirtualItems().map((virtualRow) => {
                 const form = forms[virtualRow.index];
+
                 return (
                   <div
                     key={form.formId}
                     ref={virtualizer.measureElement}
                     data-index={virtualRow.index}
                     className="absolute top-0 left-0 w-full"
-                    style={{ transform: `translateY(${virtualRow.start}px)` }}
+                    style={{
+                      transform: `translateY(${virtualRow.start}px)`,
+                    }}
                   >
                     <FormRow
                       form={form}
                       onClick={onSelectForm}
                       onDelete={onDeleteForm}
                       onPublish={onPublishForm}
+                      onCloseForm={onCloseForm}
                     />
                   </div>
                 );

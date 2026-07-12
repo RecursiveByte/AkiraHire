@@ -51,13 +51,16 @@ class ChatbotService:
     ) -> AssistantResponse:
 
         thread = ChatThreadRepository.get_by_id(db, thread_id)
-
+        
         if thread is None:
+            
+            title = ChatThreadService.generate_thread_title(message)
+
             ChatThreadService.create_thread(
                 db=db,
                 thread_id=thread_id,
                 current_user=current_user,
-                title="New Chat",
+                title=title,
             )
             
         config = {

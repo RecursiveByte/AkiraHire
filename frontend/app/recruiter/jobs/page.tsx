@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { useJobs } from "@/hooks/job/useJobs";
-import { useJobModal } from "@/hooks/job/useJobModal";
+import { useJobs } from "@/hooks/recruiter/job/useJobs";
+import { useJobModal } from "@/hooks/recruiter/job/useJobModal";
 import JobsHeader from "@/components/recruiter/jobs/JobsHeader";
 import JobsTable from "@/components/recruiter/jobs/JobsTable";
 import JobDetailModal from "@/components/recruiter/job-detail/JobDetailModal";

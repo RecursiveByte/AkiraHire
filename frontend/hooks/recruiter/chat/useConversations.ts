@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+
 import { AssistantService } from "@/services/assistant.service";
 import type { AssistantConversation } from "@/types/assistant.types";
 
@@ -10,7 +11,8 @@ interface UseConversationsResult {
   activeId: string;
   setActiveId: (id: string) => void;
   isLoading: boolean;
-  refetch: () => void;
+  refetch: () => Promise<void>;
+  deleteConversation: (threadId: string) => Promise<void>;
 }
 
 export function useConversations(): UseConversationsResult {
@@ -18,29 +20,59 @@ export function useConversations(): UseConversationsResult {
   const [activeId, setActiveId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchConversations = useCallback(async () => {
+  const refetch = useCallback(async () => {
     setIsLoading(true);
 
     try {
       const data = await AssistantService.getConversations();
+
       setConversations(data);
 
       if (data.length > 0) {
         setActiveId((prev) => prev || data[0].id);
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to load conversations";
-      toast.error(message, {
-        action: { label: "Retry", onClick: fetchConversations },
+      toast.error("Failed to load conversations.", {
+        description:
+          err instanceof Error ? err.message : "Please try again.",
+        action: {
+          label: "Retry",
+          onClick: () => {
+            void refetch();
+          },
+        },
       });
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    fetchConversations();
-  }, [fetchConversations]);
 
-  return { conversations, activeId, setActiveId, isLoading, refetch: fetchConversations };
+  const deleteConversation = async (threadId: string) => {
+    try {
+      await AssistantService.deleteConversation(threadId);
+  
+      toast.success("Conversation deleted.");
+  
+      refetch();
+    } catch (err) {
+      toast.error("Unable to delete conversation.", {
+        description:
+          err instanceof Error ? err.message : "Please try again.",
+      });
+    }
+  };
+
+  useEffect(() => {
+    void refetch();
+  }, [refetch]);
+
+  return {
+    conversations,
+    activeId,
+    deleteConversation,
+    setActiveId,
+    isLoading,
+    refetch,
+  };
 }

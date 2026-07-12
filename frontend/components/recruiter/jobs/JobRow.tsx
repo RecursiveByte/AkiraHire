@@ -2,7 +2,7 @@ import { Job } from "@/types/job.types";
 import StatusIndicator from "./StatusIndicator";
 import JobActionButton from "./JobActionButton";
 import { ConfirmActionModal } from "@/components/common/ConfirmActionModal";
-import { useJobConfirmAction } from "@/hooks/job/useJobConfirmAction";
+import { useJobConfirmAction } from "@/hooks/recruiter/job/useJobConfirmAction";
 
 interface JobRowProps {
   job: Job;

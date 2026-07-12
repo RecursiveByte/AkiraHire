@@ -37,15 +37,18 @@ from repositories.application_evaluation_repository import (
 from schemas.application_evaluation_schema import (
     EvaluateApplicationResponse,
     GeneratedApplicationEvaluation,
+    DeleteApplicationEvaluationResponse
 )
 
 from exceptions.application_exceptions import (
     ApplicationNotFoundError,
+    
 )
 
 from exceptions.application_evaluation_exceptions import (
     ApplicationAlreadyEvaluatedError,
     ApplicationEvaluationFailedError,
+    ApplicationEvaluationNotFoundError
 )
 
 from schemas.form_schema import GeneratedFormSchemaResponse
@@ -317,4 +320,27 @@ class ApplicationEvaluationService:
     ):
         return ApplicationEvaluationRepository.get_all(
             db=db,
+        )
+        
+    @staticmethod
+    def delete_application_evaluation(
+        application_id: int,
+        db: Session,
+    ) -> DeleteApplicationEvaluationResponse:
+    
+        evaluation = ApplicationEvaluationRepository.get_by_application_id(
+            db=db,
+            application_id=application_id,
+        )
+    
+        if not evaluation:
+            raise ApplicationEvaluationNotFoundError()
+    
+        ApplicationEvaluationRepository.delete(
+            db=db,
+            application_evaluation=evaluation,
+        )
+    
+        return DeleteApplicationEvaluationResponse(
+            message="Application evaluation deleted successfully."
         )

@@ -25,6 +25,10 @@ from api.routes.form_routes import (
     router as form_router
 )
 
+from api.routes.chat_thread_routes import(
+    router as chat_thread_router
+)
+
 from api.routes.application_routes import router as application_router
     
 from api.routes.resume_routes import router as resume_router
@@ -52,3 +56,4 @@ app.include_router(resume_router)
 app.include_router(application_evaluation_routes)
 
 app.include_router(chatbot_router)
+app.include_router(chat_thread_router)

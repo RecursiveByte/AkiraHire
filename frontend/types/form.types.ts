@@ -1,4 +1,4 @@
-export type FormStatus = "DRAFT" | "ACTIVE" | "CLOSED";
+export type FormStatus = "DRAFT" | "OPEN" | "CLOSED";
 
 export interface Form {
   formId: number;
@@ -11,14 +11,14 @@ export interface Form {
   updatedAt: string;
 }
 
-export type ApiFormStatus = "draft" | "active" | "closed";
+export type ApiFormStatus = "draft" | "open" | "closed";
 
 export interface ApiForm {
   form_id: number;
   job_id: number;
   title: string;
   status: ApiFormStatus;
-  form_schema_json: Record<string, unknown>;
+  form_schema_json: FormSchema;
   expires_at: string;
   created_at: string;
   updated_at: string;

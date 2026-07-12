@@ -1,16 +1,21 @@
 import { FormStatus } from "@/types/form.types";
 
-const ACTION_CONFIG: Record<FormStatus, { label: string; icon: string; classes: string }> = {
-  ACTIVE: {
-    label: "Published",
-    icon: "check_circle",
-    classes: "border border-emerald-400/30 text-emerald-400",
+const ACTION_CONFIG: Record<
+  FormStatus,
+  { label: string; icon: string; classes: string }
+> = {
+  OPEN: {
+    label: "Close",
+    icon: "lock",
+    classes: "border border-amber-400/30 text-amber-400 hover:bg-white/5",
   },
+
   DRAFT: {
     label: "Publish",
     icon: "ios_share",
     classes: "border border-white/15 text-primary hover:bg-white/5",
   },
+
   CLOSED: {
     label: "Closed",
     icon: "visibility_off",
@@ -21,24 +26,39 @@ const ACTION_CONFIG: Record<FormStatus, { label: string; icon: string; classes: 
 interface FormActionButtonProps {
   status: FormStatus;
   onPublish?: () => void;
+  onClose?: () => void;
 }
 
-export default function FormActionButton({ status, onPublish }: FormActionButtonProps) {
+export default function FormActionButton({
+  status,
+  onPublish,
+  onClose,
+}: FormActionButtonProps) {
   const config = ACTION_CONFIG[status];
-  const isActionable = status === "DRAFT";
+
+  const isPublish = status === "DRAFT";
+  const isClose = status === "OPEN";
+
 
   return (
     <button
       onClick={(e) => {
         e.stopPropagation();
-        if (isActionable) onPublish?.();
+
+        if (isPublish) {
+          onPublish?.();
+        } else if (isClose) {
+          onClose?.();
+        }
       }}
-      disabled={!isActionable}
+      disabled={!isPublish && !isClose}
       className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${config.classes} ${
-        !isActionable ? "cursor-default" : ""
+        !isPublish && !isClose ? "cursor-default" : ""
       }`}
     >
-      <span className="material-symbols-outlined text-[16px]">{config.icon}</span>
+      <span className="material-symbols-outlined text-[16px]">
+        {config.icon}
+      </span>
       {config.label}
     </button>
   );

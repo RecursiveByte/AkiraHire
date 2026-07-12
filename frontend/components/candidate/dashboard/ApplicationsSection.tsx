@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from "react";
 
-import { useApplications } from "@/hooks/application/useApplications";
-import { useApplicationModal } from "@/hooks/application/useApplicationModal";
-import { useApplicationDelete } from "@/hooks/application/useApplicationDelete";
+import { useApplications } from "@/hooks/recruiter/application/useApplications";
+import { useApplicationModal } from "@/hooks/recruiter/application/useApplicationModal";
+import { useApplicationDelete } from "@/hooks/recruiter/application/useApplicationDelete";
 
 import ApplicationSearchBar from "./ApplicationSearchBar";
 import ApplicationsTable from "@/components/recruiter/applications/ApplicationsTable";

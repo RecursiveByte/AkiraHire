@@ -16,3 +16,7 @@ export interface AssistantMessage {
   export interface GetMessagesResponse {
     messages: AssistantMessage[];
   }
+
+  export interface DeleteConversationResponse {
+    message: string;
+  }

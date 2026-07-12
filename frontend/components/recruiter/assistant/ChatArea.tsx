@@ -4,11 +4,6 @@ import { useEffect, useRef } from "react";
 import { ChatMessage } from "./ChatMessage";
 import ChatThinking from "./ChatThinking";
 
-interface Skill {
-  title: string;
-  value: string;
-}
-
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -17,9 +12,14 @@ interface Message {
 interface ChatAreaProps {
   messages: Message[];
   isThinking?: boolean;
+  isLoading?: boolean;
 }
 
-export function ChatArea({ messages, isThinking = false }: ChatAreaProps) {
+export function ChatArea({
+  messages,
+  isThinking = false,
+  isLoading = false,
+}: ChatAreaProps) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -27,17 +27,28 @@ export function ChatArea({ messages, isThinking = false }: ChatAreaProps) {
   }, [messages, isThinking]);
 
   return (
-    <div className="chat-scroll flex-1  overflow-y-auto px-8 py-8 bg-[#050505]">
+    <div className="chat-scroll flex-1 overflow-y-auto bg-[#050505] px-8 py-8">
       <div className="mx-auto flex max-w-4xl flex-col gap-8">
-        {messages.map((message, id) => {
-          if (message.role === "assistant" && message.content.trim() === "") {
-            return null;
-          }
+        {isLoading && messages.length === 0 ? (
+          <div className="flex h-full items-center justify-center py-12 text-sm text-white/40">
+            Loading conversation...
+          </div>
+        ) : (
+          <>
+            {messages.map((message, id) => {
+              if (
+                message.role === "assistant" &&
+                message.content.trim() === ""
+              ) {
+                return null;
+              }
 
-          return <ChatMessage key={id} message={message} />;
-        })}
+              return <ChatMessage key={id} message={message} />;
+            })}
 
-        {isThinking && <ChatThinking />}
+            {isThinking && <ChatThinking />}
+          </>
+        )}
 
         <div ref={bottomRef} />
       </div>

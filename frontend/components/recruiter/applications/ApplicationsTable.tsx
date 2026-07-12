@@ -7,7 +7,7 @@ import ApplicationRow from "./ApplicationRow";
 import ApplicationRowSkeleton from "./ApplicationRowSkeleton";
 import { SKELETON_ROW_COUNT } from "@/constants/skeleton";
 import { useAuthStore } from "@/store/authStore";
-import { useApplications } from "@/hooks/application/useApplications";
+import { useApplications } from "@/hooks/recruiter/application/useApplications";
 
 interface ApplicationsTableProps {
   applications: Application[];
