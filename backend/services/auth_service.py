@@ -1,5 +1,5 @@
 from fastapi import Request, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse,RedirectResponse
 from sqlalchemy.orm import Session
 
 from auth.google_oauth import oauth
@@ -167,6 +167,7 @@ class AuthService:
             redirect_uri=settings.GOOGLE_LOGIN_CALLBACK_URI,
         )
 
+
     @staticmethod
     async def google_callback(
         request: Request,
@@ -175,16 +176,10 @@ class AuthService:
         logger.info("Google callback received.")
 
         try:
-            token = await oauth.google.authorize_access_token(
-                request=request,
-            )
-
+            token = await oauth.google.authorize_access_token(request=request)
             user_info = token["userinfo"]
 
-            user = UserRepository.get_by_email(
-                db=db,
-                email=user_info["email"],
-            )
+            user = UserRepository.get_by_email(db=db, email=user_info["email"])
 
             if user is None:
                 user = User(
@@ -192,41 +187,17 @@ class AuthService:
                     email=user_info["email"],
                     role=UserRole.CANDIDATE,
                 )
-
-                user = UserRepository.create(
-                    db=db,
-                    user=user,
-                )
-
+                user = UserRepository.create(db=db, user=user)
                 logger.info(f"New Google user created. user_id={user.id}")
 
-            access_token = create_access_token(
-                user.id,
-                user.role,
-                user.email,
+            refresh_token = create_refresh_token(user.id, user.role)
+
+            response = RedirectResponse(
+                url=f"{settings.FRONTEND_URL}/login",
+                status_code=303,
             )
 
-            refresh_token = create_refresh_token(
-                user.id,
-                user.role,
-            )
-
-            response = JSONResponse(
-                {
-                    "access_token": access_token,
-                    "user": {
-                        "id": user.id,
-                        "name": user.name,
-                        "email": user.email,
-                        "role": user.role,
-                    },
-                }
-            )
-
-            set_refresh_cookie(
-                response=response,
-                refresh_token=refresh_token,
-            )
+            set_refresh_cookie(response=response, refresh_token=refresh_token)
 
             logger.info(f"Google login successful. user_id={user.id}")
 

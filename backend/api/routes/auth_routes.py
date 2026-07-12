@@ -64,7 +64,6 @@ async def google_login(
 
 @router.get(
     "/google/callback",
-    response_model=AuthResponse,
 )
 async def google_callback(
     request: Request,

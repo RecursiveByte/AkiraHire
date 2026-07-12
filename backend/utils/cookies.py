@@ -1,12 +1,11 @@
-from fastapi.responses import JSONResponse
+from fastapi.responses import Response,JSONResponse
 from config.settings import settings
 
 COOKIE_NAME = "refresh_token"
 COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 
-
 def set_refresh_cookie(
-    response: JSONResponse,
+    response: Response,
     refresh_token: str,
 ) -> None:
 
