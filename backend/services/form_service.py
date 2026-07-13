@@ -14,10 +14,7 @@ from exceptions.form_exceptions import (
     InvalidExpiryDateError,
 )
 
-from exceptions.job_exceptions import (
-    JobNotFoundError,
-    JobNotPublishedError
-)
+from exceptions.job_exceptions import JobNotFoundError, JobNotPublishedError
 
 
 from schemas.form_schema import (
@@ -45,29 +42,33 @@ class FormService:
     @staticmethod
     def create_form(
         payload: CreateFormRequest,
+        recruiter_id: int,
         db: Session,
     ) -> CreateFormResponse:
-
-        logger.info(f"Creating form for job_id={payload.job_id}.")
+        logger.info(
+            f"Creating form for job_id={payload.job_id}, recruiter_id={recruiter_id}."
+        )
 
         expires_at = payload.expires_at
+
         if expires_at.tzinfo is None:
             expires_at = expires_at.replace(tzinfo=timezone.utc)
 
         if expires_at <= datetime.now(timezone.utc):
             raise InvalidExpiryDateError()
 
-        job = JobRepository.get_by_job_id(
+        job = JobRepository.get_owned_job(
             db=db,
             job_id=payload.job_id,
+            recruiter_id=recruiter_id,
         )
 
         if not job:
-
-            logger.warning(f"Job not found. job_id={payload.job_id}")
-
+            logger.warning(
+                f"Job not found for recruiter. job_id={payload.job_id}, recruiter_id={recruiter_id}"
+            )
             raise JobNotFoundError()
-        
+
         if job.status != JobStatus.OPEN:
             logger.warning(
                 f"Cannot create form for unpublished job. job_id={payload.job_id}, status={job.status}"
@@ -80,9 +81,7 @@ class FormService:
         )
 
         if existing_form:
-
             logger.warning(f"Form already exists for job_id={payload.job_id}.")
-
             raise FormAlreadyExistsError()
 
         form = Form(
@@ -111,16 +110,19 @@ class FormService:
             updated_at=created_form.updated_at,
         )
 
+
     @staticmethod
     def get_forms_by_recruiter_id(
         db: Session,
         recruiter_id: int,
+        search: str | None = None,
     ) -> list[Form]:
         return FormRepository.get_forms_by_recruiter_id(
             db=db,
             recruiter_id=recruiter_id,
+            search=search,
         )
-
+        
     @staticmethod
     def get_form_by_job_id(
         job_id: int,
@@ -267,75 +269,6 @@ class FormService:
         )
 
     @staticmethod
-    def get_form_with_job_by_id(
-        form_id: int,
-        db: Session,
-    ) -> GetFormWithJobResponse:
-        logger.info(f"Fetching form with job details. form_id={form_id}.")
-
-        form = FormRepository.get_by_id(
-            db=db,
-            form_id=form_id,
-        )
-
-        if not form:
-            logger.warning(f"Form not found. form_id={form_id}")
-            raise FormNotFoundError()
-
-        job = JobRepository.get_by_job_id(
-            db=db,
-            job_id=form.job_id,
-        )
-
-        if not job:
-            logger.warning(
-                f"Job not found for form. form_id={form.form_id}, job_id={form.job_id}"
-            )
-            raise JobNotFoundError()
-
-        logger.info(f"Form with job retrieved successfully. form_id={form.form_id}")
-
-        return GetFormWithJobResponse(
-            form_id=form.form_id,
-            job_id=form.job_id,
-            job_role=job.role,
-            job_description=job.job_description,
-            title=form.title,
-            status=form.status,
-            form_schema_json=form.form_schema_json,
-            expires_at=form.expires_at,
-            created_at=form.created_at,
-            updated_at=form.updated_at,
-        )
-
-
-    @staticmethod
-    def get_all_forms_with_jobs(
-        db: Session,
-    ) -> list[GetFormWithJobResponse]:
-        logger.info("Fetching all forms with job details.")
-    
-        forms = FormRepository.get_published_forms(db=db)
-    
-        results: list[GetFormWithJobResponse] = []
-    
-        for form in forms:
-            try:
-                result = FormService.get_form_with_job_by_id(
-                    form_id=form.form_id,
-                    db=db,
-                )
-                results.append(result)
-            except JobNotFoundError:
-                logger.warning(
-                    f"Skipping form with missing job. form_id={form.form_id}, job_id={form.job_id}"
-                )
-                continue
-            
-        logger.info(f"Retrieved {len(results)} forms with job details.")
-        return results
-
-    @staticmethod
     def delete_form(
         form_id: int,
         db: Session,
@@ -362,3 +295,35 @@ class FormService:
         logger.info(f"Form deleted successfully. form_id={form_id}")
 
         return DeleteFormResponse(message="Form deleted successfully.")
+
+    @staticmethod
+    def get_forms_with_job(
+        db: Session,
+        search: str | None = None,
+    ):
+
+        results = FormRepository.get_forms_with_job(
+            db=db,
+            search=search,
+        )
+
+        response = []
+
+        for form, job in results:
+
+            response.append(
+                GetFormWithJobResponse(
+                    form_id=form.form_id,
+                    job_id=job.job_id,
+                    job_role=job.role,
+                    job_description=job.job_description,
+                    title=form.title,
+                    status=form.status,
+                    form_schema_json=form.form_schema_json,
+                    expires_at=form.expires_at,
+                    created_at=form.created_at,
+                    updated_at=form.updated_at,
+                )
+            )
+
+        return response

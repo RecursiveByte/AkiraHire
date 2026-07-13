@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
-from fastapi.responses import FileResponse
 from database.session import get_db
 
 from auth.dependencies import get_current_user
@@ -23,16 +22,15 @@ from integration.google_form.services.google_form_service import (
 
 from integration.google_form.services import google_oauth_service
 
+from auth.dependencies import require_role
+from enums.user_role_enum import UserRole
+
 
 router = APIRouter(
     prefix="/google-forms",
     tags=["GoogleForms"],
 )
 
-
-@router.get("/test-ui")
-def serve_test_ui():
-    return FileResponse("static/google_form_agent.html")
 
 @router.get("/auth/google/connect")
 def connect_google(
@@ -80,7 +78,7 @@ def google_oauth_callback(
 )
 def create_google_form_endpoint(
     payload: AutoFormRequest,
-    current_user: CurrentUser = Depends(get_current_user),
+    current_user: CurrentUser = Depends(require_role(UserRole.RECRUITER)),
     db: Session = Depends(get_db),
 ) -> GoogleFormResponse:
 

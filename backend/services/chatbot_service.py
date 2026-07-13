@@ -66,7 +66,8 @@ class ChatbotService:
         config = {
             "configurable": {
                 "thread_id": thread_id,
-                "current_user": current_user,
+                # "recruiter_id": current_user.user_id,
+                "current_user":current_user
             }
         }
         

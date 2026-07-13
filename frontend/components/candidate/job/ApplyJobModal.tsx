@@ -18,7 +18,7 @@ import QuestionRenderer from "./QuestionRenderer";
 
 import { JobApplicationForm } from "@/types/candidate/job.types";
 import { useAuthStore } from "@/store/authStore";
-import { useCreateApplication } from "@/hooks/candidate/useCreateApplication";
+import { useCreateApplication } from "@/hooks/candidate/applications/useCreateApplication";
 
 interface ApplyJobModalProps {
   open: boolean;

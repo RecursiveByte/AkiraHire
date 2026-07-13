@@ -34,6 +34,7 @@ class Job(Base):
     role = Column(
         String(150),
         nullable=False,
+        index=True,
     )
 
     job_description = Column(

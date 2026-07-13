@@ -23,10 +23,13 @@ from services.application_service import (
     ApplicationService,
 )
 
+from schemas.auth_schema import CurrentUser
+
 router = APIRouter(
     prefix="/applications",
     tags=["Applications"],
 )
+
 
 @router.get("/applied-form-ids")
 def get_applied_form_ids(
@@ -39,25 +42,46 @@ def get_applied_form_ids(
     )
 
 @router.get(
-    "/candidate/view",
+    "/candidate/",
 )
-def get_candidate_applications(
+def search_candidate_applications(
+    search: str | None = None,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_role(UserRole.CANDIDATE)),
+    current_user: CurrentUser = Depends(
+        require_role(UserRole.CANDIDATE),
+    ),
 ):
-    return ApplicationService.get_candidate_applications(
+
+    return ApplicationService.search_candidate_applications(
         user_id=current_user.user_id,
         db=db,
+        search=search,
     )
-    
+
+
+# @router.get(
+    # "/candidate/view",
+# )
+# def get_candidate_applications(
+    # db: Session = Depends(get_db),
+    # current_user: dict = Depends(require_role(UserRole.CANDIDATE)),
+# ):
+    # return ApplicationService.get_candidate_applications(
+        # user_id=current_user.user_id,
+        # db=db,
+    # )
+
+
 @router.get("/recruiter/view")
 def get_recruiter_applications(
+    search: str | None = None,
     db: Session = Depends(get_db),
     current_user: dict = Depends(require_role(UserRole.RECRUITER)),
 ):
     return ApplicationService.get_recruiter_applications(
         recruiter_id=current_user.user_id,
         db=db,
+        search=search,
     )
 
 @router.post(
@@ -191,3 +215,5 @@ def delete_application(
         application_id=application_id,
         db=db,
     )
+
+

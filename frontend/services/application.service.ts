@@ -10,22 +10,35 @@ export class ApplicationService {
     const user = useAuthStore.getState().user;
 
     if (!user) {
-      toast.error("User is not authenticated.");
-      throw new Error("User is not authenticated.");
+      toast.error("The Server might be down or session expired");
+      throw new Error("Server down or session expired");
     }
 
     return user;
   }
 
-  static async getApplications(): Promise<Application[]> {
-    const user = this.getCurrentUser();
+  static async getRecruiterApplications(
+    search?: string
+  ): Promise<Application[]> {
+    const { data } = await apiClient.get<ApiApplication[]>(
+      "/applications/recruiter/view",
+      {
+        params: search ? { search } : {},
+      }
+    );
+  
+    return data.map(mapApiApplicationToApplication);
+  }
 
-    const url =
-      user.role === "recruiter"
-        ? "/applications/recruiter/view"
-        : "/applications/candidate/view";
-
-    const { data } = await apiClient.get<ApiApplication[]>(url);
+  static async searchApplications(search: string): Promise<Application[]> {
+    const { data } = await apiClient.get<ApiApplication[]>(
+      "/applications/search",
+      {
+        params: {
+          search,
+        },
+      }
+    );
 
     return data.map(mapApiApplicationToApplication);
   }

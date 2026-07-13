@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-
+import { toast } from "sonner";
 import { AuthService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/authStore";
 
@@ -33,10 +33,18 @@ export function AuthInitializer({ children }: AuthInitializerProps) {
 
         setUser(user);
       } catch (error) {
-        console.error("Failed to initialize authentication:", error);
-
+        console.warn("Failed to initialize authentication:", error);
         if (!mounted) return;
 
+        const isNetworkError =
+          error instanceof Error &&
+          error.message.includes("Unable to reach the server");
+
+        toast.error(
+          isNetworkError
+            ? "Unable to reach the server. Please try again later."
+            : "Your session has expired. Please log in again."
+        );
         clearAuth();
       } finally {
         if (mounted) {
@@ -53,7 +61,7 @@ export function AuthInitializer({ children }: AuthInitializerProps) {
   }, [setAccessToken, setUser, clearAuth, setLoading]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>LoadingBitch</div>;
   }
 
   return <>{children}</>;

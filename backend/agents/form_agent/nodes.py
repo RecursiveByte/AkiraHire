@@ -1,4 +1,3 @@
-import re
 import json
 
 from langchain_core.messages import AIMessage, SystemMessage
@@ -10,7 +9,12 @@ from agents.form_agent.prompts import SYSTEM_PROMPT
 from agents.form_agent.tools import generate_form_schema
 from core.llm.llm_client import get_llm
 
-from schemas.form_schema import CreateFormRequest, GeneratedFormSchemaResponse, LinkField, AdditionalQuestion
+from schemas.form_schema import (
+    CreateFormRequest,
+    GeneratedFormSchemaResponse,
+    LinkField,
+    AdditionalQuestion,
+)
 
 from exceptions.base import AppException
 
@@ -19,8 +23,10 @@ from database.session import SessionLocal
 from schemas.form_schema import CreateFormRequest
 from agents.common.nodes import chatbot_node
 
+from agents.utils.config_helpers import  get_current_user
 
 llm_with_tools = get_llm().bind_tools([generate_form_schema])
+
 
 def chatbot(state: FormAgentState) -> dict:
     return chatbot_node(
@@ -28,6 +34,7 @@ def chatbot(state: FormAgentState) -> dict:
         llm=llm_with_tools,
         system_prompt=SYSTEM_PROMPT,
     )
+
 
 def route_after_chatbot(state: FormAgentState) -> str:
     last_message = state["messages"][-1]
@@ -43,7 +50,11 @@ def apply_tool_result_node(state: FormAgentState) -> dict:
     if not tool_result.get("success"):
         return {
             "messages": [
-                AIMessage(content=tool_result.get("error", "Failed to generate the form schema."))
+                AIMessage(
+                    content=tool_result.get(
+                        "error", "Failed to generate the form schema."
+                    )
+                )
             ]
         }
 
@@ -59,21 +70,20 @@ from datetime import datetime, timezone
 
 
 def confirm_create_form_node(state: FormAgentState) -> dict:
-    questions_text = "\n".join(
-        f"- {q['question']} ({q['type']})" for q in state["additional_questions"]
-    ) or "None"
+    questions_text = (
+        "\n".join(
+            f"- {q['question']} ({q['type']})" for q in state["additional_questions"]
+        )
+        or "None"
+    )
 
-    links_text = "\n".join(
-        f"- {link['label']}" for link in state["links"]
-    ) or "None"
+    links_text = "\n".join(f"- {link['label']}" for link in state["links"]) or "None"
 
     summary = (
         f"**{state['title']}**\n{state['form_description']}\n\n"
         f"Links:\n{links_text}\n\n"
         f"Questions:\n{questions_text}"
     )
-    
-
 
     answer = interrupt(
         {
@@ -111,16 +121,24 @@ def confirm_create_form_node(state: FormAgentState) -> dict:
     return {"confirmed": True, "job_id": job_id, "expires_at": expires_at}
 
 
-from exceptions.form_exceptions import FormAlreadyExistsError
-from exceptions.job_exceptions import JobNotFoundError
 
+def create_form_node(state: FormAgentState, config: RunnableConfig) -> dict:
+    
+    current_user = get_current_user(config)
 
-def create_form_node(state: FormAgentState) -> dict:
+    recruiter_id = current_user.user_id
+    if not recruiter_id:
+        return {
+            "messages": [AIMessage(content="Something went wrong. Please try again.")]
+        }
+
     form_schema = GeneratedFormSchemaResponse(
         title=state["title"],
         description=state["form_description"],
         links=[LinkField(**link) for link in state["links"]],
-        additional_questions=[AdditionalQuestion(**q) for q in state["additional_questions"]],
+        additional_questions=[
+            AdditionalQuestion(**q) for q in state["additional_questions"]
+        ],
     )
 
     payload = CreateFormRequest(
@@ -131,23 +149,13 @@ def create_form_node(state: FormAgentState) -> dict:
 
     db = SessionLocal()
     try:
-        created_form = FormService.create_form(payload=payload, db=db)
+        created_form = FormService.create_form(
+            payload=payload,
+            recruiter_id=recruiter_id,
+            db=db,
+        )
     except AppException as e:
         return {"messages": [AIMessage(content=str(e))]}
-    except Exception:
-        return {"messages": [AIMessage(content="Something went wrong while creating the job. Please try again.")]}
-    except JobNotFoundError:
-        return {
-            "messages": [
-                AIMessage(content=f"I couldn't find a job with ID {state['job_id']}. Please check the job ID and try again.")
-            ]
-        }
-    except FormAlreadyExistsError:
-        return {
-            "messages": [
-                AIMessage(content=f"A form already exists for job ID {state['job_id']}.")
-            ]
-        }
     finally:
         db.close()
 
@@ -163,8 +171,10 @@ def create_form_node(state: FormAgentState) -> dict:
         ],
     }
 
+
 def decline_form_node(state: FormAgentState) -> dict:
     return {"messages": [AIMessage(content="Okay, I won't create the form.")]}
+
 
 def route_after_confirm(state: FormAgentState) -> str:
     if state["confirmed"] and state.get("job_id") and state.get("expires_at"):

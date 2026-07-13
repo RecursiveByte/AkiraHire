@@ -59,10 +59,12 @@ class ChatThreadService:
     def get_all_threads(
         db: Session,
         current_user: CurrentUser,
+        search: str | None = None,
     ):
         return ChatThreadRepository.get_all_by_user_id(
             db=db,
             user_id=current_user.user_id,
+            search=search,
         )
 
     @staticmethod

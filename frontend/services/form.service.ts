@@ -4,12 +4,15 @@ import { mapApiFormToForm } from "@/lib/mappers/form.mapper";
 import { Form } from "@/types/form.types";
 
 export class FormService {
-  static async getRecruiterForms(): Promise<Form[]> {
-    const { data } = await apiClient.get<ApiForm[]>("/forms/recruiter/");
+  static async getRecruiterForms(search?: string): Promise<Form[]> {
+    const { data } = await apiClient.get<ApiForm[]>("/forms/recruiter/", {
+      params: search ? { search } : undefined,
+    });
+
     console.log(data);
+
     return data.map(mapApiFormToForm);
   }
-
   static async publishForm(formId: number) {
     const response = await apiClient.patch(`/forms/${formId}/publish`);
     return response.data;

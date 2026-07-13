@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
-import JobService from "@/services/job.service";
-import { Job } from "@/types/job.types";
 import { toast } from "sonner";
+
+import JobService from "@/services/job.service";
+import { useDebounce } from "@/hooks/common/useDebounce";
+import { Job } from "@/types/job.types";
 
 interface UseJobsResult {
   jobs: Job[];
   isLoading: boolean;
   error: string | null;
+  search: string;
+  setSearch: React.Dispatch<React.SetStateAction<string>>;
   refetch: () => void;
   deleteJob: (jobId: number) => Promise<void>;
   publishJob: (jobId: number) => Promise<void>;
@@ -17,6 +21,10 @@ export function useJobs(): UseJobsResult {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 400);
+
   const [refetchIndex, setRefetchIndex] = useState(0);
 
   useEffect(() => {
@@ -27,16 +35,20 @@ export function useJobs(): UseJobsResult {
       setError(null);
 
       try {
-        const data = await JobService.getRecruiterJobs();
+        const data = await JobService.getRecruiterJobs(
+          debouncedSearch || undefined
+        );
 
         if (isMounted) {
           setJobs(data);
         }
       } catch (err) {
-        console.log(err);
+        console.error(err);
 
         if (isMounted) {
-          setError(err instanceof Error ? err.message : "Failed to load jobs.");
+          setError(
+            err instanceof Error ? err.message : "Failed to load jobs."
+          );
         }
       } finally {
         if (isMounted) {
@@ -50,19 +62,23 @@ export function useJobs(): UseJobsResult {
     return () => {
       isMounted = false;
     };
-  }, [refetchIndex]);
+  }, [refetchIndex, debouncedSearch]);
 
   const deleteJob = async (jobId: number) => {
     try {
       await JobService.deleteJob(jobId);
 
-      setJobs((prevJobs) => prevJobs.filter((job) => job.jobId !== jobId));
+      setJobs((prevJobs) =>
+        prevJobs.filter((job) => job.jobId !== jobId)
+      );
 
       toast.success("Job deleted successfully.");
     } catch (err) {
       console.error(err);
 
-      toast.error(err instanceof Error ? err.message : "Failed to delete job.");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to delete job."
+      );
     }
   };
 
@@ -122,6 +138,8 @@ export function useJobs(): UseJobsResult {
     jobs,
     isLoading,
     error,
+    search,
+    setSearch,
     refetch,
     deleteJob,
     publishJob,

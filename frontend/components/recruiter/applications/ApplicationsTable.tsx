@@ -8,10 +8,12 @@ import ApplicationRowSkeleton from "./ApplicationRowSkeleton";
 import { SKELETON_ROW_COUNT } from "@/constants/skeleton";
 import { useAuthStore } from "@/store/authStore";
 import { useApplications } from "@/hooks/recruiter/application/useApplications";
+import { APPLICATION_TABLE_GRID } from "@/constants/applicationTable";
 
 interface ApplicationsTableProps {
   applications: Application[];
   isLoading: boolean;
+  error?: string | null;
   onSelectApplication: (applicationId: number) => void;
   onDeleteApplication: (applicationId: number) => void;
 }
@@ -20,12 +22,12 @@ export default function ApplicationsTable({
   applications,
   isLoading,
   onSelectApplication,
+  error,
   onDeleteApplication,
 }: ApplicationsTableProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
   const { user } = useAuthStore();
-  const {error} = useApplications();
 
   const virtualizer = useVirtualizer({
     count: applications.length,
@@ -34,13 +36,18 @@ export default function ApplicationsTable({
     overscan: 6,
   });
 
-  if (!isLoading && applications.length === 0 || error) {
+  if ((!isLoading && applications.length === 0) || error) {
     return (
       <div className="glass-panel rounded-xl p-12 text-center text-on-surface-variant">
         No applications to show yet.
       </div>
     );
   }
+
+  const gridCols =
+  user?.role === "recruiter"
+    ? APPLICATION_TABLE_GRID.recruiter
+    : APPLICATION_TABLE_GRID.candidate;
 
   return (
     <div className="glass-panel rounded-xl overflow-hidden">
@@ -49,17 +56,17 @@ export default function ApplicationsTable({
         className="lg:overflow-x-auto overflow-y-auto max-h-140"
       >
         <div className="lg:min-w-300">
-          <div className="hidden lg:grid lg:grid-cols-[150px_110px_110px_1fr_130px_120px_140px_60px] lg:gap-4 px-6 py-4 border-b border-white/5 sticky top-0 bg-surface-container z-10">
+          <div className={`hidden lg:grid ${gridCols} lg:gap-4 px-6 py-4 border-b border-white/5 sticky top-0 bg-surface-container z-10`}>
             <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold">
               Application ID
             </span>
 
             <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold">
-              Form ID
+              Job ID
             </span>
 
-            <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/60 font-semibold">
-              Job ID
+            <span className="text-[11px] uppercase tracking-widest  text-on-surface-variant/60 font-semibold">
+              Job title
             </span>
 
             {user?.role == "recruiter" && (

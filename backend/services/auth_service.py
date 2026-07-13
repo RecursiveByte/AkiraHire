@@ -24,6 +24,8 @@ from database.models.user import (
     UserRole,
 )
 
+
+
 from exceptions.auth_exceptions import (
     UserAlreadyExistsError,
     GoogleAuthenticationError,
@@ -225,13 +227,15 @@ class AuthService:
             logger.exception("Google authentication failed.")
             raise GoogleAuthenticationError()
 
+
+
     @staticmethod
     def register(
         payload: RegisterRequest,
         db: Session,
     ):
         logger.info("User registration started.")
-
+        
         existing_user = UserRepository.get_by_email(
             db=db,
             email=payload.email,

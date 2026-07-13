@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, status
 
 from sqlalchemy.orm import Session
 
+from typing import Optional
+
 from database.session import get_db
 
 from schemas.form_schema import (
@@ -22,7 +24,7 @@ from services.form_service import (
 
 from services.form_schema_generator_service import FormSchemaService
 
-from auth.dependencies import get_current_user,require_role
+from auth.dependencies import get_current_user, require_role
 
 from enums.user_role_enum import UserRole
 
@@ -63,16 +65,25 @@ def create_form(
     )
 
 
+from schemas.auth_schema import CurrentUser
+
 @router.get(
     "/with-job",
     response_model=list[GetFormWithJobResponse],
 )
-def get_all_forms_with_job(
+def get_forms_with_job(
+    search: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
+    current_user: CurrentUser = Depends(
+    get_current_user,
+    ),
 ):
-    
-    return FormService.get_all_forms_with_jobs(db=db)
+
+    return FormService.get_forms_with_job(
+        db=db,
+        search=search,
+    )
+
 
 @router.get(
     "/{form_id}",
@@ -88,20 +99,20 @@ def get_form_by_id(
         db=db,
     )
 
-@router.get(
-    "/{form_id}/with-job",
-    response_model=GetFormWithJobResponse,
-)
-def get_form_with_job(
-    form_id: int,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
-):
-    return FormService.get_form_with_job_by_id(
-        form_id=form_id,
-        db=db,
-    )
-    
+
+# @router.get(
+    # "/{form_id}/with-job",
+    # response_model=GetFormWithJobResponse,
+# )
+# def get_form_with_job(
+    # form_id: int,
+    # db: Session = Depends(get_db),
+    # current_user: dict = Depends(get_current_user),
+# ):
+    # return FormService.get_form_with_job_by_id(
+        # form_id=form_id,
+        # db=db,
+    # )
 
 
 @router.get(
@@ -124,14 +135,15 @@ def get_form_by_job_id(
     response_model=list[GetFormResponse],
 )
 def get_my_forms(
+    search: str | None = None,
     current_user: dict = Depends(require_role(UserRole.RECRUITER)),
     db: Session = Depends(get_db),
 ):
     return FormService.get_forms_by_recruiter_id(
         db=db,
         recruiter_id=current_user.user_id,
+        search=search,
     )
-
 
 @router.patch(
     "/{form_id}/publish",

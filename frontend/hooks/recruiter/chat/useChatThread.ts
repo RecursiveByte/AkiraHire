@@ -88,6 +88,7 @@ export function useChatThread(
             description: "Please try again in a few minutes.",
           });
         } else {
+          console.error(err?.response)
           toast.error("Unable to send message.", {
             description: "Please try again.",
           });

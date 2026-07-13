@@ -1,9 +1,5 @@
 "use client";
 
-
-//there was a race condition while i was making this 
-// I solved it using that skipNextThreadLoad
-
 import { useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -11,11 +7,13 @@ import { AssistantHeader } from "@/components/recruiter/assistant/AssistantHeade
 import { ChatArea } from "@/components/recruiter/assistant/ChatArea";
 import { ChatInput } from "@/components/recruiter/assistant/ChatInput";
 import { HistorySidebar } from "@/components/recruiter/assistant/HistorySidebar";
+import SearchBar from "@/components/common/SearchBar";
 import { useConversations } from "@/hooks/recruiter/chat/useConversations";
 import { useChatThread } from "@/hooks/recruiter/chat/useChatThread";
 
 export default function RecruiterAssistantPage() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(true);
+  const [search, setSearch] = useState("");
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -24,7 +22,6 @@ export default function RecruiterAssistantPage() {
 
   const skipNextThreadLoad = useRef(false);
 
-
   const {
     conversations,
     activeId,
@@ -32,7 +29,7 @@ export default function RecruiterAssistantPage() {
     isLoading: isConversationsLoading,
     refetch,
     deleteConversation
-  } = useConversations();
+  } = useConversations(search);
 
   const {
     messages,
@@ -71,8 +68,6 @@ export default function RecruiterAssistantPage() {
   }
 
   function handleSelectConversation(id: string) {
-
-    // Always loading when selecting an existing conversation.
     skipNextThreadLoad.current = false;
 
     setActiveId(id);
@@ -107,16 +102,34 @@ export default function RecruiterAssistantPage() {
         />
       </div>
 
-      <HistorySidebar
-        conversations={conversations}
-        loading={isConversationsLoading}
-        activeId={activeId}
-        onSelectConversation={handleSelectConversation}
-        onNewConversation={handleNewConversation}
-        onDeleteConversation={deleteConversation}
-        isOpen={isHistoryOpen}
-        setIsHistoryOpen={setIsHistoryOpen}
-      />
+      <div
+        className={
+          isHistoryOpen
+            ? "fixed right-0 top-20 z-50 flex h-[calc(100vh-80px)] w-80 flex-col lg:relative lg:top-0 lg:z-auto"
+            : "hidden lg:flex lg:w-16 lg:flex-col"
+        }
+      >
+        {isHistoryOpen && (
+          <div className="border-l  border-white/5 bg-[#080808] [&>div]:w-full p-4">
+            <SearchBar
+              value={search}
+              onChange={setSearch}
+              placeholder="Search conversations..."
+            />
+          </div>
+        )}
+
+        <HistorySidebar
+          conversations={conversations}
+          loading={isConversationsLoading}
+          activeId={activeId}
+          onSelectConversation={handleSelectConversation}
+          onNewConversation={handleNewConversation}
+          onDeleteConversation={deleteConversation}
+          isOpen={isHistoryOpen}
+          setIsHistoryOpen={setIsHistoryOpen}
+        />
+      </div>
     </section>
   );
 }

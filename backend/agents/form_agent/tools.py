@@ -23,11 +23,8 @@ def generate_form_schema(description: str) -> str:
         JSON string: {"success": bool, "title": str, "description": str,
             "links": [...], "additional_questions": [...], "error": str (if failed)}
     """
-    print(">>> generate_form_schema tool called")
 
     try:
-        print(" in here")
-        print("="*50)
         schema = FormSchemaService.generate_form_schema(description=description)
 
         return json.dumps({

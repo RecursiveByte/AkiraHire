@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { EvaluationService } from "@/services/evaluated-application.service";
+
 import { Evaluation } from "@/types/evaluatedApplication.types";
+import { ApplicationStatus } from "@/types/application.types";
 
 interface UseEvaluatedApplicationsResult {
   evaluatedApplications: Evaluation[];
@@ -14,52 +16,78 @@ interface UseEvaluatedApplicationsResult {
   deleteEvaluation: (applicationId: number) => Promise<void>;
 }
 
-export function useEvaluatedApplications(): UseEvaluatedApplicationsResult {
+export function useEvaluatedApplications(
+  status?:  Exclude<ApplicationStatus, "UNDER_REVIEW">
+): UseEvaluatedApplicationsResult {
   const [evaluatedApplications, setEvaluatedApplications] = useState<Evaluation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const fetchEvaluatedApplications = useCallback(() => {
-    setIsLoading(true);
-    setError(null);
-
-    EvaluationService.getEvaluatedApplications()
-      .then(setEvaluatedApplications)
-      .catch((err: Error) => setError(err.message))
-      .finally(() => setIsLoading(false));
-  }, []);
+  const [refetchIndex, setRefetchIndex] = useState(0);
 
   useEffect(() => {
-    fetchEvaluatedApplications();
-  }, [fetchEvaluatedApplications]);
+    let isMounted = true;
 
-  const deleteEvaluation = useCallback(
-    async (applicationId: number) => {
+    async function loadEvaluatedApplications() {
+      setIsLoading(true);
+      setError(null);
+
       try {
-        await EvaluationService.deleteEvaluation(applicationId);
+        const data =
+          await EvaluationService.getEvaluatedApplications(status);
 
-        toast.success("Evaluation deleted successfully.");
-
-        fetchEvaluatedApplications();
+        if (isMounted) {
+          setEvaluatedApplications(data);
+        }
       } catch (err) {
-        const message =
-          err instanceof Error
-            ? err.message
-            : "Failed to delete evaluation.";
-
-        toast.error(message);
-
-        throw err;
+        if (isMounted) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Failed to fetch evaluations."
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
-    },
-    [fetchEvaluatedApplications]
-  );
+    }
+
+    loadEvaluatedApplications();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [status, refetchIndex]);
+
+  const deleteEvaluation = async (applicationId: number) => {
+    try {
+      await EvaluationService.deleteEvaluation(applicationId);
+
+      setEvaluatedApplications((prev) =>
+        prev.filter(
+          (evaluation) =>
+            evaluation.applicationId !== applicationId
+        )
+      );
+
+      toast.success("Evaluation deleted successfully.");
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Failed to delete evaluation."
+      );
+    }
+  };
+
+  const refetch = () => setRefetchIndex((i) => i + 1);
 
   return {
     evaluatedApplications,
     isLoading,
     error,
-    refetch: fetchEvaluatedApplications,
+    refetch,
     deleteEvaluation,
   };
 }

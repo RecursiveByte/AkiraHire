@@ -2,7 +2,7 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode
 
 from agents.job_agent.state import JobAgentState
-from agents.tools.job_description import generate_job_description
+from agents.job_agent.tools import generate_job_description
 from agents.job_agent.nodes import (
     chatbot_node,
     route_after_chatbot,

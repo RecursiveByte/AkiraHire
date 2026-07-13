@@ -1,13 +1,16 @@
 from langchain_core.tools import tool
+from langchain_core.runnables import RunnableConfig
 from sqlalchemy.orm import Session
 
 from services.application_evaluation_service import (
     ApplicationEvaluationService,
 )
+from exceptions.base import AppException
 
 from database.session import SessionLocal
+from agents.utils.config_helpers import get_current_user
 
-from exceptions.base import AppException
+
 from exceptions.application_evaluation_exceptions import (
     ApplicationAlreadyEvaluatedError,
 )
@@ -16,9 +19,9 @@ from repositories.application_repository import ApplicationRepository
 
 
 @tool
-def evaluate_application(application_id: int) -> dict:
+def evaluate_application(application_id: int, config: RunnableConfig) -> dict:
     """
-    Evaluate a single job application.
+    Evaluate a single job application belonging to the current recruiter.
 
     Always use this tool whenever the user asks to evaluate, review,
     analyze, assess, score, shortlist, or reject a specific application.
@@ -34,9 +37,23 @@ def evaluate_application(application_id: int) -> dict:
         reasoning, and application status.
     """
 
+    current_user = get_current_user(config)
+
     db = SessionLocal()
 
     try:
+        application = ApplicationRepository.get_owned_application(
+            application_id=application_id,
+            recruiter_id=current_user.user_id,
+            db=db,
+        )
+
+        if application is None:
+            return {
+                "success": False,
+                "error": f"No application found with id {application_id} for your account.",
+            }
+
         result = ApplicationEvaluationService.evaluate_application(
             application_id=application_id,
             db=db,
@@ -75,9 +92,9 @@ def evaluate_application(application_id: int) -> dict:
 
 
 @tool
-def evaluate_all_applications() -> dict:
+def evaluate_all_applications(config: RunnableConfig) -> dict:
     """
-    Evaluate every application that has not yet been evaluated.
+    Evaluate every unevaluated application belonging to the current recruiter.
 
     Use this tool whenever the user asks to:
 
@@ -91,13 +108,22 @@ def evaluate_all_applications() -> dict:
     Never evaluate applications yourself when this tool can be used.
 
     Returns:
-        The official evaluation results for every application.
+        The official evaluation results for every application owned by
+        the current recruiter.
     """
+    current_user = get_current_user(config)
 
     db = SessionLocal()
 
     try:
-        applications = ApplicationRepository.get_all(db=db)
+        
+        print("="*20)
+        print("evaluating..")
+        print("="*20)
+        applications = ApplicationRepository.get_all_for_recruiter(
+            recruiter_id=current_user.user_id,
+            db=db,
+        )
 
         results = []
 

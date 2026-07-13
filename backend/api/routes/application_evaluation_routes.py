@@ -16,6 +16,8 @@ from schemas.auth_schema import (
     CurrentUser,
 )
 
+
+
 from schemas.application_evaluation_schema import (
     EvaluateApplicationResponse,ApplicationEvaluationResponse,DeleteApplicationEvaluationResponse
 )
@@ -25,6 +27,7 @@ from services.application_evaluation_service import (
 )
 
 from enums.user_role_enum import UserRole
+from enums.application_evaluation_enum import ApplicationEvaluationStatus
 
 router = APIRouter(
     prefix="/application-evaluations",
@@ -59,12 +62,16 @@ def evaluate_application(
     response_model=list[ApplicationEvaluationResponse],
 )
 def get_my_evaluated_applications(
-    current_user: CurrentUser = Depends(require_role(UserRole.RECRUITER)),
+    status: ApplicationEvaluationStatus | None = None,
+    current_user: CurrentUser = Depends(
+        require_role(UserRole.RECRUITER),
+    ),
     db: Session = Depends(get_db),
 ):
     return ApplicationEvaluationService.get_all_by_recruiter_id(
         db=db,
         recruiter_id=current_user.user_id,
+        status=status,
     )
     
 @router.get("/")

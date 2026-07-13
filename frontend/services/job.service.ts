@@ -3,11 +3,16 @@ import { mapApiJobToJob } from "@/lib/mappers/job.mapper";
 import { Job, ApiJob } from "@/types/job.types";
 
 class JobService {
-  static async getRecruiterJobs(): Promise<Job[]> {
-    const { data } = await apiClient.get<ApiJob[]>("/jobs/recruiter/");
-    return data.map(mapApiJobToJob);
-  }
 
+  static async getRecruiterJobs(search?: string): Promise<Job[]> {
+    const response = await apiClient.get<ApiJob[]>("/jobs/recruiter", {
+      params: {
+        search,
+      },
+    });
+
+    return response.data.map(mapApiJobToJob);
+  }
   static async deleteJob(jobId: number) {
     const response = await apiClient.delete(`/jobs/${jobId}`);
     return response.data;

@@ -139,7 +139,6 @@ export function HistorySidebar({
                     </button>
                   ) : (
                     <div className="group relative mb-2">
-                      {/* Conversation Button */}
                       <button
                         onClick={() => onSelectConversation(conversation.id)}
                         className={`flex w-full items-center gap-3 rounded-xl p-3 pr-12 text-left transition ${
@@ -157,7 +156,6 @@ export function HistorySidebar({
                         </div>
                       </button>
 
-                      {/* Delete Button */}
                       <button
                         onClick={() => onDeleteConversation(conversation.id)}
                         className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg text-white/40 opacity-100 transition-all duration-200 hover:bg-red-500/15 hover:text-red-400 "

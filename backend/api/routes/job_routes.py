@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from database.session import get_db
+from typing import Optional
 
 from schemas.job_schema import (
     JobCreate,
@@ -21,6 +22,10 @@ from auth.dependencies import require_role, get_current_user
 from services.job_service import JobService
 from services.job_description_service import JobDescriptionService
 
+router = APIRouter(
+    prefix="/jobs",
+    tags=["Jobs"],
+)
 
 
 router = APIRouter(
@@ -28,22 +33,54 @@ router = APIRouter(
     tags=["Jobs"],
 )
 
+
+@router.get(
+    "/search",
+    response_model=list[JobResponse],
+)
+def search_jobs(
+    search: str | None = None,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    return JobService.search_jobs(
+        db=db,
+        search=search,
+    )
+
+
+@router.get(
+    "/recruiter",
+    response_model=list[JobResponse],
+)
+def get_jobs_by_recruiter_id(
+    search: str | None = None,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(
+        require_role(UserRole.RECRUITER),
+    ),
+):
+    return JobService.get_jobs_by_recruiter_id(
+        db=db,
+        recruiter_id=current_user.user_id,
+        search=search,
+    )
+
+
 @router.post(
     "/generate-description",
     response_model=GenerateJobDescriptionResponse,
 )
-
-
 def generate_job_description(
     payload: GenerateJobDescriptionRequest,
-    current_user : CurrentUser = Depends(
+    current_user: CurrentUser = Depends(
         require_role(UserRole.RECRUITER),
     ),
 ):
-
     return JobDescriptionService.generate_job_description(
         description=payload.description,
     )
+
 
 @router.post(
     "/",
@@ -57,27 +94,13 @@ def create_job(
     ),
     db: Session = Depends(get_db),
 ):
-
     return JobService.create_job(
         current_user=current_user,
         db=db,
         job_data=job_data,
     )
 
-@router.get(
-    "/recruiter/",
-    response_model=list[JobResponse],
-)
-def get_jobs_by_recruiter_id(
-    db: Session = Depends(get_db),
-     current_user: CurrentUser = Depends(
-     require_role(UserRole.RECRUITER),
- ),
-):
-    return JobService.get_jobs_by_recruiter_id(
-        db=db,
-        recruiter_id=current_user.user_id,
-    )
+
 
 @router.get(
     "/{job_id}",
@@ -86,12 +109,8 @@ def get_jobs_by_recruiter_id(
 def get_job_by_job_id(
     job_id: int,
     db: Session = Depends(get_db),
-        current_user: CurrentUser = Depends(
-            get_current_user
-    ),
-    
+    current_user: CurrentUser = Depends(get_current_user),
 ):
-
     return JobService.get_job_by_job_id(
         db=db,
         job_id=job_id,
@@ -110,7 +129,6 @@ def update_job(
     ),
     db: Session = Depends(get_db),
 ):
-
     return JobService.update_job(
         job_id=job_id,
         current_user=current_user,
@@ -130,7 +148,6 @@ def delete_job(
     ),
     db: Session = Depends(get_db),
 ):
-
     JobService.delete_job(
         job_id=job_id,
         current_user=current_user,
@@ -138,6 +155,7 @@ def delete_job(
     )
 
     return {"message": "Job deleted successfully."}
+
 
 
 @router.patch(
@@ -151,7 +169,6 @@ def publish_job(
     ),
     db: Session = Depends(get_db),
 ):
-
     return JobService.publish_job(
         job_id=job_id,
         current_user=current_user,
@@ -170,10 +187,8 @@ def close_job(
     ),
     db: Session = Depends(get_db),
 ):
-
     return JobService.close_job(
         job_id=job_id,
         current_user=current_user,
         db=db,
     )
-

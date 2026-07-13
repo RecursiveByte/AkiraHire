@@ -9,6 +9,9 @@ from database.models.application import Application
 from database.models.form import Form
 from database.models.job import Job
 
+
+from enums.application_evaluation_enum import ApplicationEvaluationStatus
+
 class ApplicationEvaluationRepository:
 
     @staticmethod
@@ -73,12 +76,15 @@ class ApplicationEvaluationRepository:
         )
 
 
+
     @staticmethod
     def get_all_by_recruiter_id(
         db: Session,
         recruiter_id: int,
+        status: ApplicationEvaluationStatus | None,
     ) -> list[ApplicationEvaluation]:
-        return (
+
+        query = (
             db.query(ApplicationEvaluation)
             .join(
                 Application,
@@ -95,8 +101,14 @@ class ApplicationEvaluationRepository:
             .filter(
                 Job.recruiter_id == recruiter_id,
             )
-            .all()
         )
+
+        if status:
+            query = query.filter(
+                ApplicationEvaluation.status == status,
+            )
+
+        return query.all()
 
     @staticmethod
     def update(

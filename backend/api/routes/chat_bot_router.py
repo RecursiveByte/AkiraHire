@@ -87,10 +87,12 @@ def chat(
     response_model=list[ChatThreadResponse],
 )
 def get_conversations(
+    search: str | None = None,
     db: Session = Depends(get_db),
-    current_user: CurrentUser = Depends(require_role(UserRole.RECRUITER,UserRole.ADMIN)),
+    current_user: CurrentUser = Depends(require_role(UserRole.RECRUITER, UserRole.CANDIDATE)),
 ):
     return ChatThreadService.get_all_threads(
         db=db,
         current_user=current_user,
+        search=search,
     )

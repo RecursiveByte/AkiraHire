@@ -3,36 +3,45 @@ import { useCallback, useEffect, useState } from "react";
 import { CandidateProfileService } from "@/services/candidate.service";
 
 import { JobApplicationForm } from "@/types/candidate/job.types";
+import { useDebounce } from "@/hooks/common/useDebounce";
 
 export function useJobs() {
-    const [jobs, setJobs] = useState<JobApplicationForm[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
-    const fetchJobs = useCallback(async () => {
-        try {
-            setIsLoading(true);
-            setError(null);
+  const debouncedSearch = useDebounce(search, 400);
 
-            const data = await CandidateProfileService.getJobs();
+  const [jobs, setJobs] = useState<JobApplicationForm[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-            setJobs(data);
-        } catch (err) {
-            console.error(err);
-            setError("Failed to load jobs.");
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
+  const fetchJobs = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
 
-    useEffect(() => {
-        fetchJobs();
-    }, [fetchJobs]);
+      const data = await CandidateProfileService.getJobs(
+        debouncedSearch
+      );
 
-    return {
-        jobs,
-        isLoading,
-        error,
-        refetch: fetchJobs,
-    };
+      setJobs(data);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load jobs.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [debouncedSearch]);
+
+  useEffect(() => {
+    fetchJobs();
+  }, [fetchJobs]);
+
+  return {
+    jobs,
+    isLoading,
+    error,
+    search,
+    setSearch,
+    refetch: fetchJobs,
+  };
 }

@@ -2,6 +2,7 @@ import { Application } from "@/types/application.types";
 import { formatDate } from "@/lib/utils";
 import ApplicationStatusBadge from "./ApplicationStatusBadge";
 import { useAuthStore } from "@/store/authStore";
+import { APPLICATION_TABLE_GRID } from "@/constants/applicationTable";
 
 interface ApplicationRowProps {
   application: Application;
@@ -14,12 +15,16 @@ export default function ApplicationRow({
   onClick,
   onDelete,
 }: ApplicationRowProps) {
+  const { user } = useAuthStore();
 
-  const {user} = useAuthStore();
+  const gridCols =
+    user?.role === "recruiter"
+      ? APPLICATION_TABLE_GRID.recruiter
+      : APPLICATION_TABLE_GRID.candidate;
   return (
     <div
       onClick={() => onClick(application.applicationId)}
-      className="flex flex-col gap-3 lg:grid lg:grid-cols-[150px_110px_110px_1fr_130px_120px_140px_60px] lg:gap-4 lg:items-center px-6 py-5 hover:bg-white/[0.03] cursor-pointer transition-colors"
+      className={`flex flex-col gap-3 lg:grid ${gridCols} lg:gap-4 lg:items-center px-6 py-5 hover:bg-white/[0.03] cursor-pointer transition-colors`}
     >
       {/* Application ID */}
       <div className="flex items-center justify-between lg:block lg:min-w-[150px]">
@@ -32,18 +37,8 @@ export default function ApplicationRow({
         </span>
       </div>
 
-      {/* Form ID */}
-      <div className="flex items-center justify-between lg:block lg:min-w-[110px]">
-        <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/50 lg:hidden">
-          Form ID
-        </span>
-
-        <span className="text-sm text-on-surface-variant">
-          #{application.form.formId}
-        </span>
-      </div>
-
       {/* Job ID */}
+
       <div className="flex items-center justify-between lg:block lg:min-w-[110px]">
         <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/50 lg:hidden">
           Job ID
@@ -51,6 +46,17 @@ export default function ApplicationRow({
 
         <span className="text-sm text-on-surface-variant">
           #{application.jobId}
+        </span>
+      </div>
+
+      {/* Form ID */}
+      <div className="flex items-center justify-between lg:block lg:min-w-[110px]">
+        <span className="text-[11px] uppercase tracking-widest text-on-surface-variant/50 lg:hidden">
+          Job title
+        </span>
+
+        <span className="text-sm block w-full truncate text-on-surface-variant">
+          {application.jobTitle}
         </span>
       </div>
 

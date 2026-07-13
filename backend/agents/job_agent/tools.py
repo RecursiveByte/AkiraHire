@@ -2,14 +2,14 @@ import json
 from datetime import datetime
 
 from langchain_core.tools import tool
-from langgraph.config import get_config
 
 from exceptions.base import AppException
 from services.job_description_service import JobDescriptionService
 from services.job_service import JobService
 from schemas.job_schema import JobCreate
 from database.session import SessionLocal
-
+from langchain_core.runnables import RunnableConfig
+from agents.utils.config_helpers import get_current_user
 
 @tool
 def generate_job_description(description: str) -> str:
@@ -64,6 +64,7 @@ def create_job(
     role: str,
     job_description: str,
     application_deadline: str,
+    config: RunnableConfig,
 ) -> str:
     """
     Create a new job in the database.
@@ -97,9 +98,8 @@ def create_job(
             "message": ...} or {"success": false, "error": str} on failure.
     """
 
-    config = get_config()
-    current_user = config["configurable"]["current_user"]
-
+    current_user = get_current_user(config)
+    
     db = SessionLocal()
 
     try:

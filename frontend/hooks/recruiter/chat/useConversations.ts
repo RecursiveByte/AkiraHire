@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { AssistantService } from "@/services/assistant.service";
 import type { AssistantConversation } from "@/types/assistant.types";
+import { useDebounce } from "@/hooks/common/useDebounce";
 
 interface UseConversationsResult {
   conversations: AssistantConversation[];
@@ -15,16 +16,18 @@ interface UseConversationsResult {
   deleteConversation: (threadId: string) => Promise<void>;
 }
 
-export function useConversations(): UseConversationsResult {
+export function useConversations(search: string = ""): UseConversationsResult {
   const [conversations, setConversations] = useState<AssistantConversation[]>([]);
   const [activeId, setActiveId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+
+  const debouncedSearch = useDebounce(search, 300);
 
   const refetch = useCallback(async () => {
     setIsLoading(true);
 
     try {
-      const data = await AssistantService.getConversations();
+      const data = await AssistantService.getConversations(debouncedSearch || undefined);
 
       setConversations(data);
 
@@ -45,15 +48,14 @@ export function useConversations(): UseConversationsResult {
     } finally {
       setIsLoading(false);
     }
-  }, []);
-
+  }, [debouncedSearch]);
 
   const deleteConversation = async (threadId: string) => {
     try {
       await AssistantService.deleteConversation(threadId);
-  
+
       toast.success("Conversation deleted.");
-  
+
       refetch();
     } catch (err) {
       toast.error("Unable to delete conversation.", {

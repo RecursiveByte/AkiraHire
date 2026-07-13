@@ -1,5 +1,10 @@
 "use client";
 
+import { useState } from "react";
+
+import SearchBar from "@/components/common/SearchBar";
+import FilterDropdown from "@/components/common/FilterDropdown";
+
 import { useApplications } from "@/hooks/recruiter/application/useApplications";
 import { useApplicationDelete } from "@/hooks/recruiter/application/useApplicationDelete";
 import { useApplicationModal } from "@/hooks/recruiter/application/useApplicationModal";
@@ -13,18 +18,23 @@ import EvaluatedApplicationDetailModal from "@/components/recruiter/application-
 import { ConfirmActionModal } from "@/components/common/ConfirmActionModal";
 
 export default function ApplicationsPage() {
-  const {
-    applications,
-    isLoading,
-    error,
-    refetchApplications,
-  } = useApplications();
+  const [search, setSearch] = useState("");
 
-  const {
-    selectedApplication,
-    openApplication,
-    closeApplication,
-  } = useApplicationModal(applications);
+  const STATUS_OPTIONS = [
+    { label: "All", value: "ALL" },
+    { label: "Shortlisted", value: "SHORTLISTED" },
+    { label: "Rejected", value: "REJECTED" },
+  ];
+
+  const [statusSearch, setStatusSearch] = useState<
+    "SHORTLISTED" | "REJECTED" | undefined
+  >(undefined);
+
+  const { applications, isLoading, error, refetchApplications } =
+    useApplications(search);
+
+  const { selectedApplication, openApplication, closeApplication } =
+    useApplicationModal(applications);
 
   const {
     applicationToDeleteId,
@@ -42,21 +52,17 @@ export default function ApplicationsPage() {
     isLoading: isEvaluatedApplicationsLoading,
     error: evaluatedApplicationsError,
     deleteEvaluation,
-  } = useEvaluatedApplications();
+  } = useEvaluatedApplications(statusSearch);
 
-  const {
-    selectedEvaluation,
-    openEvaluation,
-    closeEvaluation,
-  } = useEvaluatedApplicationModal(evaluatedApplications);
+  const { selectedEvaluation, openEvaluation, closeEvaluation } =
+    useEvaluatedApplicationModal(evaluatedApplications);
 
   const showApplicationsSkeleton =
     isLoading || (!!error && applications.length === 0);
 
   const showEvaluatedSkeleton =
     isEvaluatedApplicationsLoading ||
-    (!!evaluatedApplicationsError &&
-      evaluatedApplications.length === 0);
+    (!!evaluatedApplicationsError && evaluatedApplications.length === 0);
 
   return (
     <div className="max-w-[1200px] mx-auto p-12 space-y-12">
@@ -70,6 +76,12 @@ export default function ApplicationsPage() {
             Review candidate submissions across your forms.
           </p>
         </div>
+
+        <SearchBar
+          value={search}
+          onChange={setSearch}
+          placeholder="Search by application ID or job title..."
+        />
 
         <ApplicationsTable
           applications={applications}
@@ -90,6 +102,16 @@ export default function ApplicationsPage() {
           </p>
         </div>
 
+        <FilterDropdown
+          value={statusSearch ?? "ALL"}
+          onChange={(val) =>
+            setStatusSearch(
+              val === "ALL" ? undefined : (val as "SHORTLISTED" | "REJECTED")
+            )
+          }
+          options={STATUS_OPTIONS}
+        />
+
         <EvaluatedApplicationsTable
           evaluatedApplications={evaluatedApplications}
           isLoading={showEvaluatedSkeleton}
@@ -103,9 +125,7 @@ export default function ApplicationsPage() {
           application={selectedApplication}
           onClose={closeApplication}
           onDelete={() =>
-            setApplicationToDeleteId(
-              selectedApplication.applicationId
-            )
+            setApplicationToDeleteId(selectedApplication.applicationId)
           }
         />
       )}

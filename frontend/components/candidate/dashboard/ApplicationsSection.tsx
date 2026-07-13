@@ -1,12 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
-
-import { useApplications } from "@/hooks/recruiter/application/useApplications";
+import { useCandidateApplications } from "@/hooks/candidate/applications/useCandidateApplications";
 import { useApplicationModal } from "@/hooks/recruiter/application/useApplicationModal";
 import { useApplicationDelete } from "@/hooks/recruiter/application/useApplicationDelete";
 
-import ApplicationSearchBar from "./ApplicationSearchBar";
+import ApplicationSearchBar from "../../common/SearchBar";
 import ApplicationsTable from "@/components/recruiter/applications/ApplicationsTable";
 import ApplicationDetailModal from "@/components/recruiter/application-detail/ApplicationDetailModal";
 import { ConfirmActionModal } from "@/components/common/ConfirmActionModal";
@@ -16,8 +14,10 @@ export default function ApplicationsSection() {
     applications,
     isLoading,
     error,
+    search,
+    setSearch,
     refetchApplications,
-  } = useApplications();
+  } = useCandidateApplications();
 
   const {
     selectedApplication,
@@ -37,15 +37,9 @@ export default function ApplicationsSection() {
     refetchApplications,
   });
 
-  const [query, setQuery] = useState("");
+  
 
-  const filteredApplications = useMemo(() => {
-    if (!query.trim()) return applications;
-
-    return applications.filter((application) =>
-      String(application.applicationId).includes(query.trim())
-    );
-  }, [applications, query]);
+  console.log("getting ...",applications)
 
   const showApplicationsSkeleton =
     isLoading || (!!error && applications.length === 0);
@@ -58,14 +52,15 @@ export default function ApplicationsSection() {
         </h3>
 
         <ApplicationSearchBar
-          value={query}
-          onChange={setQuery}
+          value={search}
+          onChange={setSearch}
         />
       </div>
 
       <div className="glass-card rounded-xl overflow-hidden">
         <ApplicationsTable
-          applications={filteredApplications}
+        error={error}
+          applications={applications}
           isLoading={showApplicationsSkeleton}
           onSelectApplication={openApplication}
           onDeleteApplication={setApplicationToDeleteId}

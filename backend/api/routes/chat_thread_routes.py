@@ -12,7 +12,6 @@ from enums.user_role_enum import UserRole
 router = APIRouter(prefix="/assistant", tags=["Assistant"])
 
 
-
 @router.delete("/threads/{thread_id}",response_model=ChatThreadDeleteResponse)
 def delete_chat_thread(
     thread_id: UUID,

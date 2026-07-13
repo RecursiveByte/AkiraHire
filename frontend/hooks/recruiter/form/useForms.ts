@@ -3,6 +3,7 @@ import { toast } from "sonner";
 
 import { Form } from "@/types/form.types";
 import { FormService } from "@/services/form.service";
+import { useDebounce } from "@/hooks/common/useDebounce";
 
 interface UseFormsResult {
   forms: Form[];
@@ -14,11 +15,13 @@ interface UseFormsResult {
   deleteForm: (formId: number) => Promise<void>;
 }
 
-export function useForms(): UseFormsResult {
+export function useForms(search: string = ""): UseFormsResult {
   const [forms, setForms] = useState<Form[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refetchIndex, setRefetchIndex] = useState(0);
+
+  const debouncedSearch = useDebounce(search, 400);
 
   useEffect(() => {
     let isMounted = true;
@@ -28,7 +31,9 @@ export function useForms(): UseFormsResult {
       setError(null);
 
       try {
-        const data = await FormService.getRecruiterForms();
+        const data = await FormService.getRecruiterForms(
+          debouncedSearch || undefined
+        );
 
         if (isMounted) {
           setForms(data);
@@ -53,7 +58,7 @@ export function useForms(): UseFormsResult {
     return () => {
       isMounted = false;
     };
-  }, [refetchIndex]);
+  }, [refetchIndex, debouncedSearch]);
 
   const refetch = () => {
     setRefetchIndex((i) => i + 1);

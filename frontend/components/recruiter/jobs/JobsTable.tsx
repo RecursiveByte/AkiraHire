@@ -38,7 +38,7 @@ export default function JobsTable({
   if (!isLoading && jobs.length === 0) {
     return (
       <div className="glass-panel rounded-xl p-12 text-center text-on-surface-variant">
-        No jobs to show yet.
+        No jobs to show.
       </div>
     );
   }

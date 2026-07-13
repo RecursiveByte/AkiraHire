@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+
+import SearchBar from "@/components/common/SearchBar";
 
 import { useForms } from "@/hooks/recruiter/form/useForms";
 import { useFormModal } from "@/hooks/recruiter/form/useFormModal";
@@ -10,6 +12,8 @@ import FormsTable from "@/components/recruiter/form/FormsTable";
 import FormDetailModal from "@/components/recruiter/form-detail/FormDetailModal";
 
 export default function FormsPage() {
+  const [search, setSearch] = useState("");
+
   const {
     forms,
     isLoading,
@@ -18,7 +22,7 @@ export default function FormsPage() {
     publishForm,
     closeForm: closeRecruiterForm,
     deleteForm,
-  } = useForms();
+  } = useForms(search);
 
   const {
     selectedForm,
@@ -50,6 +54,12 @@ export default function FormsPage() {
           Manage application forms tied to your jobs.
         </p>
       </div>
+
+      <SearchBar
+        value={search}
+        onChange={setSearch}
+        placeholder="Search by job ID or Form title..."
+      />
 
       <FormsTable
         forms={forms}

@@ -27,7 +27,6 @@ class ApplicationRepository:
             db.rollback()
             raise
 
-
     @staticmethod
     def get_form_ids_by_candidate_id(db: Session, candidate_id: int) -> list[int]:
         results = (
@@ -149,3 +148,114 @@ class ApplicationRepository:
 
             db.rollback()
             raise
+
+    @staticmethod
+    def get_owned_application(
+        application_id: int,
+        recruiter_id: int,
+        db: Session,
+    ) -> Application | None:
+        return (
+            db.query(Application)
+            .join(Form, Application.form_id == Form.form_id)
+            .join(Job, Form.job_id == Job.job_id)
+            .filter(
+                Application.application_id == application_id,
+                Job.recruiter_id == recruiter_id,
+            )
+            .first()
+        )
+
+    @staticmethod
+    def get_all_for_recruiter(
+        recruiter_id: int,
+        db: Session,
+    ) -> list[Application]:
+        return (
+            db.query(Application)
+            .join(Form, Application.form_id == Form.form_id)
+            .join(Job, Form.job_id == Job.job_id)
+            .filter(Job.recruiter_id == recruiter_id)
+            .all()
+        )
+
+    @staticmethod
+    def search_candidate_applications(
+        db: Session,
+        candidate_id: int,
+        search: str | None,
+    ) -> list[Application]:
+
+        query = (
+            db.query(Application)
+            .join(
+                Form,
+                Application.form_id == Form.form_id,
+            )
+            .join(
+                Job,
+                Form.job_id == Job.job_id,
+            )
+            .filter(
+                Application.candidate_id == candidate_id,
+            )
+        )
+
+        if search:
+
+            search = search.strip()
+
+            if search.isdigit():
+
+                query = query.filter(
+                    Application.application_id == int(search),
+                )
+
+            else:
+
+                query = query.filter(
+                    Job.role.ilike(f"{search}%"),
+                )
+
+        return query.all()
+    
+    
+    @staticmethod
+    def search_recruiter_applications(
+        db: Session,
+        recruiter_id: int,
+        search: str | None,
+    ) -> list[Application]:
+    
+        query = (
+            db.query(Application)
+            .join(
+                Form,
+                Application.form_id == Form.form_id,
+            )
+            .join(
+                Job,
+                Form.job_id == Job.job_id,
+            )
+            .filter(
+                Job.recruiter_id == recruiter_id,
+            )
+        )
+    
+        if search:
+        
+            search = search.strip()
+    
+            if search.isdigit():
+            
+                query = query.filter(
+                    Application.application_id == int(search),
+                )
+    
+            else:
+            
+                query = query.filter(
+                    Job.role.ilike(f"{search}%"),
+                )
+    
+        return query.all()

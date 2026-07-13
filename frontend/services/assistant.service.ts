@@ -5,19 +5,23 @@ import type {
   AssistantConversation,
   GetMessagesResponse,
   SendMessageResponse,
-  DeleteConversationResponse
+  DeleteConversationResponse,
 } from "@/types/assistant.types";
 
 // const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export class AssistantService {
-  static async getConversations(): Promise<AssistantConversation[]> {
+  static async getConversations(
+    search?: string
+  ): Promise<AssistantConversation[]> {
     const { data } = await apiClient.get<AssistantConversation[]>(
-      "/chatbot/conversations/"
+      "/chatbot/conversations/",
+      { params: search ? { search } : undefined }
     );
+
     return data;
   }
-
+  
   static async getMessages(threadId: string): Promise<GetMessagesResponse> {
     const { data } = await apiClient.get<GetMessagesResponse>(
       `/chatbot/thread/${threadId}/messages`
@@ -45,7 +49,7 @@ export class AssistantService {
     const response = await apiClient.delete<DeleteConversationResponse>(
       `/assistant/threads/${threadId}`
     );
-  
+
     return response.data;
   }
   // static async streamMessage(

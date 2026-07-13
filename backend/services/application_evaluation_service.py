@@ -37,18 +37,17 @@ from repositories.application_evaluation_repository import (
 from schemas.application_evaluation_schema import (
     EvaluateApplicationResponse,
     GeneratedApplicationEvaluation,
-    DeleteApplicationEvaluationResponse
+    DeleteApplicationEvaluationResponse,
 )
 
 from exceptions.application_exceptions import (
     ApplicationNotFoundError,
-    
 )
 
 from exceptions.application_evaluation_exceptions import (
     ApplicationAlreadyEvaluatedError,
     ApplicationEvaluationFailedError,
-    ApplicationEvaluationNotFoundError
+    ApplicationEvaluationNotFoundError,
 )
 
 from schemas.form_schema import GeneratedFormSchemaResponse
@@ -57,6 +56,8 @@ from services.candidate_service import CandidateService
 
 from utils.logger import get_logger
 from utils.clean_json import clean_json
+
+from enums.application_evaluation_enum import ApplicationEvaluationStatus
 
 logger = get_logger(__name__)
 
@@ -137,8 +138,7 @@ class ApplicationEvaluationService:
         resume_content = ResumeService.read_resume(
             resume_url=candidate_profile.resume_url,
         )
-        
-        
+
         form = FormRepository.get_by_id(
             db=db,
             form_id=application.form_id,
@@ -251,11 +251,9 @@ class ApplicationEvaluationService:
             evaluation = GeneratedApplicationEvaluation.model_validate_json(
                 response.content,
             )
-            
-            evaluation.reasoning = (
-                evaluation.reasoning
-                .replace("\\n", "\n")
-                .replace("\\t", "\t")
+
+            evaluation.reasoning = evaluation.reasoning.replace("\\n", "\n").replace(
+                "\\t", "\t"
             )
 
             return evaluation
@@ -294,16 +292,19 @@ class ApplicationEvaluationService:
         return application_evaluation
 
 
+
     @staticmethod
     def get_all_by_recruiter_id(
         db: Session,
         recruiter_id: int,
+        status: ApplicationEvaluationStatus | None,
     ):
         return ApplicationEvaluationRepository.get_all_by_recruiter_id(
             db=db,
             recruiter_id=recruiter_id,
+            status=status,
         )
-        
+
     @staticmethod
     def get_by_application_id(
         application_id: int,
@@ -321,26 +322,26 @@ class ApplicationEvaluationService:
         return ApplicationEvaluationRepository.get_all(
             db=db,
         )
-        
+
     @staticmethod
     def delete_application_evaluation(
         application_id: int,
         db: Session,
     ) -> DeleteApplicationEvaluationResponse:
-    
+
         evaluation = ApplicationEvaluationRepository.get_by_application_id(
             db=db,
             application_id=application_id,
         )
-    
+
         if not evaluation:
             raise ApplicationEvaluationNotFoundError()
-    
+
         ApplicationEvaluationRepository.delete(
             db=db,
             application_evaluation=evaluation,
         )
-    
+
         return DeleteApplicationEvaluationResponse(
             message="Application evaluation deleted successfully."
         )

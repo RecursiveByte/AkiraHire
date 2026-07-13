@@ -20,16 +20,20 @@ export function useLogin() {
     setIsSubmitting(true);
 
     try {
-      const { accessToken ,user} = await AuthService.login(payload);
-        
+      const { accessToken, user } = await AuthService.login(payload);
+
       setAccessToken(accessToken);
       setUser(user);
 
       toast.success("Welcome back!");
 
-      router.push(
-        user.role === "recruiter" ? "/recruiter/dashboard" : "/candidate/dashboard"
-      );
+      const redirectMap: Record<string, string> = {
+        recruiter: "/recruiter/dashboard",
+        candidate: "/candidate/dashboard",
+        admin: "/admin/dashboard",
+      };
+
+      router.push(redirectMap[user.role] ?? "/");
     } catch (error: any) {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data?.detail ?? "Login failed.");

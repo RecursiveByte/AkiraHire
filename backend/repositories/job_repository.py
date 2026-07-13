@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from database.models.job import Job
 from datetime import datetime
 
+
 class JobRepository:
 
     @staticmethod
@@ -30,9 +31,8 @@ class JobRepository:
         db: Session,
         job_id: int,
     ) -> Job | None:
-        
-        return db.query(Job).filter(Job.job_id == job_id).first()
 
+        return db.query(Job).filter(Job.job_id == job_id).first()
 
     @staticmethod
     def get_all(
@@ -41,14 +41,90 @@ class JobRepository:
 
         return db.query(Job).all()
 
+
+
+
     @staticmethod
     def get_jobs_by_recruiter_id(
         db: Session,
         recruiter_id: int,
+        search: str | None = None,
     ) -> list[Job]:
 
-        return db.query(Job).filter(Job.recruiter_id == recruiter_id).all()
+        query = db.query(Job).filter(
+            Job.recruiter_id == recruiter_id,
+        )
 
+        if search:
+
+            if search.isdigit():
+
+                query = query.filter(
+                    Job.job_id == int(search),
+                )
+
+            else:
+
+                query = query.filter(
+                    Job.role.ilike(f"{search}%"),
+                )
+
+        return query.all()
+
+    @staticmethod
+    def get_by_recruiter_role_description_and_deadline(
+        db: Session,
+        recruiter_id: int,
+        role: str,
+        job_description: str,
+        application_deadline: datetime,
+    ) -> Job | None:
+
+        return (
+            db.query(Job)
+            .filter(
+                Job.recruiter_id == recruiter_id,
+                Job.role == role,
+                Job.job_description == job_description,
+                Job.application_deadline == application_deadline,
+            )
+            .first()
+        )
+
+    @staticmethod
+    def get_owned_job(db: Session, job_id: int, recruiter_id: int) -> Job | None:
+        return (
+            db.query(Job)
+            .filter(
+                Job.job_id == job_id,
+                Job.recruiter_id == recruiter_id,
+            )
+            .first()
+        )
+
+    @staticmethod
+    def search_jobs(
+        db: Session,
+        search: str | None,
+    ) -> list[Job]:
+
+        query = db.query(Job)
+
+        if search:
+
+            search = search.strip()
+
+            if search.isdigit():
+
+                query = query.filter(Job.job_id == int(search))
+
+            else:
+
+                query = query.filter(Job.role.ilike(f"{search}%"))
+
+        return query.all()
+    
+    
     @staticmethod
     def update(
         db: Session,
@@ -82,23 +158,3 @@ class JobRepository:
 
             db.rollback()
             raise
-        
-    @staticmethod
-    def get_by_recruiter_role_description_and_deadline(
-        db: Session,
-        recruiter_id: int,
-        role: str,
-        job_description: str,
-        application_deadline: datetime,
-    ) -> Job | None:
-
-        return (
-            db.query(Job)
-            .filter(
-                Job.recruiter_id == recruiter_id,
-                Job.role == role,
-                Job.job_description == job_description,
-                Job.application_deadline == application_deadline,
-            )
-            .first()
-        )

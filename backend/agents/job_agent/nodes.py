@@ -3,7 +3,7 @@ from langchain_core.messages import AIMessage, ToolMessage
 from langchain_core.runnables import RunnableConfig
 
 from agents.job_agent.state import JobAgentState
-from agents.tools.job_description import generate_job_description, create_job
+from agents.job_agent.tools import generate_job_description, create_job
 from agents.job_agent.prompts import SYSTEM_PROMPT
 from core.llm.llm_client import get_llm
 

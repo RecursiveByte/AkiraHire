@@ -368,21 +368,26 @@ class ApplicationService:
             "questions": merged_questions,
         }
 
+
     @staticmethod
     def get_recruiter_applications(
         recruiter_id: int,
         db: Session,
+        search: str | None,
     ):
-        application_ids = ApplicationService.get_applications_by_recruiter_id(
-            recruiter_id=recruiter_id,
+    
+        applications = ApplicationRepository.search_recruiter_applications(
             db=db,
+            recruiter_id=recruiter_id,
+            search=search,
         )
+    
         return [
             ApplicationService.get_application_with_form(
-                application_id=application["application_id"],
+                application_id=application.application_id,
                 db=db,
             )
-            for application in application_ids
+            for application in applications
         ]
 
     @staticmethod
@@ -394,7 +399,7 @@ class ApplicationService:
             db=db,
             candidate_id=candidate_id,
         )
-        
+
     @staticmethod
     def get_applied_form_ids(user_id: int, db: Session) -> list[int]:
         candidate_profile = CandidateRepository.get_by_user_id(db=db, user_id=user_id)
@@ -406,7 +411,6 @@ class ApplicationService:
             db=db,
             candidate_id=candidate_profile.candidate_id,
         )
-
 
     @staticmethod
     def get_candidate_applications(
@@ -464,3 +468,35 @@ class ApplicationService:
         )
 
         return DeleteApplicationResponse(message="Application deleted successfully.")
+
+    @staticmethod
+    def search_candidate_applications(
+        user_id: int,
+        db: Session,
+        search: str | None,
+    ):
+
+        candidate_profile = CandidateRepository.get_by_user_id(
+            db=db,
+            user_id=user_id,
+        )
+
+        if not candidate_profile:
+
+            logger.warning(f"Candidate profile not found. user_id={user_id}")
+
+            raise CandidateProfileNotFoundError()
+
+        applications = ApplicationRepository.search_candidate_applications(
+            db=db,
+            candidate_id=candidate_profile.candidate_id,
+            search=search,
+        )
+
+        return [
+            ApplicationService.get_application_with_form(
+                application_id=application.application_id,
+                db=db,
+            )
+            for application in applications
+        ]

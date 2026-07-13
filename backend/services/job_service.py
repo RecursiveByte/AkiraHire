@@ -10,7 +10,7 @@ from exceptions.job_exceptions import (
     JobNotFoundError,
     InvalidJobStatusTransitionError,
     UnauthorizedRecruiterError,
-    JobAlreadyExistsError
+    JobAlreadyExistsError,
 )
 
 from repositories.job_repository import JobRepository
@@ -123,14 +123,18 @@ class JobService:
 
             raise UnauthorizedRecruiterError()
 
+
     @staticmethod
     def get_jobs_by_recruiter_id(
         db: Session,
         recruiter_id: int,
+        search: str | None = None,
     ) -> list[Job]:
+    
         return JobRepository.get_jobs_by_recruiter_id(
             db=db,
             recruiter_id=recruiter_id,
+            search=search,
         )
 
     @staticmethod
@@ -262,4 +266,17 @@ class JobService:
             new_status=JobStatus.CLOSED,
             current_user=current_user,
             db=db,
+        )
+
+    @staticmethod
+    def search_jobs(
+        db: Session,
+        search: str | None,
+    ) -> list[Job]:
+
+        logger.info(f"Searching jobs. search={search}")
+
+        return JobRepository.search_jobs(
+            db=db,
+            search=search,
         )

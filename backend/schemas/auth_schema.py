@@ -8,6 +8,8 @@ from pydantic import (
 
 from enums.user_role_enum import UserRole
 
+from enum import Enum
+
 class UserResponse(BaseModel):
 
     id: int
@@ -28,6 +30,10 @@ class AuthResponse(BaseModel):
     user: UserResponse
 
 
+class SelfSignupRole(str, Enum):
+    RECRUITER = "recruiter"
+    CANDIDATE = "candidate"
+
 class RegisterRequest(BaseModel):
 
     name: str = Field(
@@ -38,7 +44,7 @@ class RegisterRequest(BaseModel):
 
     email: EmailStr
     
-    role:UserRole
+    role: SelfSignupRole
 
     password: str = Field(
         ...,

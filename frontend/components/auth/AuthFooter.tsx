@@ -19,7 +19,7 @@ export function AuthFooter() {
       </p>
       <p className="mt-4 text-xs text-white/60">
         Are you an Administrator?{" "}
-        <Link href="/adminLogin" className="font-semibold text-white underline-offset-4 hover:underline">
+        <Link href="/login/admin" className="font-semibold text-white underline-offset-4 hover:underline">
           Admin Login
         </Link>
       </p>
