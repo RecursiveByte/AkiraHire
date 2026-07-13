@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { AuthService } from "@/services/auth.service";
+import { AuthService } from "@/services/common/auth.service";
 import { useAuthStore } from "@/store/authStore";
 
 interface AuthInitializerProps {

@@ -37,6 +37,8 @@ from api.routes.application_evaluation_routes import router as application_evalu
 from api.routes.chat_bot_router import router as chatbot_router
 
 
+from integration.routes import router as integration_router
+
 app.include_router(google_autoform_router)
 
 app.include_router(linkedin_router)
@@ -57,3 +59,5 @@ app.include_router(application_evaluation_routes)
 
 app.include_router(chatbot_router)
 app.include_router(chat_thread_router)
+
+app.include_router(integration_router)

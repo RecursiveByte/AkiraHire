@@ -10,7 +10,7 @@ import {
 import { useSignup } from "@/hooks/auth/useSignup";
 import { RoleToggle} from "./RoleToggle";
 
-import type { AuthRole } from "@/types/auth.types";
+import type { AuthRole } from "@/types/common/auth.types";
 
 export function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);

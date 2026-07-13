@@ -2,9 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useDebounce } from "@/hooks/common/useDebounce";
 
-import { Application } from "@/types/application.types";
-import { ApplicationService } from "@/services/application.service";
-import { CandidateProfileService } from "@/services/candidate.service";
+import { Application } from "@/types/recruiter/application/application.types";
+import { ApplicationService } from "@/services/recruiter/application.service";
+import { CandidateProfileService } from "@/services/candidate/candidate.service";
 
 interface UseCandidateApplicationsResult {
   applications: Application[];

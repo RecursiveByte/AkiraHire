@@ -1,4 +1,4 @@
-import { JobStatus } from "@/types/job.types";
+import { JobStatus } from "@/types/recruiter/job/job.types";
 
 const STATUS_STYLES: Record<JobStatus, { dot: string; text: string; label: string }> = {
   OPEN: { dot: "bg-emerald-400", text: "text-emerald-400", label: "OPEN" },

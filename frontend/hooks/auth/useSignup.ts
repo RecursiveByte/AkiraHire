@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import axios from "axios";
 
-import { AuthService } from "@/services/auth.service";
+import { AuthService } from "@/services/common/auth.service";
 import { useAuthStore } from "@/store/authStore";
 import { SignupFormValues } from "@/lib/validators/auth.validator";
 

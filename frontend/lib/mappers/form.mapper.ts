@@ -1,5 +1,5 @@
-import { Form, FormStatus } from "@/types/form.types";
-import { ApiForm, ApiFormStatus } from "@/types/form.types";
+import { Form, FormStatus } from "@/types/recruiter/form/form.types";
+import { ApiForm, ApiFormStatus } from "@/types/recruiter/form/form.types";
 
 const STATUS_MAP: Record<ApiFormStatus, FormStatus> = {
   draft: "DRAFT",

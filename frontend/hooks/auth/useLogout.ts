@@ -1,5 +1,5 @@
 import { useRouter } from "next/navigation";
-import { AuthService } from "@/services/auth.service";
+import { AuthService } from "@/services/common/auth.service";
 import { useAuthStore } from "@/store/authStore";
 
 export function useLogout() {

@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { Application } from "@/types/application.types";
+import { Application } from "@/types/recruiter/application/application.types";
 import ApplicationRow from "./ApplicationRow";
 import ApplicationRowSkeleton from "./ApplicationRowSkeleton";
 import { SKELETON_ROW_COUNT } from "@/constants/skeleton";

@@ -8,6 +8,9 @@ class AgentType(str, Enum):
     APPLICATION = "APPLICATION"
     GENERAL = "GENERAL"
     FORM = "FORM"
+    GOOGLE_FORM = "GOOGLE_FORM"
+    LINKEDIN = "LINKEDIN"
+    EMAIL = "EMAIL"
 
 
 class RouterResponse(BaseModel):

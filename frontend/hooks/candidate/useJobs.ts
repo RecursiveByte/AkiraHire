@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { CandidateProfileService } from "@/services/candidate.service";
+import { CandidateProfileService } from "@/services/candidate/candidate.service";
 
-import { JobApplicationForm } from "@/types/candidate/job.types";
+import { JobApplicationForm } from "@/types/candidate/job/job.types";
 import { useDebounce } from "@/hooks/common/useDebounce";
 
 export function useJobs() {

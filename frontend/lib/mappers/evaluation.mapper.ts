@@ -1,5 +1,5 @@
 import { ApiEvaluation } from "@/types/api/evaluation.types";
-import { Evaluation } from "@/types/evaluatedApplication.types";
+import { Evaluation } from "@/types/recruiter/application/evaluatedApplication.types";
 
 export function mapApiEvaluationToEvaluation(apiEvaluation: ApiEvaluation): Evaluation {
   return {

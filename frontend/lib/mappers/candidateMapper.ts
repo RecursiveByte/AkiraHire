@@ -28,9 +28,9 @@ export function mapApiCandidateResume(
   };
 }
 
-import { JobApplicationFormApi } from "@/types/candidate/job.api";
+import { JobApplicationFormApi } from "@/types/candidate/job/job.api";
 
-import { JobApplicationForm } from "@/types/candidate/job.types";
+import { JobApplicationForm } from "@/types/candidate/job/job.types";
 
 export function mapApiJobApplicationForm(
   job: JobApplicationFormApi

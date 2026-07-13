@@ -1,4 +1,4 @@
-import { FormSchemaQuestion } from "@/types/form.types";
+import { FormSchemaQuestion } from "@/types/recruiter/form/form.types";
 
 export default function FormSchemaField({ question }: { question: FormSchemaQuestion }) {
   const label = (

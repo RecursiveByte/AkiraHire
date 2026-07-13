@@ -2,6 +2,7 @@ from database.models.user import User
 from database.models.connected_account import ConnectedAccount
 from database.models.linkedin_identity import LinkedInIdentity
 from database.models.linkedin_post_draft import LinkedInPostDraft 
+from database.models.oauth_state import OAuthState
 
 from database.models.job import Job
 from database.models.form import Form
@@ -16,3 +17,4 @@ from database.models.chat_session import ChatSession
 from database.models.chat_message import ChatMessage
 from database.models.chat_thread import ChatThread
 from database.models.password_reset_otp import PasswordResetOTP
+

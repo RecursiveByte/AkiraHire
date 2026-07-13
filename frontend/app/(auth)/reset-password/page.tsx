@@ -10,7 +10,7 @@ import {
   resetPasswordSchema,
   type ResetPasswordFormValues,
 } from "@/lib/validators/auth.validator";
-import { AuthService } from "@/services/auth.service";
+import { AuthService } from "@/services/common/auth.service";
 import { useForgotPassword } from "@/hooks/auth/useForgotPassword";
 
 const OTP_DURATION_SECONDS = 60;

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Evaluation } from "@/types/evaluatedApplication.types";
+import { Evaluation } from "@/types/recruiter/application/evaluatedApplication.types";
 
 export function useEvaluatedApplicationModal(evaluatedApplications: Evaluation[]) {
   const [selectedApplicationId, setSelectedApplicationId] = useState<number | null>(null);

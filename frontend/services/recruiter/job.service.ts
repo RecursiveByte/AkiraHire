@@ -1,6 +1,6 @@
 import { apiClient } from "@/lib/api/apiClient";
 import { mapApiJobToJob } from "@/lib/mappers/job.mapper";
-import { Job, ApiJob } from "@/types/job.types";
+import { Job, ApiJob } from "@/types/recruiter/job/job.types";
 
 class JobService {
 

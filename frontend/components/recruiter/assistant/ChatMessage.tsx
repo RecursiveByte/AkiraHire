@@ -2,7 +2,7 @@
 
 import ReactMarkdown from "react-markdown";
 
-import { AssistantMessage } from "@/types/assistant.types";
+import { AssistantMessage } from "@/types/recruiter/assisstant/assistant.types";
 
 interface ChatMessageProps {
   message: AssistantMessage;

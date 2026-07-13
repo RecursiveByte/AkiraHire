@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Application } from "@/types/application.types";
+import { Application } from "@/types/recruiter/application/application.types";
 
 export function useApplicationModal(applications: Application[]) {
   const [selectedApplicationId, setSelectedApplicationId] = useState<number | null>(null);

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { ApplicationService } from "@/services/application.service";
+import { ApplicationService } from "@/services/recruiter/application.service";
 
 interface UseApplicationDeleteProps {
   selectedApplicationId: number | null;

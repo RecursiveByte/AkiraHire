@@ -5,7 +5,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { CandidateProfile,CandidateResume } from "@/types/candidate/candidate.types";
 
-import { CandidateProfileService } from "@/services/candidate.service";
+import { CandidateProfileService } from "@/services/candidate/candidate.service";
 
 interface UseCreateProfileModalArgs {
     onProfileCreated?: (data: { profile: CandidateProfile; resume: CandidateResume }) => void;}

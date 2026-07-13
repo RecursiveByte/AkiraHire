@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { EvaluationService } from "@/services/evaluated-application.service";
+import { EvaluationService } from "@/services/recruiter/evaluated-application.service";
 
-import { Evaluation } from "@/types/evaluatedApplication.types";
-import { ApplicationStatus } from "@/types/application.types";
+import { Evaluation } from "@/types/recruiter/application/evaluatedApplication.types";
+import { ApplicationStatus } from "@/types/recruiter/application/application.types";
 
 interface UseEvaluatedApplicationsResult {
   evaluatedApplications: Evaluation[];

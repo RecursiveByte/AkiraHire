@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-import { CandidateProfileService } from "@/services/candidate.service";
+import { CandidateProfileService } from "@/services/candidate/candidate.service";
 import { CandidateProfile, CandidateResume } from "@/types/candidate/candidate.types";
 
 type CandidateProfileStatus = "loading" | "success" | "not-found" | "error";

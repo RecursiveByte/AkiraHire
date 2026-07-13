@@ -13,7 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { JobApplicationForm } from "@/types/candidate/job.types";
+import { JobApplicationForm } from "@/types/candidate/job/job.types";
 
 interface JobDetailsModalProps {
   open: boolean;

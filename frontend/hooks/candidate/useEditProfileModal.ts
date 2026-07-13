@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { CandidateProfile, CandidateResume } from "@/types/candidate/candidate.types";
-import { CandidateProfileService } from "@/services/candidate.service";
+import { CandidateProfileService } from "@/services/candidate/candidate.service";
 
 interface UseEditProfileModalArgs {
   profile: CandidateProfile;

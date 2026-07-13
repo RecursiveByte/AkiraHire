@@ -1,8 +1,8 @@
 import { apiClient } from "@/lib/api/apiClient";
 import { ApiEvaluation } from "@/types/api/evaluation.types";
 import { mapApiEvaluationToEvaluation } from "@/lib/mappers/evaluation.mapper";
-import { Evaluation } from "@/types/evaluatedApplication.types";
-import { ApplicationStatus } from "@/types/application.types";
+import { Evaluation } from "@/types/recruiter/application/evaluatedApplication.types";
+import { ApplicationStatus } from "@/types/recruiter/application/application.types";
 
 
 export class EvaluationService {

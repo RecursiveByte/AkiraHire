@@ -6,7 +6,7 @@ import ApplicationStatusBadge from "@/components/recruiter/applications/Applicat
 import { ConfirmActionModal } from "@/components/common/ConfirmActionModal";
 
 import { formatDate } from "@/lib/utils";
-import { Evaluation } from "@/types/evaluatedApplication.types";
+import { Evaluation } from "@/types/recruiter/application/evaluatedApplication.types";
 
 interface EvaluatedApplicationRowProps {
   evaluatedApplication: Evaluation;

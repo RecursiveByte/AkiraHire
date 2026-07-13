@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import JobService from "@/services/job.service";
+import JobService from "@/services/recruiter/job.service";
 import { useDebounce } from "@/hooks/common/useDebounce";
-import { Job } from "@/types/job.types";
+import { Job } from "@/types/recruiter/job/job.types";
 
 interface UseJobsResult {
   jobs: Job[];

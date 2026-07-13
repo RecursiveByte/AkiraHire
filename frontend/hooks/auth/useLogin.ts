@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { AuthService } from "@/services/auth.service";
+import { AuthService } from "@/services/common/auth.service";
 import { useAuthStore } from "@/store/authStore";
 import axios from "axios";
 

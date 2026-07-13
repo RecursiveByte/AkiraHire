@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
-import { Form } from "@/types/form.types";
+import { Form } from "@/types/recruiter/form/form.types";
 
 import FormRow from "./FormRow";
 import FormRowSkeleton from "@/components/recruiter/form/FormRowSkeleton";

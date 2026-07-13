@@ -1,4 +1,4 @@
-import { Form } from "@/types/form.types";
+import { Form } from "@/types/recruiter/form/form.types";
 import FormStatusIndicator from "./FormStatusIndicator";
 import FormActionButton from "./FormActionButton";
 import { ConfirmActionModal } from "@/components/common/ConfirmActionModal";

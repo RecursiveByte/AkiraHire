@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { Job } from "@/types/job.types";
+import { Job } from "@/types/recruiter/job/job.types";
 import JobRow from "./JobRow";
 import JobRowSkeleton from "./JobRowSkeleton";
 import { SKELETON_ROW_COUNT } from "@/constants/skeleton";

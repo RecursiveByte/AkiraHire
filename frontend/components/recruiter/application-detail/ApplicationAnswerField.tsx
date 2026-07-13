@@ -1,4 +1,4 @@
-import { ApplicationQuestionAnswer } from "@/types/application.types";
+import { ApplicationQuestionAnswer } from "@/types/recruiter/application/application.types";
 
 export default function ApplicationAnswerField({ question }: { question: ApplicationQuestionAnswer }) {
   const displayAnswer =

@@ -1,4 +1,4 @@
-import { ApplicationStatus } from "@/types/application.types";
+import { ApplicationStatus } from "@/types/recruiter/application/application.types";
 import { cn } from "@/lib/utils";
 
 const STATUS_CONFIG: Record<

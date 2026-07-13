@@ -1,4 +1,4 @@
-import { EvaluationStatus } from "@/types/evaluatedApplication.types";
+import { EvaluationStatus } from "@/types/recruiter/application/evaluatedApplication.types";
 import { cn } from "@/lib/utils";
 
 const STATUS_CONFIG: Record<EvaluationStatus, { label: string; dot: string; text: string }> = {

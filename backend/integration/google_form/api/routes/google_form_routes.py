@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from database.session import get_db
 
-from auth.dependencies import get_current_user
+from auth.dependencies import get_current_user_from_refresh_token
 from schemas.auth_schema import CurrentUser
 
 from integration.google_form.config.settings import settings
@@ -16,14 +16,10 @@ from integration.google_form.schemas.google_form_response import (
     GoogleFormResponse,
 )
 
-from integration.google_form.services.google_form_service import (
-    create_google_form,
-)
+from integration.google_form.services.google_form_service import GoogleFormService
 
-from integration.google_form.services import google_oauth_service
+from integration.google_form.services.google_form_service import GoogleOAuthService
 
-from auth.dependencies import require_role
-from enums.user_role_enum import UserRole
 
 
 router = APIRouter(
@@ -35,19 +31,18 @@ router = APIRouter(
 @router.get("/auth/google/connect")
 def connect_google(
     request: Request,
-    current_user: CurrentUser = Depends(get_current_user),
+    current_user=Depends(get_current_user_from_refresh_token),
+    db: Session = Depends(get_db),
 ) -> RedirectResponse:
 
-    auth_url, code_verifier = google_oauth_service.create_google_auth_url(
-        user_id=current_user.user_id,
+    auth_url, code_verifier = GoogleOAuthService.create_google_auth_url(
+        db=db,
+        user_id=current_user["user_id"],
     )
 
     request.session["code_verifier"] = code_verifier
 
-    return RedirectResponse(
-        url=auth_url,
-    )
-
+    return RedirectResponse(url=auth_url)
 
 @router.get("/auth/google/connect/callback")
 def google_oauth_callback(
@@ -57,7 +52,7 @@ def google_oauth_callback(
     db: Session = Depends(get_db),
 ) -> RedirectResponse:
 
-    google_oauth_service.handle_oauth_callback(
+    GoogleOAuthService.handle_oauth_callback(
         db=db,
         code=code,
         state=state,
@@ -67,7 +62,7 @@ def google_oauth_callback(
     request.session.pop("code_verifier", None)
 
     return RedirectResponse(
-        url=f"{settings.FRONTEND_URL}/auth",
+        url=f"{settings.FRONTEND_URL}/recruiter/integrations",
         status_code=303,
     )
 
@@ -78,12 +73,12 @@ def google_oauth_callback(
 )
 def create_google_form_endpoint(
     payload: AutoFormRequest,
-    current_user: CurrentUser = Depends(require_role(UserRole.RECRUITER)),
+    current_user= Depends(get_current_user_from_refresh_token),
     db: Session = Depends(get_db),
 ) -> GoogleFormResponse:
 
-    return create_google_form(
-        user_id=current_user.user_id,
+    return GoogleFormService.create_google_form(
+        user_id=current_user["user_id"],
         db=db,
         description=payload.description,
     )

@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
-import { Evaluation } from "@/types/evaluatedApplication.types";
+import { Evaluation } from "@/types/recruiter/application/evaluatedApplication.types";
 
 import EvaluatedApplicationRow from "./EvaluatedApplicationRow";
 import EvaluatedApplicationRowSkeleton from "./EvaluatedApplicationRowSkeleton";

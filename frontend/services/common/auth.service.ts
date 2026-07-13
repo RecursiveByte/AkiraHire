@@ -8,7 +8,7 @@ import {
 
 import { SignupFormValues } from "@/lib/validators/auth.validator";
 
-import type { User } from "@/types/user.types";
+import type { User } from "@/types/common/user.types";
 
 export class AuthService {
   static async login(payload: LoginPayload): Promise<LoginResponse> {

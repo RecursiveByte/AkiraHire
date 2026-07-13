@@ -1,4 +1,4 @@
-import { JobStatus } from "@/types/job.types";
+import { JobStatus } from "@/types/recruiter/job/job.types";
 
 interface JobStatusBadgeProps {
   status: JobStatus;

@@ -31,5 +31,3 @@ builder.add_edge(
 graph = builder.compile(
     checkpointer=checkpointer,
 )
-
-graph = builder.compile(checkpointer=checkpointer)

@@ -14,6 +14,8 @@ from agents.application_agent.graph import graph as application_graph
 from agents.general_agent.graph import graph as general_graph
 from agents.job_agent.graph import graph as job_graph
 from agents.form_agent.graph import graph as form_graph
+from agents.google_form_agent.graph import graph as google_form_graph
+
 
 from exceptions.chatbot_exceptions import UnknownAgentError
 from repositories.chat_session_repository import ChatSessionRepository
@@ -37,6 +39,7 @@ AGENT_GRAPHS: dict[AgentType, Any] = {
     AgentType.APPLICATION: application_graph,
     AgentType.JOB: job_graph,
     AgentType.FORM: form_graph,
+    AgentType.GOOGLE_FORM:google_form_graph
 }
 
 
@@ -66,7 +69,6 @@ class ChatbotService:
         config = {
             "configurable": {
                 "thread_id": thread_id,
-                # "recruiter_id": current_user.user_id,
                 "current_user":current_user
             }
         }
@@ -235,7 +237,7 @@ class ChatbotService:
     ) -> AssistantResponse:
 
         router_result = router_graph.invoke(
-            {"messages": [HumanMessage(content=message)]}
+            {"messages": [HumanMessage(content=message)]}, config=config,
         )
 
         agent: AgentType = router_result["agent"]

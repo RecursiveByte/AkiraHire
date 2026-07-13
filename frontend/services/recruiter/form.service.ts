@@ -1,7 +1,7 @@
 import { apiClient } from "@/lib/api/apiClient";
-import { ApiForm } from "@/types/form.types";
+import { ApiForm } from "@/types/recruiter/form/form.types";
 import { mapApiFormToForm } from "@/lib/mappers/form.mapper";
-import { Form } from "@/types/form.types";
+import { Form } from "@/types/recruiter/form/form.types";
 
 export class FormService {
   static async getRecruiterForms(search?: string): Promise<Form[]> {

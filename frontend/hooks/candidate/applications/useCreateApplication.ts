@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { ApplicationService } from "@/services/candidate/application.service";
-import { CreateApplicationRequest } from "@/types/candidate/application.types";
+import { CreateApplicationRequest } from "@/types/candidate/application/application.types";
 import { toast } from "sonner";
 
 export const useCreateApplication = () => {

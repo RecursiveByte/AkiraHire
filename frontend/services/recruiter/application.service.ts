@@ -3,19 +3,19 @@ import { apiClient } from "@/lib/api/apiClient";
 import { useAuthStore } from "@/store/authStore";
 import { ApiApplication } from "@/types/api/application.types";
 import { mapApiApplicationToApplication } from "@/lib/mappers/application.mapper";
-import { Application } from "@/types/application.types";
+import { Application } from "@/types/recruiter/application/application.types";
 
 export class ApplicationService {
-  private static getCurrentUser() {
-    const user = useAuthStore.getState().user;
+  // private static getCurrentUser() {
+    // const user = useAuthStore.getState().user;
 
-    if (!user) {
-      toast.error("The Server might be down or session expired");
-      throw new Error("Server down or session expired");
-    }
+    // if (!user) {
+      // toast.error("The Server might be down or session expired");
+      // throw new Error("Server down or session expired");
+    // }
 
-    return user;
-  }
+    // return user;
+  // }
 
   static async getRecruiterApplications(
     search?: string

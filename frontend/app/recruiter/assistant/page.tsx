@@ -28,7 +28,8 @@ export default function RecruiterAssistantPage() {
     setActiveId,
     isLoading: isConversationsLoading,
     refetch,
-    deleteConversation
+    deleteConversation,
+    isDeletingConversation,
   } = useConversations(search);
 
   const {
@@ -82,6 +83,7 @@ export default function RecruiterAssistantPage() {
   return (
     <section className="flex h-[calc(100vh-80px)] w-full overflow-hidden">
       <div className="flex flex-1 flex-col overflow-hidden bg-[#050505]">
+        
         <AssistantHeader
           threadTitle={
             conversations.find((c) => c.id === activeId)?.title ?? "New Chat"
@@ -128,6 +130,7 @@ export default function RecruiterAssistantPage() {
           onDeleteConversation={deleteConversation}
           isOpen={isHistoryOpen}
           setIsHistoryOpen={setIsHistoryOpen}
+          isDeletingConversation={isDeletingConversation}
         />
       </div>
     </section>

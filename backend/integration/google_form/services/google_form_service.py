@@ -1,6 +1,3 @@
-"""
-Business logic for generating Google Forms.
-"""
 
 from sqlalchemy.orm import Session
 
@@ -32,65 +29,77 @@ from integration.google_form.schemas.google_form_response import (
 )
 
 from integration.google_form.services.google_oauth_service import (
-    get_google_credentials,
+    GoogleOAuthService,
 )
 
 
-def create_google_form(
-    user_id: int,
-    db: Session,
-    description: str,
-) -> GoogleFormResponse:
-    """
-    Create a Google Form from a natural language description.
-    """
+class GoogleFormService:
 
+    @staticmethod
+    def create_google_form(
+        user_id: int,
+        db: Session,
+        description: str,
+    ) -> GoogleFormResponse:
+        
+        
+        """
+        Create a Google Form from a natural language description.
+        """
 
-    creds = get_google_credentials(
-        user_id=user_id,
-        db=db,
-    )
-    
-    schema = generate_form_schema(description)
+        creds = GoogleOAuthService.get_google_credentials(
+            user_id=user_id,
+            db=db,
+        )
 
-    forms_service = build_form_service(creds)
+        schema = generate_form_schema(
+            description,
+        )
 
-    form_id = create_form(
-        forms_service,
-        schema.form_title,
-    )
+        forms_service = build_form_service(
+            creds,
+        )
 
-    add_questions(
-        forms_service,
-        form_id,
-        schema.questions,
-    )
-
-    response_sheet_url = None
-
-    if schema.store_in_sheet:
-
-        sheets_service = build_sheets_service(creds)
-
-        spreadsheet_id = create_response_sheet(
-            sheets_service,
+        form_id = create_form(
+            forms_service,
             schema.form_title,
         )
 
-        script_service = build_script_service(creds)
-
-        link_form_to_sheet(
-            script_service,
+        add_questions(
+            forms_service,
             form_id,
-            spreadsheet_id,
+            schema.questions,
         )
 
-        response_sheet_url = sheet_url(
-            spreadsheet_id,
-        )
+        response_sheet_url = None
 
-    return GoogleFormResponse(
-        form_edit_url=form_edit_url(form_id),
-    form_responder_url=form_responder_url(form_id),
-    response_sheet_url=response_sheet_url,
-    )
+        if schema.store_in_sheet:
+
+            sheets_service = build_sheets_service(
+                creds,
+            )
+
+            spreadsheet_id = create_response_sheet(
+                sheets_service,
+                schema.form_title,
+            )
+
+            script_service = build_script_service(
+                creds,
+            )
+
+            link_form_to_sheet(
+                script_service,
+                form_id,
+                spreadsheet_id,
+            )
+
+            response_sheet_url = sheet_url(
+                spreadsheet_id,
+            )
+
+        return GoogleFormResponse(
+            form_edit_url=form_edit_url(form_id),
+            form_responder_url=form_responder_url(form_id),
+            response_sheet_url=response_sheet_url,
+        )

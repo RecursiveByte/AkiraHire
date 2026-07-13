@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Form } from "@/types/form.types";
+import { Form } from "@/types/recruiter/form/form.types";
 import { MODAL_CONFIG } from "@/constants/modal";
 
 type ModalAction = "delete" | "publish" | "close" | null;

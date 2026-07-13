@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 
 import QuestionRenderer from "./QuestionRenderer";
 
-import { JobApplicationForm } from "@/types/candidate/job.types";
+import { JobApplicationForm } from "@/types/candidate/job/job.types";
 import { useAuthStore } from "@/store/authStore";
 import { useCreateApplication } from "@/hooks/candidate/applications/useCreateApplication";
 

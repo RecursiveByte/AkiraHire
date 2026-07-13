@@ -1,4 +1,4 @@
-import { Application } from "@/types/application.types";
+import { Application } from "@/types/recruiter/application/application.types";
 import { ApiApplication } from "@/types/api/application.types";
 
 

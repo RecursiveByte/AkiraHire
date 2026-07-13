@@ -1,4 +1,4 @@
-import { FormStatus } from "@/types/form.types";
+import { FormStatus } from "@/types/recruiter/form/form.types";
 
 const ACTION_CONFIG: Record<
   FormStatus,

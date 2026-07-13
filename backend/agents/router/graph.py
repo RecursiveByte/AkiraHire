@@ -7,6 +7,7 @@ from langgraph.graph import (
 from agents.router.nodes import router
 from agents.router.state import RouterState
 
+from core.checkpointer import checkpointer
 
 builder = StateGraph(
     RouterState,
@@ -27,4 +28,4 @@ builder.add_edge(
     END,
 )
 
-graph = builder.compile()
+graph = builder.compile(checkpointer=checkpointer)

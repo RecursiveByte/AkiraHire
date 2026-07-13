@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { JobApplicationForm } from "@/types/candidate/job.types";
+import { JobApplicationForm } from "@/types/candidate/job/job.types";
 import { CheckCircle2 } from "lucide-react";
 
 interface CardProps {

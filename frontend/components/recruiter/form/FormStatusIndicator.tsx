@@ -1,4 +1,4 @@
-import { FormStatus } from "@/types/form.types";
+import { FormStatus } from "@/types/recruiter/form/form.types";
 
 const STATUS_STYLES: Record<FormStatus, { dot: string; text: string; label: string }> = {
   OPEN: { dot: "bg-emerald-400", text: "text-emerald-400", label: "Opened" },

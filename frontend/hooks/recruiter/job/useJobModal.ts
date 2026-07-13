@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Job } from "@/types/job.types";
+import { Job } from "@/types/recruiter/job/job.types";
 
 export function useJobModal(jobs: Job[]) {
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);

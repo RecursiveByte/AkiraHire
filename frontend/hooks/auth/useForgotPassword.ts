@@ -2,7 +2,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import { AuthService } from "@/services/auth.service";
+import { AuthService } from "@/services/common/auth.service";
 
 export function useForgotPassword() {
   const [isSending, setIsSending] = useState(false);

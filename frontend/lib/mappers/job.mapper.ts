@@ -1,4 +1,4 @@
-import { Job,ApiJob,JobStatus,ApiJobStatus } from "@/types/job.types";
+import { Job,ApiJob,JobStatus,ApiJobStatus } from "@/types/recruiter/job/job.types";
 
 
 const STATUS_MAP: Record<ApiJobStatus, JobStatus> = {

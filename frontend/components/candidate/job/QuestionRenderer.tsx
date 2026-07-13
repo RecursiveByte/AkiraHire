@@ -2,7 +2,7 @@
 
 import { Control } from "react-hook-form";
 
-import { AdditionalQuestion } from "@/types/candidate/job.types";
+import { AdditionalQuestion } from "@/types/candidate/job/job.types";
 
 import TextField from "./fields/TextField";
 import NumberField from "./fields/NumberField";

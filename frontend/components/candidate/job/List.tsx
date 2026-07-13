@@ -9,7 +9,7 @@ import Empty from "@/components/candidate/job/Empty";
 import JobDetailsModal from "@/components/candidate/job/JobDetailsModal";
 import ApplyJobModal from "@/components/candidate/job/ApplyJobModal";
 
-import { JobApplicationForm } from "@/types/candidate/job.types";
+import { JobApplicationForm } from "@/types/candidate/job/job.types";
 import { useAppliedFormIds } from "@/hooks/candidate/useAppliedFormIds";
 
 

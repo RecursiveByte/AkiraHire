@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { Application } from "@/types/application.types";
-import { ApplicationService } from "@/services/application.service";
+import { Application } from "@/types/recruiter/application/application.types";
+import { ApplicationService } from "@/services/recruiter/application.service";
 import { useDebounce } from "@/hooks/common/useDebounce";
 
 interface UseApplicationsResult {

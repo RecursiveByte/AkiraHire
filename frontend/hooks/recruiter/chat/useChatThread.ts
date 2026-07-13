@@ -8,8 +8,8 @@ import {
 } from "react";
 import { toast } from "sonner";
 import type { Dispatch, SetStateAction } from "react";
-import { AssistantService } from "@/services/assistant.service";
-import type { AssistantMessage } from "@/types/assistant.types";
+import { AssistantService } from "@/services/recruiter/assistant.service";
+import type { AssistantMessage } from "@/types/recruiter/assisstant/assistant.types";
 
 interface UseChatThreadResult {
   messages: AssistantMessage[];

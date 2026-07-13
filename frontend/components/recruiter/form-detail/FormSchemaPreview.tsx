@@ -1,4 +1,4 @@
-import { FormSchema } from "@/types/form.types";
+import { FormSchema } from "@/types/recruiter/form/form.types";
 
 import FormSchemaField from "./FormSchemaField";
 

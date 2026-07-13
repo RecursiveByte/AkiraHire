@@ -1,4 +1,4 @@
-import { Application } from "@/types/application.types";
+import { Application } from "@/types/recruiter/application/application.types";
 import { formatDate } from "@/lib/utils";
 import ApplicationPreview from "./ApplicationPreview";
 import ApplicationStatusBadge from "@/components/recruiter/applications/ApplicationStatusBadge";

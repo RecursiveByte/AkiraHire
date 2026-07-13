@@ -5,18 +5,18 @@ import {
   CandidateResume,
   CreateCandidateProfileInput,
 } from "@/types/candidate/candidate.types";
-import {} from "@/types/application.types";
+import {} from "@/types/recruiter/application/application.types";
 import {
   mapApiCandidateProfile,
   mapApiCandidateResume,
 } from "@/lib/mappers/candidateMapper";
 import { ApiCandidateProfile } from "@/types/candidate/candidate.api";
 
-import { JobApplicationFormApi } from "@/types/candidate/job.api";
+import { JobApplicationFormApi } from "@/types/candidate/job/job.api";
 import { mapApiJobApplicationForm } from "@/lib/mappers/candidateMapper";
-import { JobApplicationForm } from "@/types/candidate/job.types";
+import { JobApplicationForm } from "@/types/candidate/job/job.types";
 
-import { Application } from "@/types/application.types";
+import { Application } from "@/types/recruiter/application/application.types";
 import { ApiApplication } from "@/types/api/application.types";
 import { mapApiApplicationToApplication } from "@/lib/mappers/application.mapper";
 

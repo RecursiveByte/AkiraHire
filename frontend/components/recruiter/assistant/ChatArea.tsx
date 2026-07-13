@@ -20,14 +20,24 @@ export function ChatArea({
   isThinking = false,
   isLoading = false,
 }: ChatAreaProps) {
-  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = containerRef.current;
+
+    if (!container) return;
+
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: "smooth",
+    });
   }, [messages, isThinking]);
 
   return (
-    <div className="chat-scroll flex-1 overflow-y-auto bg-[#050505] px-8 py-8">
+    <div
+    ref={containerRef}
+      className="chat-scroll flex-1 overflow-y-auto bg-[#050505] px-8 py-8"
+    >
       <div className="mx-auto flex max-w-4xl flex-col gap-8">
         {isLoading && messages.length === 0 ? (
           <div className="flex h-full items-center justify-center py-12 text-sm text-white/40">
@@ -50,7 +60,6 @@ export function ChatArea({
           </>
         )}
 
-        <div ref={bottomRef} />
       </div>
     </div>
   );

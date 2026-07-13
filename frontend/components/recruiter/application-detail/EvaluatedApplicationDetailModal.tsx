@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { Evaluation } from "@/types/evaluatedApplication.types";
+import { Evaluation } from "@/types/recruiter/application/evaluatedApplication.types";
 import { formatDate } from "@/lib/utils";
 
 import EvaluatedApplicationStatusBadge from "@/components/recruiter/applications/EvaluatedApplicationStatusBadge";

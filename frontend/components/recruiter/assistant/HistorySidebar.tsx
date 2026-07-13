@@ -17,7 +17,7 @@ interface HistorySidebarProps {
   onSelectConversation: (id: string) => void;
   onNewConversation: () => void;
   onDeleteConversation: (id: string) => void;
-
+  isDeletingConversation: boolean;
   isOpen: boolean;
   setIsHistoryOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -30,6 +30,7 @@ export function HistorySidebar({
   onNewConversation,
   onDeleteConversation,
   isOpen,
+  isDeletingConversation,
   setIsHistoryOpen,
 }: HistorySidebarProps) {
   const parentRef = useRef<HTMLDivElement>(null);
@@ -158,10 +159,13 @@ export function HistorySidebar({
 
                       <button
                         onClick={() => onDeleteConversation(conversation.id)}
+                        disabled={isDeletingConversation}
                         className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg text-white/40 opacity-100 transition-all duration-200 hover:bg-red-500/15 hover:text-red-400 "
                         title="Delete conversation"
                       >
-                        <span className="msi text-[18px]">delete</span>
+                        <span className="msi text-[18px]">
+                        {isDeletingConversation ? "progress_activity" : "delete"}
+                          </span>
                       </button>
                     </div>
                   )}

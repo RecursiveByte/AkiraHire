@@ -12,6 +12,7 @@ const RECRUITER_NAV_ITEMS = [
   { href: "/recruiter/jobs", icon: "work", label: "Jobs" },
   { href: "/recruiter/applications", icon: "person_search", label: "Applications" },
   { href: "/recruiter/forms", icon: "assignment", label: "Forms" },
+  { href: "/recruiter/integrations", icon: "link", label: "Integrations" },
 ];
 
 export default function RecruiterLayout({

@@ -1,4 +1,4 @@
-import { Job } from "@/types/job.types";
+import { Job } from "@/types/recruiter/job/job.types";
 import StatusIndicator from "./StatusIndicator";
 import JobActionButton from "./JobActionButton";
 import { ConfirmActionModal } from "@/components/common/ConfirmActionModal";

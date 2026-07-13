@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { Form } from "@/types/form.types";
-import { FormService } from "@/services/form.service";
+import { Form } from "@/types/recruiter/form/form.types";
+import { FormService } from "@/services/recruiter/form.service";
 import { useDebounce } from "@/hooks/common/useDebounce";
 
 interface UseFormsResult {

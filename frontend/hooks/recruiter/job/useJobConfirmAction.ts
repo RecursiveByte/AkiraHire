@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Job } from "@/types/job.types";
+import { Job } from "@/types/recruiter/job/job.types";
 import { MODAL_CONFIG } from "@/constants/modal";
 
 type ModalAction = "delete" | "publish" | "close" | null;

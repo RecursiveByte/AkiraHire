@@ -1,5 +1,5 @@
 
-import type { AuthRole } from "@/types/auth.types";
+import type { AuthRole } from "@/types/common/auth.types";
 
 interface RoleToggleProps {
   role: AuthRole;

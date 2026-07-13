@@ -1,4 +1,4 @@
-import { Form } from "@/types/form.types";
+import { Form } from "@/types/recruiter/form/form.types";
 
 import FormStatusIndicator from "@/components/recruiter/form/FormStatusIndicator";
 import FormActionButton from "@/components/recruiter/form/FormActionButton";
