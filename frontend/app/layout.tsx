@@ -5,11 +5,15 @@ import { Toaster } from "sonner";
 import { AuthInitializer } from "@/components/auth/AuthInitializer";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { ASSETS } from "@/constants/assets";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  title: "AkiraHire | AI Recruitment Reimagined",
+  title: "AkiraHire | AI Recruitment Platform",
+  icons: {
+    icon: ASSETS.AKIRA_LOGO,
+  },
   description:
     "Sovereign AI agents that source, screen, and schedule top-tier talent.",
 };

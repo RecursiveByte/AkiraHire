@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
+import { ASSETS } from "@/constants/assets";
 
 export default function Navbar() {
   return (
@@ -9,15 +11,15 @@ export default function Navbar() {
             href="/"
             className="font-geist text-[20px] font-bold text-white flex items-center gap-2"
           >
-            <span
-              className="msi text-white"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              dataset
-            </span>
+            <Image
+              src={ASSETS.AKIRA_LOGO}
+              alt="AkiraHire"
+              width={40}
+              height={40}
+              className="rounded-lg object-contain"
+            />
             AkiraHire
           </Link>
-
         </div>
 
         <div className="flex items-center gap-4">
