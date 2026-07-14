@@ -18,6 +18,7 @@ logger = get_logger(__name__)
 
 load_dotenv()
 
+from config.settings import settings
 
 
 app = FastAPI(
@@ -52,7 +53,7 @@ async def exception_handler(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",
+        settings.FRONTEND_URL
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -61,5 +62,5 @@ app.add_middleware(
 
 app.add_middleware(
     SessionMiddleware,
-    secret_key=os.getenv("SECRET_KEY")
+    secret_key=settings.SECRET_KEY
 )

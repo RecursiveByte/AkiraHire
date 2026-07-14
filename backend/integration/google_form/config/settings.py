@@ -13,6 +13,7 @@ class Settings(
     GOOGLE_CLIENT_SECRET: str
 
     GOOGLE_FORM_CALLBACK_URI: str
+    GOOGLE_LOGIN_CALLBACK_URI:str
 
     FRONTEND_URL: str
 

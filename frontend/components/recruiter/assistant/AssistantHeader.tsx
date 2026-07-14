@@ -1,5 +1,7 @@
 "use client";
 
+import { ASSETS } from "@/constants/assets";
+
 interface AssistantHeaderProps {
   threadTitle?: string;
   isHistoryOpen: boolean;
@@ -14,9 +16,9 @@ export function AssistantHeader({
   return (
     <div className="flex items-center justify-between border-b border-white/5 bg-white/[0.01] px-8 py-4 shrink-0">
       <div className="flex items-center gap-3">
-        <div className="glass-card h-9 w-9 overflow-hidden rounded-xl border border-white/10 bg-white/5">
+        <div className="glass-card h-12 w-12 overflow-hidden rounded-xl border border-white/10 bg-white/5">
           <img
-            src="/images/akira-logo.png" 
+            src={ASSETS.AKIRA_LOGO}
             alt="Akira AI"
             className="h-full w-full object-cover"
           />

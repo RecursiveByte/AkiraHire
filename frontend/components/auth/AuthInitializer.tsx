@@ -34,18 +34,18 @@ export function AuthInitializer({ children }: AuthInitializerProps) {
         setUser(user);
       } catch (error) {
         console.warn("Failed to initialize authentication:", error);
+
         if (!mounted) return;
+
+        clearAuth();
 
         const isNetworkError =
           error instanceof Error &&
           error.message.includes("Unable to reach the server");
 
-        toast.error(
-          isNetworkError
-            ? "Unable to reach the server. Please try again later."
-            : "Your session has expired. Please log in again."
-        );
-        clearAuth();
+        if (isNetworkError) {
+          toast.error("Unable to reach the server. Please try again later.");
+        }
       } finally {
         if (mounted) {
           setLoading(false);
@@ -59,10 +59,6 @@ export function AuthInitializer({ children }: AuthInitializerProps) {
       mounted = false;
     };
   }, [setAccessToken, setUser, clearAuth, setLoading]);
-
-  if (isLoading) {
-    return <div>LoadingBitch</div>;
-  }
 
   return <>{children}</>;
 }

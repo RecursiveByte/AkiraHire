@@ -5,6 +5,7 @@ import { IntegrationBadge } from "./IntegrationBadge";
 interface IntegrationCardProps {
   integration: Integration;
   iconSrc?: string | null;
+  description: string;
   onConnect?: () => void;
   onDisconnect?: () => void;
   disconnecting?: boolean;
@@ -14,6 +15,7 @@ export function IntegrationCard({
   integration,
   iconSrc,
   onConnect,
+  description,
   onDisconnect,
   disconnecting = false
 }: IntegrationCardProps) {
@@ -26,9 +28,9 @@ export function IntegrationCard({
 
       <h3 className="mb-2 text-lg font-bold text-white">{integration.name}</h3>
 
-      {/* <p className="mb-8 flex-1 text-sm leading-relaxed text-white/50"> */}
-        {/* {integration.description} */}
-      {/* </p> */}
+      <p className="mb-8 flex-1 text-sm leading-relaxed text-white/50">
+        {description}
+      </p>
 
       {integration.connected ? (
         <button

@@ -6,10 +6,19 @@ import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Integration } from "@/types/recruiter/integration/common/integration.types";
 import { ConfirmActionModal } from "@/components/common/ConfirmActionModal";
+import { ASSETS } from "@/constants/assets";
 
 export const INTEGRATION_ICONS: Record<string, string> = {
-  "Google Forms": "/google-forms.svg",
-  "LinkedIn Posts": "/linkedin.svg",
+  "Google Forms": ASSETS.GOOGLE_FORMS_ICON,
+  "LinkedIn Posts": ASSETS.LINKEDIN_ICON,
+};
+
+export const INTEGRATION_DESCRIPTIONS: Record<string, string> = {
+  "Google Forms":
+    "Create application forms automatically for your jobs, collect candidate responses, and manage submissions directly from Akira Hire.",
+
+  "LinkedIn Posts":
+    "Publish hiring posts directly to LinkedIn, manage drafts, and streamline your recruitment outreach from one place.",
 };
 
 export function IntegrationList() {
@@ -60,6 +69,7 @@ export function IntegrationList() {
       {integrations.map((integration, idx) => (
         <IntegrationCard
           key={idx}
+        description={INTEGRATION_DESCRIPTIONS[integration.name]}
           integration={integration}
           iconSrc={INTEGRATION_ICONS[integration.name]}
           disconnecting={disconnectingId === integration.id}
