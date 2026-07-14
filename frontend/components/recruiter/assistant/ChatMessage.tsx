@@ -20,7 +20,7 @@ export function ChatMessage({
       }`}
     >
       <div
-        className={`max-w-3xl rounded-2xl px-5 py-4 text-sm leading-relaxed whitespace-pre-line  shadow-sm ${
+        className={`max-w-3xl rounded-2xl px-5 py-4 text-sm whitespace-pre-line break-all leading-relaxed  shadow-sm ${
           isUser
             ? "rounded-br-md bg-blue-600 text-white"
             : "rounded-bl-md border border-white/10 bg-white/3 text-white"

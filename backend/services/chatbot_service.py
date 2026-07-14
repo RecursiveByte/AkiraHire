@@ -15,7 +15,7 @@ from agents.general_agent.graph import graph as general_graph
 from agents.job_agent.graph import graph as job_graph
 from agents.form_agent.graph import graph as form_graph
 from agents.google_form_agent.graph import graph as google_form_graph
-
+from agents.linkedin_agent.graph import graph as linkedin_graph
 
 from exceptions.chatbot_exceptions import UnknownAgentError
 from repositories.chat_session_repository import ChatSessionRepository
@@ -39,7 +39,8 @@ AGENT_GRAPHS: dict[AgentType, Any] = {
     AgentType.APPLICATION: application_graph,
     AgentType.JOB: job_graph,
     AgentType.FORM: form_graph,
-    AgentType.GOOGLE_FORM:google_form_graph
+    AgentType.GOOGLE_FORM:google_form_graph,
+    AgentType.LINKEDIN:linkedin_graph
 }
 
 
@@ -69,7 +70,8 @@ class ChatbotService:
         config = {
             "configurable": {
                 "thread_id": thread_id,
-                "current_user":current_user
+                "current_user":current_user,
+                "db":db
             }
         }
         

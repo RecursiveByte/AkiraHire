@@ -13,7 +13,12 @@ from exceptions.job_exceptions import (
     JobAlreadyExistsError,
 )
 
+from database.models.form import Form
+
+
 from repositories.job_repository import JobRepository
+
+from services.form_service import FormService
 
 from schemas.job_schema import JobCreate, JobUpdate
 from schemas.auth_schema import CurrentUser
@@ -123,14 +128,13 @@ class JobService:
 
             raise UnauthorizedRecruiterError()
 
-
     @staticmethod
     def get_jobs_by_recruiter_id(
         db: Session,
         recruiter_id: int,
         search: str | None = None,
     ) -> list[Job]:
-    
+
         return JobRepository.get_jobs_by_recruiter_id(
             db=db,
             recruiter_id=recruiter_id,
@@ -252,20 +256,35 @@ class JobService:
             db=db,
         )
 
+
     @staticmethod
     def close_job(
         job_id: int,
         current_user: CurrentUser,
         db: Session,
     ) -> Job:
-
+    
         logger.info(f"Closing job. job_id={job_id}")
-
-        return JobService.change_job_status(
-            job_id=job_id,
-            new_status=JobStatus.CLOSED,
-            current_user=current_user,
+    
+        job = JobService.get_job_by_job_id(
             db=db,
+            job_id=job_id,
+        )
+    
+        JobService.check_ownership(
+            job=job,
+            current_user=current_user,
+        )
+    
+        if JobStatus.CLOSED not in JOB_STATUS_TRANSITIONS.get(job.status, set()):
+            raise InvalidJobStatusTransitionError()
+    
+        form = db.query(Form).filter(Form.job_id == job.job_id).first()
+    
+        return JobRepository.close_job_and_form(
+            db=db,
+            job=job,
+            form=form,
         )
 
     @staticmethod

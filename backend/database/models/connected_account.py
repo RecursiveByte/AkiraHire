@@ -92,5 +92,6 @@ class ConnectedAccount(Base):
     linkedin_identity = relationship(
         "LinkedInIdentity",
         back_populates="connected_account",
+        cascade="all, delete-orphan",
         uselist=False,
     )

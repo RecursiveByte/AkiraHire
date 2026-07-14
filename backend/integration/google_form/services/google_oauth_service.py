@@ -24,6 +24,8 @@ from database.models.connected_account import (
     ProviderType,
 )
 
+from integration.google_form.constants.google import GOOGLE_FORM_INTEGRATION_NAME
+
 
 class GoogleOAuthService:
 
@@ -71,7 +73,7 @@ class GoogleOAuthService:
         db: Session,
         user_id: int,
         creds: Credentials,
-        integration_name: str = "google_forms",
+        integration_name: str = GOOGLE_FORM_INTEGRATION_NAME,
     ) -> None:
 
         account = ConnectedAccountRepository.get_connected_account(
@@ -131,7 +133,7 @@ class GoogleOAuthService:
     def get_google_credentials(
         user_id: int,
         db: Session,
-        integration_name: str = "google_forms",
+        integration_name: str =GOOGLE_FORM_INTEGRATION_NAME ,
     ) -> Credentials:
 
         account = ConnectedAccountRepository.get_connected_account(

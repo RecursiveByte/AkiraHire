@@ -1,7 +1,7 @@
 import uuid
 import requests
-from integration.linkedin_agent.services.llm.post_generator import generate_post_text
-from integration.linkedin_agent.services.linkedin.posting_service import (
+from integration.linkedin.services.llm.post_generator import generate_post_text
+from integration.linkedin.services.linkedin.posting_service import (
     upload_images,
     create_post,
 )

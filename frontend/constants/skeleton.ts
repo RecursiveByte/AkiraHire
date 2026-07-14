@@ -1,1 +1,3 @@
 export const SKELETON_ROW_COUNT = 5;
+
+export const LINKEDIN_DRAFT_SKELETON_COUNT = 4;

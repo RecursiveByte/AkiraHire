@@ -1,4 +1,4 @@
-import { Integration } from "@/types/recruiter/integration/integration.types";
+import { Integration } from "@/types/recruiter/integration/common/integration.types";
 import { IntegrationIcon } from "./IntegrationIcon";
 import { IntegrationBadge } from "./IntegrationBadge";
 

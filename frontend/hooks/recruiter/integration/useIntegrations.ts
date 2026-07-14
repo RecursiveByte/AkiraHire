@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-import { IntegrationService } from "@/services/recruiter/integration.service";
-import { Integration } from "@/types/recruiter/integration/integration.types";
+import { IntegrationService } from "@/services/recruiter/lntegration/integration.service";
+import { Integration } from "@/types/recruiter/integration/common/integration.types";
 import { toast } from "sonner";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -38,7 +38,7 @@ export function useIntegrations() {
       await IntegrationService.disconnectIntegration(accountId);
       await fetchIntegrations();
       toast.success("Integration disconnected successfully.");
-    } catch (err) {
+    } catch (err:any) {
       toast.error("Failed to disconnect integration.");
       setError("Failed to disconnect integration.");
     } finally {

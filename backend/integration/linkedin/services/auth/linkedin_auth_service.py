@@ -16,11 +16,6 @@ from integration.linkedin.repositories import (
 def get_authorization_url() -> str:
     return linkedin_client.build_authorization_url()
 
-
-def is_connected(db: Session, user_id: int) -> bool:
-    return connected_account_repository.get_connected_account(db, user_id) is not None
-
-
 def handle_oauth_callback(db: Session, user_id: int, code: str) -> None:
     token_data = linkedin_client.exchange_code_for_token(code)
 

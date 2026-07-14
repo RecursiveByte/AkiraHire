@@ -1,13 +1,12 @@
 
 import { apiClient } from "@/lib/api/apiClient";
-import { Integration } from "@/types/recruiter/integration/integration.types";
+import { Integration } from "@/types/recruiter/integration/common/integration.types";
 
 export class IntegrationService {
   static async getIntegrations(): Promise<Integration[]> {
     const response = await apiClient.get<Integration[]>(
       "/integrations"
     );
-    console.log(response)
 
     return response.data;
   }

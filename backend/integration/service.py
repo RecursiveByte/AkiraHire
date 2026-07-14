@@ -1,19 +1,18 @@
 from sqlalchemy.orm import Session
 
 from integration.constants import SUPPORTED_INTEGRATIONS
-    
 from integration.connected_account_repository import ConnectedAccountRepository
-
 from integration.exceptions import ConnectedAccountNotFoundException
 
-class IntegrationService:
 
+class IntegrationService:
 
     @staticmethod
     def get_integrations(
         db: Session,
         user_id: int,
     ) -> list[dict]:
+
         connected = {
             (account.provider, account.integration_name): account.id
             for account in ConnectedAccountRepository.get_connected_accounts_by_user_id(
@@ -21,6 +20,7 @@ class IntegrationService:
                 user_id=user_id,
             )
         }
+
 
         return [
             {
@@ -33,7 +33,6 @@ class IntegrationService:
             for key in [(integration.provider, integration.integration_name)]
         ]
 
-    
     @staticmethod
     def disconnect_account(
         db: Session,

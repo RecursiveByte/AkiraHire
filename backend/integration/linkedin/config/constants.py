@@ -3,7 +3,7 @@ LINKEDIN_TOKEN_URL = "https://www.linkedin.com/oauth/v2/accessToken"
 LINKEDIN_USERINFO_URL = "https://api.linkedin.com/v2/userinfo"
 
 DEFAULT_POST_VISIBILITY = "CONNECTIONS"
-LINKEDIN_INTEGRATION_NAME = "linkedin"
+LINKEDIN_INTEGRATION_NAME = "linkedin_posts"
 
 LINKEDIN_ASSETS_URL = "https://api.linkedin.com/v2/assets?action=registerUpload"
 LINKEDIN_POSTS_URL = "https://api.linkedin.com/v2/ugcPosts"

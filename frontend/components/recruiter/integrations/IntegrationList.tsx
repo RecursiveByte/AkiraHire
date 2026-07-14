@@ -3,6 +3,9 @@
 import { useIntegrations } from "@/hooks/recruiter/integration/useIntegrations";
 import { IntegrationCard } from "./IntegrationCard";
 import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Integration } from "@/types/recruiter/integration/common/integration.types";
+import { ConfirmActionModal } from "@/components/common/ConfirmActionModal";
 
 export const INTEGRATION_ICONS: Record<string, string> = {
   "Google Forms": "/google-forms.svg",
@@ -20,6 +23,9 @@ export function IntegrationList() {
     disconnectingId,
     connectLinkedIn,
   } = useIntegrations();
+
+  const [selectedIntegration, setSelectedIntegration] =
+    useState<Integration | null>(null);
 
   const connectHandlers: Record<string, () => void> = {
     "Google Forms": connectGoogleForms,
@@ -58,11 +64,25 @@ export function IntegrationList() {
           iconSrc={INTEGRATION_ICONS[integration.name]}
           disconnecting={disconnectingId === integration.id}
           onConnect={connectHandlers[integration.name]}
-          onDisconnect={() => {
-            disconnectIntegration(integration.id!);
-          }}
+          onDisconnect={() => setSelectedIntegration(integration)}
         />
       ))}
+      <ConfirmActionModal
+        isOpen={selectedIntegration !== null}
+        onClose={() => setSelectedIntegration(null)}
+        onConfirm={async () => {
+          if (!selectedIntegration?.id) return;
+
+          await disconnectIntegration(selectedIntegration.id);
+          setSelectedIntegration(null);
+        }}
+        isLoading={selectedIntegration?.id === disconnectingId}
+        action="delete"
+        title={`Disconnect ${selectedIntegration?.name}?`}
+        description={`Are you sure you want to disconnect ${selectedIntegration?.name}? You can reconnect it at any time.`}
+        confirmLabel="Disconnect"
+        cancelLabel="Cancel"
+      />
     </div>
   );
 }

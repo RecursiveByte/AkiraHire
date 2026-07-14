@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, Text
+from sqlalchemy import Column, DateTime, String,ForeignKey, Integer, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 
@@ -14,6 +14,12 @@ class LinkedInPostDraft(Base):
         UUID(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,
+    )
+
+    title = Column(
+        String(255),
+        nullable=False,
+        index=True,
     )
 
     user_id = Column(

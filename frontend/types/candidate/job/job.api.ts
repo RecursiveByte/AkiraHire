@@ -1,3 +1,5 @@
+import { LinkField } from "@/types/candidate/job/job.types";
+
 export interface JobApplicationFormApi {
     form_id: number;
     job_id: number;
@@ -16,7 +18,7 @@ export interface JobApplicationFormApi {
   export interface FormSchemaApi {
     title: string;
     description: string;
-    links: string[];
+    links: LinkField[];
     additional_questions: AdditionalQuestionApi[];
   }
   

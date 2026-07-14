@@ -2,8 +2,12 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from database.models.job import Job
-from datetime import datetime
+from database.models.form import Form
 
+from enums.job_status_enum import JobStatus
+from enums.form_status_enum import FormStatus
+
+from datetime import datetime
 
 class JobRepository:
 
@@ -156,5 +160,35 @@ class JobRepository:
 
         except SQLAlchemyError:
 
+            db.rollback()
+            raise
+        
+    
+    @staticmethod
+    def close_job_and_form(
+        db: Session,
+        job: Job,
+        form: Form | None,
+    ) -> Job:
+        """
+        Atomically closes a job and its associated form.
+        Either both are updated or neither is.
+        """
+        try:
+            job.status = JobStatus.CLOSED
+
+            if form:
+                form.status = FormStatus.CLOSED
+
+            db.commit()
+
+            db.refresh(job)
+
+            if form:
+                db.refresh(form)
+
+            return job
+
+        except SQLAlchemyError:
             db.rollback()
             raise

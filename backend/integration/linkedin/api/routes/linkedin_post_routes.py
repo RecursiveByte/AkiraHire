@@ -13,67 +13,98 @@ from integration.linkedin.schemas.linkedin_post_response import (
     LinkedInPostResponse,
 )
 from integration.linkedin.services.auth import linkedin_auth_service
-from integration.linkedin.services.linkedin import posting_service
+from integration.linkedin.services.linkedin.posting_service import LinkedInPostingService
 
-from auth.auth_utils import get_user_id_from_request
+from schemas.auth_schema import UserRole, CurrentUser
+
+from auth.dependencies import get_current_user_from_refresh_token, require_role
 from database.session import get_db
+
+
+from config.settings import settings
 
 router = APIRouter(prefix="/linkedin", tags=["linkedin"])
 
 
-@router.get("/status", response_model=LinkedInConnectionStatusResponse)
-def connection_status(
-    user_id: int = Depends(get_user_id_from_request),
-    db: Session = Depends(get_db),
-) -> LinkedInConnectionStatusResponse:
-    connected = linkedin_auth_service.is_connected(db, user_id)
-    return LinkedInConnectionStatusResponse(connected=connected)
-
-
-@router.get("/auth/login")
-def login(user_id: int = Depends(get_user_id_from_request)) -> RedirectResponse:
+@router.get("/auth/connect")
+def login(
+    current_user=Depends(get_current_user_from_refresh_token),
+) -> RedirectResponse:
     url = linkedin_auth_service.get_authorization_url()
-    print(url)
     return RedirectResponse(url)
+
 
 @router.get("/auth/callback")
 def callback(
     code: str,
-    user_id: int = Depends(get_user_id_from_request),
+    currrent_user=Depends(get_current_user_from_refresh_token),
     db: Session = Depends(get_db),
 ) -> dict[str, str]:
-    linkedin_auth_service.handle_oauth_callback(db, user_id, code)
-    return {"status": "connected"}
+    linkedin_auth_service.handle_oauth_callback(db, currrent_user["user_id"], code)
+    return RedirectResponse(
+        url=f"{settings.FRONTEND_URL}/recruiter/integrations",
+        status_code=302,
+    )
 
 
 @router.post("/generate-post", response_model=LinkedInDraftResponse)
 def generate_post(
     request: LinkedInPostGenerateRequest,
-    user_id: int = Depends(get_user_id_from_request),
+    current_user: CurrentUser = Depends(require_role(UserRole.RECRUITER)),
     db: Session = Depends(get_db),
 ) -> LinkedInDraftResponse:
 
-    draft = posting_service.create_draft(
+    draft = LinkedInPostingService.create_draft(
         db=db,
-        user_id=user_id,
+        user_id=current_user.user_id,
         description=request.description,
     )
 
     return LinkedInDraftResponse(**draft)
 
 
-@router.post("/confirm-post", response_model=LinkedInPostResponse)
+@router.get("/drafts", response_model=List[LinkedInDraftResponse])
+def list_drafts(
+    search: Optional[str] = None,
+    current_user: CurrentUser = Depends(require_role(UserRole.RECRUITER)),
+    db: Session = Depends(get_db),
+) -> List[LinkedInDraftResponse]:
+
+    drafts = LinkedInPostingService.get_drafts(
+        db=db,
+        user_id=current_user.user_id,
+        search=search,
+    )
+
+    return [LinkedInDraftResponse(**draft) for draft in drafts]
+
+
+@router.delete("/drafts/{draft_id}", status_code=204)
+def delete_draft(
+    draft_id: str,
+    current_user: CurrentUser = Depends(require_role(UserRole.RECRUITER)),
+    db: Session = Depends(get_db),
+) -> None:
+
+    LinkedInPostingService.delete_draft(
+        db=db,
+        user_id=current_user.user_id,
+        draft_id=draft_id,
+    )
+
+
+@router.post("/publish-post", response_model=LinkedInPostResponse)
 async def confirm_post(
     draft_id: str = Form(...),
     approved: bool = Form(...),
     images: Optional[List[UploadFile]] = File(None),
-    user_id: int = Depends(get_user_id_from_request),
+    current_user: CurrentUser = Depends(require_role(UserRole.RECRUITER)),
     db: Session = Depends(get_db),
 ) -> LinkedInPostResponse:
 
-    return await posting_service.confirm_post(
+    return await LinkedInPostingService.confirm_post(
         db=db,
-        user_id=user_id,
+        user_id=current_user.user_id,
         draft_id=draft_id,
         approved=approved,
         images=images,

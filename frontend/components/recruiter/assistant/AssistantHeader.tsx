@@ -14,15 +14,13 @@ export function AssistantHeader({
   return (
     <div className="flex items-center justify-between border-b border-white/5 bg-white/[0.01] px-8 py-4 shrink-0">
       <div className="flex items-center gap-3">
-        <div className="glass-card flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 border border-white/10">
-          <span
-            className="msi text-lg text-white"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            smart_toy
-          </span>
+        <div className="glass-card h-9 w-9 overflow-hidden rounded-xl border border-white/10 bg-white/5">
+          <img
+            src="/images/akira-logo.png" 
+            alt="Akira AI"
+            className="h-full w-full object-cover"
+          />
         </div>
-
         <div>
           <h2 className="font-geist text-sm font-bold tracking-tight text-white">
             Akira AI Assistant
