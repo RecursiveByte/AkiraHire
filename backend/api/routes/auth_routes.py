@@ -10,15 +10,25 @@ from sqlalchemy.orm import Session
 
 from database.session import get_db
 
-from schemas.auth_schema import AuthResponse, RegisterRequest, LoginRequest, CurrentUser,ForgotPasswordRequest,ResetPasswordRequest
+from schemas.auth_schema import (
+    AuthResponse,
+    RegisterRequest,
+    LoginRequest,
+    CurrentUser,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
+)
 
 from services.auth_service import AuthService
 
-from auth.dependencies import get_current_user
+from auth.dependencies.dependencies import get_current_user
+
+from auth.dependencies.rate_limit import DefaultRateLimit
 
 router = APIRouter(
     prefix="/auth",
     tags=["Authentication"],
+    dependencies=[DefaultRateLimit ],
 )
 
 

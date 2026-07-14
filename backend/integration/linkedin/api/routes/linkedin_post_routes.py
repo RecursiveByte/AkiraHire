@@ -8,22 +8,31 @@ from integration.linkedin.schemas.linkedin_post_request import (
     LinkedInPostGenerateRequest,
 )
 from integration.linkedin.schemas.linkedin_post_response import (
-    LinkedInConnectionStatusResponse,
     LinkedInDraftResponse,
     LinkedInPostResponse,
 )
 from integration.linkedin.services.auth import linkedin_auth_service
-from integration.linkedin.services.linkedin.posting_service import LinkedInPostingService
+from integration.linkedin.services.linkedin.posting_service import (
+    LinkedInPostingService,
+)
 
 from schemas.auth_schema import UserRole, CurrentUser
 
-from auth.dependencies import get_current_user_from_refresh_token, require_role
+from auth.dependencies.dependencies import (
+    get_current_user_from_refresh_token,
+    require_role,
+)
 from database.session import get_db
 
 
 from config.settings import settings
+from auth.dependencies.rate_limit import DefaultRateLimit
 
-router = APIRouter(prefix="/linkedin", tags=["linkedin"])
+router = APIRouter(
+    prefix="/linkedin",
+    tags=["linkedin"],
+    dependencies=[DefaultRateLimit],
+)
 
 
 @router.get("/auth/connect")

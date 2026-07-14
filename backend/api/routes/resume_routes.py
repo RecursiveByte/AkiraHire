@@ -1,13 +1,6 @@
-from fastapi import (
-    APIRouter,
-    Depends,
-    UploadFile,
-    File
-)
+from fastapi import APIRouter, Depends, UploadFile, File
 
-from auth.dependencies import (
-    get_current_user,require_role
-)
+from auth.dependencies.dependencies import get_current_user, require_role
 
 from schemas.auth_schema import (
     CurrentUser,
@@ -24,9 +17,12 @@ from core.document.service import (
     ResumeService,
 )
 
+from auth.dependencies.rate_limit import DefaultRateLimit
+
 router = APIRouter(
     prefix="/resume",
     tags=["Resume"],
+    dependencies=[DefaultRateLimit],
 )
 
 
@@ -34,7 +30,6 @@ router = APIRouter(
     "/read",
     response_model=ReadResumeResponse,
 )
-
 def read_resume(
     payload: ReadResumeRequest,
     current_user: CurrentUser = Depends(
@@ -49,14 +44,12 @@ def read_resume(
     return ReadResumeResponse(
         content=content,
     )
-    
+
+
 @router.post("/upload")
 def upload_resume(
     resume: UploadFile = File(...),
-    current_user: CurrentUser = Depends(
-    require_role(UserRole.CANDIDATE)
-),
-    
+    current_user: CurrentUser = Depends(require_role(UserRole.CANDIDATE)),
 ):
     return ResumeService.upload_resume(
         file=resume,

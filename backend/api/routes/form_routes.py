@@ -24,13 +24,17 @@ from services.form_service import (
 
 from services.form_schema_generator_service import FormSchemaService
 
-from auth.dependencies import get_current_user, require_role
+from auth.dependencies.dependencies import get_current_user, require_role
 
 from enums.user_role_enum import UserRole
+
+
+from auth.dependencies.rate_limit import DefaultRateLimit
 
 router = APIRouter(
     prefix="/forms",
     tags=["Forms"],
+    dependencies=[DefaultRateLimit],
 )
 
 
@@ -67,6 +71,7 @@ def create_form(
 
 from schemas.auth_schema import CurrentUser
 
+
 @router.get(
     "/with-job",
     response_model=list[GetFormWithJobResponse],
@@ -75,7 +80,7 @@ def get_forms_with_job(
     search: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: CurrentUser = Depends(
-    get_current_user,
+        get_current_user,
     ),
 ):
 
@@ -101,18 +106,18 @@ def get_form_by_id(
 
 
 # @router.get(
-    # "/{form_id}/with-job",
-    # response_model=GetFormWithJobResponse,
+# "/{form_id}/with-job",
+# response_model=GetFormWithJobResponse,
 # )
 # def get_form_with_job(
-    # form_id: int,
-    # db: Session = Depends(get_db),
-    # current_user: dict = Depends(get_current_user),
+# form_id: int,
+# db: Session = Depends(get_db),
+# current_user: dict = Depends(get_current_user),
 # ):
-    # return FormService.get_form_with_job_by_id(
-        # form_id=form_id,
-        # db=db,
-    # )
+# return FormService.get_form_with_job_by_id(
+# form_id=form_id,
+# db=db,
+# )
 
 
 @router.get(
@@ -144,6 +149,7 @@ def get_my_forms(
         recruiter_id=current_user.user_id,
         search=search,
     )
+
 
 @router.patch(
     "/{form_id}/publish",

@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from database.session import get_db
 
-from auth.dependencies import get_current_user_from_refresh_token
+from auth.dependencies.dependencies import get_current_user_from_refresh_token
 from schemas.auth_schema import CurrentUser
 
 from integration.google_form.config.settings import settings
@@ -20,11 +20,12 @@ from integration.google_form.services.google_form_service import GoogleFormServi
 
 from integration.google_form.services.google_form_service import GoogleOAuthService
 
-
+from auth.dependencies.rate_limit import DefaultRateLimit
 
 router = APIRouter(
     prefix="/google-forms",
     tags=["GoogleForms"],
+    dependencies=[DefaultRateLimit],
 )
 
 
@@ -43,6 +44,7 @@ def connect_google(
     request.session["code_verifier"] = code_verifier
 
     return RedirectResponse(url=auth_url)
+
 
 @router.get("/auth/google/connect/callback")
 def google_oauth_callback(
@@ -73,7 +75,7 @@ def google_oauth_callback(
 )
 def create_google_form_endpoint(
     payload: AutoFormRequest,
-    current_user= Depends(get_current_user_from_refresh_token),
+    current_user=Depends(get_current_user_from_refresh_token),
     db: Session = Depends(get_db),
 ) -> GoogleFormResponse:
 

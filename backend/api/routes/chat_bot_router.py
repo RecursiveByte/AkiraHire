@@ -11,13 +11,13 @@ class ChatRequest(BaseModel):
 class AssistantResponse(BaseModel):
     role: Literal["assistant"]
     content: str
-    
-    
+
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from fastapi.responses import StreamingResponse
 
-from auth.dependencies import require_role
+from auth.dependencies.dependencies import require_role
 from enums.user_role_enum import UserRole
 
 from database.session import get_db
@@ -31,11 +31,14 @@ from schemas.chat_schema import ChatHistoryResponse
 from services.chat_message_service import ChatMessageService
 
 
-from  schemas.chat_schema import ChatThreadResponse
+from schemas.chat_schema import ChatThreadResponse
+
+from auth.dependencies.rate_limit import DefaultRateLimit
 
 router = APIRouter(
     prefix="/chatbot",
     tags=["Chatbot"],
+    dependencies=[DefaultRateLimit],
 )
 
 
@@ -53,6 +56,7 @@ def get_chat_history(
         thread_id=thread_id,
     )
 
+
 @router.post("/chat")
 def chat(
     request: ChatRequest,
@@ -65,22 +69,24 @@ def chat(
         message=request.message,
         current_user=current_user,
     )
-    
+
+
 # @router.post("/chat/stream")
 # async def chat_stream(
-    # request: ChatRequest,
-    # current_user: CurrentUser = Depends(require_role(UserRole.RECRUITER)),
-    # db: Session = Depends(get_db),
+# request: ChatRequest,
+# current_user: CurrentUser = Depends(require_role(UserRole.RECRUITER)),
+# db: Session = Depends(get_db),
 # ):
-    # return StreamingResponse(
-        # ChatbotService.stream_message(
-            # db=db,
-            # thread_id=request.thread_id,
-            # message=request.message,
-            # current_user=current_user,
-        # ),
-        # media_type="text/event-stream",
-    # )
+# return StreamingResponse(
+# ChatbotService.stream_message(
+# db=db,
+# thread_id=request.thread_id,
+# message=request.message,
+# current_user=current_user,
+# ),
+# media_type="text/event-stream",
+# )
+
 
 @router.get(
     "/conversations",
@@ -89,7 +95,9 @@ def chat(
 def get_conversations(
     search: str | None = None,
     db: Session = Depends(get_db),
-    current_user: CurrentUser = Depends(require_role(UserRole.RECRUITER, UserRole.CANDIDATE)),
+    current_user: CurrentUser = Depends(
+        require_role(UserRole.RECRUITER, UserRole.CANDIDATE)
+    ),
 ):
     return ChatThreadService.get_all_threads(
         db=db,

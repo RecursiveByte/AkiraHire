@@ -6,7 +6,7 @@ from database.session import (
     get_db,
 )
 
-from auth.dependencies import require_role, get_current_user
+from auth.dependencies.dependencies import require_role, get_current_user
 
 from enums.user_role_enum import UserRole
 
@@ -25,9 +25,12 @@ from services.application_service import (
 
 from schemas.auth_schema import CurrentUser
 
+from auth.dependencies.rate_limit import DefaultRateLimit
+
 router = APIRouter(
     prefix="/applications",
     tags=["Applications"],
+    dependencies=[DefaultRateLimit],
 )
 
 
@@ -40,6 +43,7 @@ def get_applied_form_ids(
         user_id=current_user.user_id,
         db=db,
     )
+
 
 @router.get(
     "/candidate/",
@@ -60,16 +64,16 @@ def search_candidate_applications(
 
 
 # @router.get(
-    # "/candidate/view",
+# "/candidate/view",
 # )
 # def get_candidate_applications(
-    # db: Session = Depends(get_db),
-    # current_user: dict = Depends(require_role(UserRole.CANDIDATE)),
+# db: Session = Depends(get_db),
+# current_user: dict = Depends(require_role(UserRole.CANDIDATE)),
 # ):
-    # return ApplicationService.get_candidate_applications(
-        # user_id=current_user.user_id,
-        # db=db,
-    # )
+# return ApplicationService.get_candidate_applications(
+# user_id=current_user.user_id,
+# db=db,
+# )
 
 
 @router.get("/recruiter/view")
@@ -83,6 +87,7 @@ def get_recruiter_applications(
         db=db,
         search=search,
     )
+
 
 @router.post(
     "/", response_model=CreateApplicationResponse, status_code=status.HTTP_201_CREATED
@@ -215,5 +220,3 @@ def delete_application(
         application_id=application_id,
         db=db,
     )
-
-

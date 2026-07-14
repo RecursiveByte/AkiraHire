@@ -4,11 +4,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
 
     DATABASE_URL: str
+    REDIS_URL: str
 
     JWT_SECRET_KEY: str
     JWT_ALGORITHM: str
-    
-    GOOGLE_LOGIN_CALLBACK_URI:str
+
+    GOOGLE_LOGIN_CALLBACK_URI: str
     GOOGLE_FORM_CALLBACK_URI: str
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int

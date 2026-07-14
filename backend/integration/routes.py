@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from auth.dependencies import require_role,get_current_user
+from auth.dependencies.dependencies import require_role,get_current_user
 from database.session import get_db
 from integration.schemas import IntegrationResponse
 from integration.service import IntegrationService
@@ -9,9 +9,13 @@ from integration.service import IntegrationService
 from enums.user_role_enum import UserRole
 from schemas.auth_schema import CurrentUser
 
+from auth.dependencies.rate_limit import DefaultRateLimit
+
+
 router = APIRouter(
     prefix="/integrations",
     tags=["Integrations"],
+    dependencies=[DefaultRateLimit]
 )
 
 

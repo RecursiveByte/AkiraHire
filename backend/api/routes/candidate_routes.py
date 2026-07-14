@@ -18,7 +18,7 @@ import json
 
 from schemas.auth_schema import CurrentUser
 
-from auth.dependencies import require_role, get_current_user
+from auth.dependencies.dependencies import require_role, get_current_user
 
 from services.candidate_service import CandidateService
 
@@ -29,10 +29,14 @@ from pydantic import ValidationError
 from exceptions.candidate_exceptions import InvalidCandidateDataError
 
 from utils.validation import validate_model
+from fastapi_limiter.depends import RateLimiter
+
+from auth.dependencies.rate_limit import DefaultRateLimit
 
 router = APIRouter(
     prefix="/candidate",
     tags=["Candidate"],
+    dependencies=[DefaultRateLimit],
 )
 
 
@@ -48,7 +52,7 @@ def create_candidate_profile(
     ),
     db: Session = Depends(get_db),
 ):
-    
+
     try:
         data = json.loads(candidate_data)
     except json.JSONDecodeError:
@@ -58,8 +62,6 @@ def create_candidate_profile(
         CandidateProfileInput,
         **data,
     )
-    
-    
 
     return CandidateService.create_candidate_profile(
         current_user=current_user,
@@ -67,6 +69,7 @@ def create_candidate_profile(
         candidate_data=candidate_input,
         resume=resume,
     )
+
 
 @router.get(
     "/profile/{candidate_id}",
@@ -84,7 +87,8 @@ def get_candidate_profile_by_id(
         candidate_id=candidate_id,
         db=db,
     )
-    
+
+
 @router.get(
     "/profile",
     response_model=CandidateProfileResponse,
@@ -111,9 +115,9 @@ def update_my_candidate_profile(
     current_user: CurrentUser = Depends(require_role(UserRole.CANDIDATE)),
 ):
     payload = validate_model(
-    CandidateProfileUpdate,
-    full_name=full_name,
-    phone=phone,
+        CandidateProfileUpdate,
+        full_name=full_name,
+        phone=phone,
     )
     return CandidateService.update_candidate_profile_by_current_user(
         current_user=current_user,

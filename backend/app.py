@@ -2,14 +2,18 @@ from fastapi import FastAPI, Request
 from starlette.middleware.sessions import SessionMiddleware
 import os
 from dotenv import load_dotenv
-from fastapi.staticfiles import StaticFiles
 
 from fastapi.responses import JSONResponse
 
-from exceptions.job_exceptions import JobException
 from exceptions.base import AppException
 from fastapi.middleware.cors import CORSMiddleware
 
+
+from contextlib import asynccontextmanager
+
+import redis.asyncio as redis
+
+from fastapi_limiter import FastAPILimiter
 
 
 from utils.logger import get_logger
@@ -21,9 +25,25 @@ load_dotenv()
 from config.settings import settings
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    redis_client = redis.from_url(
+        settings.REDIS_URL,
+        decode_responses=True,
+    )
+
+    await FastAPILimiter.init(redis_client)
+
+    logger.info("Redis rate limiter initialized.")
+
+    yield
+
+    await redis_client.close()
+
 app = FastAPI(
     title="Google AutoForm API",
     version="1.0.0",
+     lifespan=lifespan,
 )
 
 

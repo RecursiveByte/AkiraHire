@@ -1,14 +1,10 @@
-from fastapi import (
-    APIRouter,
-    Depends,
-    status
-)
+from fastapi import APIRouter, Depends, status
 
 from sqlalchemy.orm import Session
 
 from database.session import get_db
 
-from auth.dependencies import (
+from auth.dependencies.dependencies import (
     require_role,
 )
 
@@ -17,9 +13,10 @@ from schemas.auth_schema import (
 )
 
 
-
 from schemas.application_evaluation_schema import (
-    EvaluateApplicationResponse,ApplicationEvaluationResponse,DeleteApplicationEvaluationResponse
+    EvaluateApplicationResponse,
+    ApplicationEvaluationResponse,
+    DeleteApplicationEvaluationResponse,
 )
 
 from services.application_evaluation_service import (
@@ -29,34 +26,35 @@ from services.application_evaluation_service import (
 from enums.user_role_enum import UserRole
 from enums.application_evaluation_enum import ApplicationEvaluationStatus
 
+
+from auth.dependencies.rate_limit import DefaultRateLimit
+
 router = APIRouter(
     prefix="/application-evaluations",
     tags=["Application Evaluations"],
-
+    dependencies=[DefaultRateLimit],
 )
+
 
 @router.post(
     "/{application_id}/evaluate",
     response_model=EvaluateApplicationResponse,
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
 )
 def evaluate_application(
     application_id: int,
-    current_user: CurrentUser = Depends(
-        require_role(UserRole.RECRUITER)
-    ),
+    current_user: CurrentUser = Depends(require_role(UserRole.RECRUITER)),
     db: Session = Depends(
         get_db,
     ),
 ):
 
-    return (
-        ApplicationEvaluationService.evaluate_application(
-            application_id=application_id,
-            db=db,
-        )
+    return ApplicationEvaluationService.evaluate_application(
+        application_id=application_id,
+        db=db,
     )
-    
+
+
 @router.get(
     "/recruiter",
     response_model=list[ApplicationEvaluationResponse],
@@ -73,20 +71,18 @@ def get_my_evaluated_applications(
         recruiter_id=current_user.user_id,
         status=status,
     )
-    
+
+
 @router.get("/")
 def get_all_application_evaluations(
     db: Session = Depends(get_db),
-                current_user: dict = Depends(
-
-    require_role(UserRole.RECRUITER)
-
-),
+    current_user: dict = Depends(require_role(UserRole.RECRUITER)),
 ):
     return ApplicationEvaluationService.get_all_evaluations(
         db=db,
     )
-    
+
+
 @router.delete(
     "/{application_id}",
     response_model=DeleteApplicationEvaluationResponse,

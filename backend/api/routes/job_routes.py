@@ -17,20 +17,17 @@ from schemas.auth_schema import CurrentUser
 
 from enums.user_role_enum import UserRole
 
-from auth.dependencies import require_role, get_current_user
+from auth.dependencies.dependencies import require_role, get_current_user
 
 from services.job_service import JobService
 from services.job_description_service import JobDescriptionService
 
-router = APIRouter(
-    prefix="/jobs",
-    tags=["Jobs"],
-)
-
+from auth.dependencies.rate_limit import DefaultRateLimit
 
 router = APIRouter(
     prefix="/jobs",
     tags=["Jobs"],
+    dependencies=[DefaultRateLimit],
 )
 
 
@@ -101,7 +98,6 @@ def create_job(
     )
 
 
-
 @router.get(
     "/{job_id}",
     response_model=JobResponse,
@@ -155,7 +151,6 @@ def delete_job(
     )
 
     return {"message": "Job deleted successfully."}
-
 
 
 @router.patch(
