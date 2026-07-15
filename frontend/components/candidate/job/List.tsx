@@ -76,11 +76,11 @@ export default function List({
     <>
       <div
         ref={parentRef}
-        className="h-full overflow-y-auto rounded-lg border p-2"
+        className="h-full  overflow-y-auto rounded-lg border p-2"
       >
 
         <div
-          className="relative w-full"
+          className="relative w-full "
           style={{
             height: virtualizer.getTotalSize(),
           }}
@@ -96,7 +96,7 @@ export default function List({
             return (
               <div
                 key={virtualItem.key}
-                className="absolute left-0 top-0 w-full"
+                className="absolute  left-0 top-0 w-full"
                 style={{
                   height: virtualItem.size,
                   transform: `translateY(${virtualItem.start}px)`,

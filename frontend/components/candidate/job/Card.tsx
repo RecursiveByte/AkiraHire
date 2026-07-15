@@ -18,7 +18,7 @@ export default function Card({
   applied,
 }: CardProps) {
   return (
-    <div className="flex items-center justify-between rounded-xl border bg-background p-5 transition-all hover:shadow-md">
+    <div className="flex items-center  justify-between rounded-xl border bg-background p-5 transition-all overflow-x-auto hover:shadow-md">
       <div className="flex items-center gap-4">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-semibold text-primary-foreground">
           {job.jobRole.charAt(0).toUpperCase()}
