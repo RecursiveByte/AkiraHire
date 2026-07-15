@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
+
+console.log("JWT_SECRET_KEY exists:", !!process.env.JWT_SECRET_KEY);
+
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET_KEY!);
+
+
 
 async function getRole(token: string) {
   const { payload } = await jwtVerify(token, SECRET);
@@ -78,7 +83,8 @@ export async function proxy(request: NextRequest) {
     }
 
     return NextResponse.next();
-  } catch {
+  } catch(err :any) {
+    console.error("Proxy JWT error:", err);
     return NextResponse.redirect(new URL("/", request.url));
   }
 }
