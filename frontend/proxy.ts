@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
 
-console.log("JWT_SECRET_KEY exists:", !!process.env.JWT_SECRET_KEY);
 
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET_KEY!);
 
@@ -15,8 +14,6 @@ async function getRole(token: string) {
 }
 
 export async function proxy(request: NextRequest) {
-  console.log("🔥 PROXY RUNNING");
-  console.log("Refresh cookie:", !!request.cookies.get("refresh_token"));
   
   const { pathname } = request.nextUrl;
 

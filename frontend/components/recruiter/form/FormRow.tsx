@@ -27,7 +27,6 @@ export default function FormRow({
       onCloseForm,
     });
 
-    console.log(" ths is ",form)
 
   return (
     <>

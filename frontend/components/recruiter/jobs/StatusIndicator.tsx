@@ -7,7 +7,6 @@ const STATUS_STYLES: Record<JobStatus, { dot: string; text: string; label: strin
 };
 
 export default function StatusIndicator({ status }: { status: JobStatus }) {
-  console.log(status)
   const style = STATUS_STYLES[status];
   return (
     <span className={`flex items-center gap-1.5 text-sm font-medium ${style.text}`}>

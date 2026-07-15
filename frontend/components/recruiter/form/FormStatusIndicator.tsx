@@ -8,8 +8,7 @@ const STATUS_STYLES: Record<FormStatus, { dot: string; text: string; label: stri
 
 export default function FormStatusIndicator({ status }: { status: FormStatus }) {
   const style = STATUS_STYLES[status];
-  console.log(status)
-  console.log(style)
+  
   return (
     <span className={`flex items-center gap-1.5 text-sm font-medium ${style.text}`}>
       <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />

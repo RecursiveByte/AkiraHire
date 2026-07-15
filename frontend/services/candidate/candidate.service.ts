@@ -42,7 +42,6 @@ export class CandidateProfileService {
       }
     );
 
-    console.log(response.data);
 
     return response.data.map(mapApiJobApplicationForm);
   }

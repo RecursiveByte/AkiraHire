@@ -13,7 +13,6 @@ import { setupInterceptors } from "@/lib/api/interceptors";
 
 export function AuthInitializer({ children }: AuthInitializerProps) {
 
-  console.log("AuthInitializer rendered");
   const { setAccessToken, setUser, clearAuth, setLoading, isLoading } =
     useAuthStore();
 
@@ -60,6 +59,14 @@ export function AuthInitializer({ children }: AuthInitializerProps) {
       mounted = false;
     };
   }, [setAccessToken, setUser, clearAuth, setLoading]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
 
   return <>{children}</>;
 }

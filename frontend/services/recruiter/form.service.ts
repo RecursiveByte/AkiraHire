@@ -9,8 +9,6 @@ export class FormService {
       params: search ? { search } : undefined,
     });
 
-    console.log(data);
-
     return data.map(mapApiFormToForm);
   }
   static async publishForm(formId: number) {
