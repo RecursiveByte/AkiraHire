@@ -8,7 +8,7 @@ Instead of relying on a single AI assistant, AkiraHire uses a **LangGraph-powere
 
 # 🚀 Live Demo
 
-> Add your live demo link here
+> https://akira.abhoba.com/
 
 ---
 
