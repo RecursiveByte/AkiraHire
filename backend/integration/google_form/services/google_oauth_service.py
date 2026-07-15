@@ -183,9 +183,7 @@ class GoogleOAuthService:
 
                 except Exception as e:
 
-                    raise GoogleTokenRefreshError(
-                        "Failed to refresh Google credentials."
-                    ) from e
+                    raise GoogleTokenRefreshError() from e
 
             else:
 
