@@ -21,6 +21,8 @@ class Settings(BaseSettings):
 
     COOKIE_SECURE: bool
     COOKIE_SAMESITE: str
+    COOKIE_DOMAIN: str  | None = None
+    
 
     FRONTEND_URL: str
     BACKEND_URL: str

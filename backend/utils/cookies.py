@@ -15,6 +15,8 @@ def set_refresh_cookie(
         httponly=True,
         secure=settings.COOKIE_SECURE,
         samesite=settings.COOKIE_SAMESITE,
+        domain=settings.COOKIE_DOMAIN,
+        path="/",
         max_age=COOKIE_MAX_AGE,
     )
 
@@ -27,5 +29,7 @@ def clear_refresh_cookie(
         key=COOKIE_NAME,
         httponly=True,
         secure=settings.COOKIE_SECURE,
+        domain=settings.COOKIE_DOMAIN,
+        path="/",
         samesite=settings.COOKIE_SAMESITE,
     )
