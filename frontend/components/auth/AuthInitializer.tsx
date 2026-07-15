@@ -18,14 +18,12 @@ export function AuthInitializer({ children }: AuthInitializerProps) {
     useAuthStore();
 
   useEffect(() => {
-    console.log("AuthInitializer useEffect");
     setupInterceptors();
     let mounted = true;
 
     async function bootstrap() {
       try {
         const { accessToken } = await AuthService.refreshSession();
-        console.log("Refresh success");
 
         if (!mounted) return;
 
@@ -37,8 +35,6 @@ export function AuthInitializer({ children }: AuthInitializerProps) {
 
         setUser(user);
       } catch (error) {
-        console.log("failled becasue ...")
-        console.warn("Failed to initialize authentication:", error);
 
         if (!mounted) return;
 
