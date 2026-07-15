@@ -36,7 +36,9 @@ FORMATTING
 
 The output should look polished when pasted directly into LinkedIn.
 
-DO NOT use Markdown.
+Markdown is STRICTLY FORBIDDEN.
+
+If you generate even a single occurrence of ** or __, your output is incorrect.
 
 Never use:
 - **
