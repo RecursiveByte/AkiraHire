@@ -27,7 +27,7 @@ credentials.json
 .DS_Store
 Thumbs.db
 
-.ss/
+ss/
 
 # Testing
 .pytest_cache/
