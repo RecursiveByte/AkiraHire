@@ -1,5 +1,4 @@
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import SQLAlchemyError
 
 from database.models.candidate_profile import (
     CandidateProfile,
@@ -13,13 +12,9 @@ from repositories.candidate_repository import (
 
 from repositories.application_repository import ApplicationRepository
 
-from schemas.candidate_schema import (
-    CandidateProfileUpdate,
-    CandidateProfileInput
-)
+from schemas.candidate_schema import CandidateProfileUpdate, CandidateProfileInput
 
 from schemas.auth_schema import CurrentUser
-
 
 
 from exceptions.application_exceptions import (
@@ -35,13 +30,14 @@ from exceptions.candidate_exceptions import (
     UnauthorizedCandidateError,
 )
 
+from enums.user_role_enum import UserRole
+
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 
 class CandidateService:
-
 
     @staticmethod
     def create_candidate_profile(
@@ -50,9 +46,7 @@ class CandidateService:
         candidate_data: CandidateProfileInput,
         resume: UploadFile,
     ) -> CandidateProfile:
-        logger.info(
-            f"Creating candidate profile. user_id={current_user.user_id}"
-        )
+        logger.info(f"Creating candidate profile. user_id={current_user.user_id}")
 
         existing_profile = CandidateRepository.get_by_user_id(
             db=db,
@@ -146,13 +140,12 @@ class CandidateService:
 
         return candidate_profile
 
-
     @staticmethod
     def update_candidate_profile_by_current_user(
         current_user: CurrentUser,
         db: Session,
         candidate_data: CandidateProfileUpdate,
-        resume: UploadFile | None = None,  
+        resume: UploadFile | None = None,
     ) -> CandidateProfile:
 
         logger.info(f"Updating candidate profile. user_id={current_user.user_id}")
@@ -170,7 +163,7 @@ class CandidateService:
 
             candidate_profile.phone = candidate_data.phone
 
-        if resume is not None: 
+        if resume is not None:
 
             resume_upload_response = ResumeService.upload_resume(
                 file=resume,
@@ -197,51 +190,54 @@ class CandidateService:
         current_user: CurrentUser,
         db: Session,
     ) -> dict:
-
-        logger.info(f"Deleting candidate profile. candidate_id={candidate_id}")
+        logger.info(
+            "Deleting candidate profile. candidate_id=%s requested_by=%s role=%s",
+            candidate_id,
+            current_user.user_id,
+            current_user.role,
+        )
 
         candidate_profile = CandidateRepository.get_by_id(
             db=db,
             candidate_id=candidate_id,
         )
 
-        if not candidate_profile:
-
-            logger.warning(f"Candidate profile not found. candidate_id={candidate_id}")
-
+        if candidate_profile is None:
+            logger.warning(
+                "Candidate profile not found. candidate_id=%s",
+                candidate_id,
+            )
             raise CandidateProfileNotFoundError()
 
-        if candidate_profile.user_id != current_user.user_id:
-
+        if (
+            current_user.role != UserRole.ADMIN
+            and candidate_profile.user_id != current_user.user_id
+        ):
             logger.warning(
-                f"Unauthorized profile deletion. "
-                f"candidate_id={candidate_id}, "
-                f"user_id={current_user.user_id}"
+                "Unauthorized deletion attempt. candidate_id=%s requested_by=%s",
+                candidate_id,
+                current_user.user_id,
             )
-
             raise UnauthorizedCandidateError()
 
-        try:
+        CandidateRepository.delete(
+            db=db,
+            candidate_profile=candidate_profile,
+        )
 
-            CandidateRepository.delete(
-                db=db,
-                candidate_profile=candidate_profile,
-            )
+        logger.info(
+            "Candidate profile deleted successfully. candidate_id=%s deleted_by=%s",
+            candidate_id,
+            current_user.user_id,
+        )
 
-            logger.info(
-                f"Candidate profile deleted successfully. "
-                f"candidate_id={candidate_id}"
-            )
+        return {"message": "Candidate profile deleted successfully."}
 
-            return {"message": "Candidate profile deleted successfully."}
-
-        except SQLAlchemyError:
-
-            logger.exception(
-                f"Database error while deleting candidate_id={candidate_id}"
-            )
-
-            raise
+    @staticmethod
+    def get_all_candidate_profiles(
+        db: Session,
+    ):
+        return CandidateRepository.get_all_candidate_profiles(db)
 
     @staticmethod
     def get_candidate_profile_by_application_id(

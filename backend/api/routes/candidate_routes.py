@@ -126,6 +126,18 @@ def update_my_candidate_profile(
         resume=resume,
     )
 
+@router.get(
+    "/profiles",
+    response_model=list[CandidateProfileResponse],
+)
+def get_all_candidate_profiles(
+    current_user: CurrentUser = Depends(
+        require_role(UserRole.ADMIN),
+    ),
+    db: Session = Depends(get_db),
+):
+    return CandidateService.get_all_candidate_profiles(db=db)
+
 
 @router.delete(
     "/profile/{candidate_id}",

@@ -13,11 +13,8 @@ class CandidateRepository:
     ) -> CandidateProfile | None:
 
         return (
-            db.query(CandidateProfile)
-            .filter(CandidateProfile.email == email)
-            .first()
+            db.query(CandidateProfile).filter(CandidateProfile.email == email).first()
         )
-
 
     @staticmethod
     def get_by_user_id(
@@ -32,7 +29,6 @@ class CandidateRepository:
         )
 
     @staticmethod
-
     def get_by_id(
         db: Session,
         candidate_id: int,
@@ -46,6 +42,12 @@ class CandidateRepository:
             .first()
         )
 
+
+    @staticmethod
+    def get_all_candidate_profiles(
+        db: Session,
+    ):
+        return db.query(CandidateProfile).order_by(CandidateProfile.candidate_id.desc()).all()
 
     @staticmethod
     def create(
@@ -65,9 +67,8 @@ class CandidateRepository:
 
             db.rollback()
             raise
-        
-    @staticmethod
 
+    @staticmethod
     def update(
         db: Session,
         candidate_profile: CandidateProfile,
@@ -85,9 +86,7 @@ class CandidateRepository:
             db.rollback()
             raise
 
-
     @staticmethod
-
     def delete(
         db: Session,
         candidate_profile: CandidateProfile,
