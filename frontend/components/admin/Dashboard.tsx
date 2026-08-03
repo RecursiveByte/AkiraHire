@@ -1,34 +1,43 @@
+"use client";
+
 import AdminStatCard from "@/components/admin/AdminStatCard";
 import RecentActivity from "@/components/admin/RecentActivity";
 
-const stats = [
-  {
-    label: "Candidates",
-    value: 1284,
-    icon: "groups",
-    description: "Registered candidates",
-  },
-  {
-    label: "Recruiters",
-    value: 96,
-    icon: "badge",
-    description: "Active recruiters",
-  },
-  {
-    label: "Jobs",
-    value: 342,
-    icon: "work",
-    description: "Live job postings",
-  },
-  {
-    label: "Applications",
-    value: 5812,
-    icon: "description",
-    description: "Applications received",
-  },
-];
+import { useAdminDashboard } from "@/hooks/admin/useAdminDashboard";
 
 export default function Dashboard() {
+  const {
+    dashboard,
+    loading,
+  } = useAdminDashboard();
+
+  const stats = [
+    {
+      label: "Candidates",
+      value: dashboard?.stats.candidates ?? 0,
+      icon: "groups",
+      description: "Registered candidates",
+    },
+    {
+      label: "Recruiters",
+      value: dashboard?.stats.recruiters ?? 0,
+      icon: "badge",
+      description: "Registered recruiters",
+    },
+    {
+      label: "Jobs",
+      value: dashboard?.stats.jobs ?? 0,
+      icon: "work",
+      description: "Live job postings",
+    },
+    {
+      label: "Applications",
+      value: dashboard?.stats.applications ?? 0,
+      icon: "description",
+      description: "Applications received",
+    },
+  ];
+
   return (
     <div className="space-y-8">
       <div>
@@ -49,11 +58,15 @@ export default function Dashboard() {
             value={stat.value}
             icon={stat.icon}
             description={stat.description}
+            isLoading={loading}
           />
         ))}
       </div>
 
-      <RecentActivity />
+      <RecentActivity
+        activity={dashboard?.activity}
+        isLoading={loading}
+      />
     </div>
   );
 }

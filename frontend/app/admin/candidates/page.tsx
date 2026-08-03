@@ -1,6 +1,6 @@
 "use client";
 
-import CandidatesTable from "@/components/admin/CandidatesTable";
+import CandidatesTable from "@/components/admin/candidate/CandidatesTable";
 import { useAdminCandidates } from "@/hooks/admin/useAdminCandidates";
 
 export default function CandidatesPage() {
