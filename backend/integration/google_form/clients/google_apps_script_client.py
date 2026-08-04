@@ -14,7 +14,7 @@ from integration.google_form.exceptions.google_exceptions import (
     GoogleAppsScriptClientError,
 )
 
-from integration.google_form.config.settings import settings
+from integration.common.config.settings import settings
 
 from utils.logger import get_logger
 

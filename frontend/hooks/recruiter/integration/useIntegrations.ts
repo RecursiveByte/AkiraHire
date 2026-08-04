@@ -32,22 +32,28 @@ export function useIntegrations() {
   const connectGoogleForms = () =>
     (window.location.href = `${API_BASE_URL}/google-forms/auth/google/connect`);
 
+  const connectGoogleCalendar = () =>
+    (window.location.href = `${API_BASE_URL}/google-calendar/auth/google/connect`);
+
+  const connectLinkedIn = () =>
+    (window.location.href = `${API_BASE_URL}/linkedin/auth/connect`);
+
   const disconnectIntegration = async (accountId: number) => {
     try {
       setDisconnectingId(accountId);
+
       await IntegrationService.disconnectIntegration(accountId);
+
       await fetchIntegrations();
+
       toast.success("Integration disconnected successfully.");
-    } catch (err:any) {
+    } catch (err: any) {
       toast.error("Failed to disconnect integration.");
       setError("Failed to disconnect integration.");
     } finally {
       setDisconnectingId(null);
     }
   };
-
-  const connectLinkedIn = () =>
-    (window.location.href = `${API_BASE_URL}/linkedin/auth/connect`);
 
   useEffect(() => {
     fetchIntegrations();
@@ -58,9 +64,12 @@ export function useIntegrations() {
     loading,
     error,
     refetch: fetchIntegrations,
+
     connectGoogleForms,
+    connectGoogleCalendar,
+    connectLinkedIn,
+
     disconnectingId,
     disconnectIntegration,
-    connectLinkedIn,
   };
 }

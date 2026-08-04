@@ -1,26 +1,35 @@
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
+
 from database.session import get_db
 
-from auth.dependencies.dependencies import get_current_user_from_refresh_token
-from schemas.auth_schema import CurrentUser
+from auth.dependencies.dependencies import (
+    get_current_user_from_refresh_token,
+)
+from auth.dependencies.rate_limit import DefaultRateLimit
 
-from integration.google_form.config.settings import settings
+from integration.common.config.settings import settings
+
+from integration.google_form.constants.google import (
+    GOOGLE_FORM_INTEGRATION_NAME,
+    SCOPES,
+)
 
 from integration.google_form.schemas.google_form_description import (
     AutoFormRequest,
 )
-
 from integration.google_form.schemas.google_form_response import (
     GoogleFormResponse,
 )
 
-from integration.google_form.services.google_form_service import GoogleFormService
+from integration.google_form.services.google_form_service import (
+    GoogleFormService,
+)
 
-from integration.google_form.services.google_form_service import GoogleOAuthService
-
-from auth.dependencies.rate_limit import DefaultRateLimit
+from integration.common.google_oauth.services.google_oauth_service import (
+    GoogleOAuthService,
+)
 
 router = APIRouter(
     prefix="/google-forms",
@@ -39,6 +48,8 @@ def connect_google(
     auth_url, code_verifier = GoogleOAuthService.create_google_auth_url(
         db=db,
         user_id=current_user["user_id"],
+        scopes=SCOPES,
+        redirect_uri=settings.GOOGLE_FORM_CALLBACK_URI,
     )
 
     request.session["code_verifier"] = code_verifier
@@ -59,6 +70,9 @@ def google_oauth_callback(
         code=code,
         state=state,
         code_verifier=request.session.get("code_verifier"),
+        scopes=SCOPES,
+        redirect_uri=settings.GOOGLE_FORM_CALLBACK_URI,
+        integration_name=GOOGLE_FORM_INTEGRATION_NAME,
     )
 
     request.session.pop("code_verifier", None)
@@ -67,7 +81,6 @@ def google_oauth_callback(
         url=f"{settings.FRONTEND_URL}/recruiter/integrations",
         status_code=303,
     )
-
 
 @router.post(
     "/create_google_form",

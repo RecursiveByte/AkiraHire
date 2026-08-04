@@ -33,6 +33,7 @@ from api.routes.application_evaluation_routes import (
 from api.routes.chat_bot_router import router as chatbot_router
 from api.routes.recruiter_routes import router as recruiter_router
 from api.routes.admin_routes import router as admin_router
+from integration.google_calendar.api.routes.google_calendar_routes import router as google_calendar_routes
 
 
 from integration.routes import router as integration_router
@@ -62,3 +63,5 @@ app.include_router(integration_router)
 app.include_router(recruiter_router)
 
 app.include_router(admin_router)
+
+app.include_router(google_calendar_routes)

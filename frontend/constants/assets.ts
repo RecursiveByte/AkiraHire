@@ -3,5 +3,6 @@ export const ASSETS = {
     UNIFIED_LOGO:"/images/unified.png",
     SMART_RECRUITMENT:"/images/smart_recruitment.png",
     GOOGLE_FORMS_ICON: "/svg/google-forms.svg",
+    GOOGLE_CALENDAR_ICON:"/svg/google-calendar.svg",
     LINKEDIN_ICON: "/svg/linkedin.svg",
   } as const;

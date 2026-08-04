@@ -1,8 +1,16 @@
 from dataclasses import dataclass
 
 from database.models.connected_account import ProviderType
-from integration.linkedin.config.constants import LINKEDIN_INTEGRATION_NAME
-from integration.google_form.constants.google import GOOGLE_FORM_INTEGRATION_NAME
+
+from integration.google_form.constants.google import (
+    GOOGLE_FORM_INTEGRATION_NAME,
+)
+from integration.google_calendar.constants.constants import GOOGLE_CALENDAR_INTEGRATION_NAME
+
+from integration.linkedin.config.constants import (
+    LINKEDIN_INTEGRATION_NAME,
+)
+
 
 @dataclass(frozen=True)
 class SupportedIntegration:
@@ -18,6 +26,12 @@ SUPPORTED_INTEGRATIONS = [
         name="Google Forms",
         provider=ProviderType.GOOGLE,
         integration_name=GOOGLE_FORM_INTEGRATION_NAME,
+    ),
+    SupportedIntegration(
+        id="google_calendar",
+        name="Google Calendar",
+        provider=ProviderType.GOOGLE,
+        integration_name=GOOGLE_CALENDAR_INTEGRATION_NAME,
     ),
     SupportedIntegration(
         id="linkedin_posts",

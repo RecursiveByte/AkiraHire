@@ -1,4 +1,4 @@
-from integration.google_form.config.settings import (
+from integration.common.config.settings import (
     settings,
 )
 
@@ -10,6 +10,7 @@ CLIENT_CONFIG = {
         "token_uri": "https://oauth2.googleapis.com/token",
         "redirect_uris": [
             settings.GOOGLE_FORM_CALLBACK_URI,
+            settings.GOOGLE_CALENDAR_CALLBACK_URI,
         ],
     },
 }

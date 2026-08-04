@@ -5,9 +5,8 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from sqlalchemy.orm import Session
 
-from integration.google_form.constants.google import SCOPES
 from integration.google_form.config.google_oauth import CLIENT_CONFIG
-from integration.google_form.config.settings import settings
+from integration.common.config.settings import settings
 
 from integration.connected_account_repository import (
     ConnectedAccountRepository,
@@ -24,27 +23,35 @@ from database.models.connected_account import (
     ProviderType,
 )
 
-from integration.google_form.constants.google import GOOGLE_FORM_INTEGRATION_NAME
-
 
 class GoogleOAuthService:
 
     @staticmethod
-    def create_google_auth_url(user_id: int, db: Session) -> tuple[str, str]:
+    def create_google_auth_url(
+        user_id: int,
+        db: Session,
+        scopes: list[str],
+        redirect_uri: str,
+    ) -> tuple[str, str]:
 
         flow = Flow.from_client_config(
             CLIENT_CONFIG,
-            scopes=SCOPES,
-            redirect_uri=settings.GOOGLE_FORM_CALLBACK_URI,
+            scopes=scopes,
+            redirect_uri=redirect_uri,
         )
 
-        state = ConnectedAccountRepository.save_oauth_state(db=db, user_id=user_id)
+        state = ConnectedAccountRepository.save_oauth_state(
+            db=db,
+            user_id=user_id,
+        )
 
         auth_url, _ = flow.authorization_url(
             access_type="offline",
             prompt="consent",
             state=state,
         )
+        
+        print("auth ",auth_url)
 
         return auth_url, flow.code_verifier
 
@@ -52,12 +59,14 @@ class GoogleOAuthService:
     def exchange_code_for_tokens(
         code: str,
         code_verifier: str,
+        scopes: list[str],
+        redirect_uri: str,
     ) -> Credentials:
 
         flow = Flow.from_client_config(
             CLIENT_CONFIG,
-            scopes=SCOPES,
-            redirect_uri=settings.GOOGLE_FORM_CALLBACK_URI,
+            scopes=scopes,
+            redirect_uri=redirect_uri,
         )
 
         flow.code_verifier = code_verifier
@@ -73,7 +82,7 @@ class GoogleOAuthService:
         db: Session,
         user_id: int,
         creds: Credentials,
-        integration_name: str = GOOGLE_FORM_INTEGRATION_NAME,
+        integration_name: str,
     ) -> None:
 
         account = ConnectedAccountRepository.get_connected_account(
@@ -133,7 +142,8 @@ class GoogleOAuthService:
     def get_google_credentials(
         user_id: int,
         db: Session,
-        integration_name: str =GOOGLE_FORM_INTEGRATION_NAME ,
+        scopes: list[str],
+        integration_name: str,
     ) -> Credentials:
 
         account = ConnectedAccountRepository.get_connected_account(
@@ -155,13 +165,13 @@ class GoogleOAuthService:
             "scopes": (
                 account.scopes.split(",")
                 if account.scopes
-                else SCOPES
+                else scopes
             ),
         }
 
         creds = Credentials.from_authorized_user_info(
             token_data,
-            SCOPES,
+            scopes,
         )
 
         if not creds.valid:
@@ -193,18 +203,24 @@ class GoogleOAuthService:
 
         return creds
 
-
+    @staticmethod
     def handle_oauth_callback(
         db: Session,
         code: str,
         state: str,
         code_verifier: str | None,
+        scopes: list[str],
+        redirect_uri: str,
+        integration_name: str,
     ) -> None:
 
         if code_verifier is None:
             raise GoogleOAuthSessionExpiredError()
 
-        user_id = ConnectedAccountRepository.pop_oauth_state(db=db, state=state)
+        user_id = ConnectedAccountRepository.pop_oauth_state(
+            db=db,
+            state=state,
+        )
 
         if user_id is None:
             raise GoogleOAuthSessionExpiredError()
@@ -212,10 +228,13 @@ class GoogleOAuthService:
         credentials = GoogleOAuthService.exchange_code_for_tokens(
             code=code,
             code_verifier=code_verifier,
+            scopes=scopes,
+            redirect_uri=redirect_uri,
         )
 
         GoogleOAuthService.save_google_credentials(
             db=db,
             user_id=user_id,
             creds=credentials,
+            integration_name=integration_name,
         )

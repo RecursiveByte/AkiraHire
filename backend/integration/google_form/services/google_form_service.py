@@ -28,7 +28,7 @@ from integration.google_form.schemas.google_form_response import (
     GoogleFormResponse,
 )
 
-from integration.google_form.services.google_oauth_service import (
+from integration.common.google_oauth.services.google_oauth_service import (
     GoogleOAuthService,
 )
 

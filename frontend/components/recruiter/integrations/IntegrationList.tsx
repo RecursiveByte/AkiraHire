@@ -10,12 +10,16 @@ import { ASSETS } from "@/constants/assets";
 
 export const INTEGRATION_ICONS: Record<string, string> = {
   "Google Forms": ASSETS.GOOGLE_FORMS_ICON,
+  "Google Calendar": ASSETS.GOOGLE_CALENDAR_ICON,
   "LinkedIn Posts": ASSETS.LINKEDIN_ICON,
 };
 
 export const INTEGRATION_DESCRIPTIONS: Record<string, string> = {
   "Google Forms":
     "Create application forms automatically for your jobs, collect candidate responses, and manage submissions directly from Akira Hire.",
+
+  "Google Calendar":
+    "Schedule interviews, view recruiter availability, create calendar events, and automatically send interview invitations to candidates.",
 
   "LinkedIn Posts":
     "Publish hiring posts directly to LinkedIn, manage drafts, and streamline your recruitment outreach from one place.",
@@ -28,6 +32,7 @@ export function IntegrationList() {
     error,
     refetch,
     connectGoogleForms,
+    connectGoogleCalendar,
     disconnectIntegration,
     disconnectingId,
     connectLinkedIn,
@@ -38,8 +43,10 @@ export function IntegrationList() {
 
   const connectHandlers: Record<string, () => void> = {
     "Google Forms": connectGoogleForms,
+    "Google Calendar": connectGoogleCalendar,
     "LinkedIn Posts": connectLinkedIn,
   };
+
 
   if (loading) {
     return (

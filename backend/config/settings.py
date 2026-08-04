@@ -8,6 +8,7 @@ class Settings(BaseSettings):
 
     JWT_SECRET_KEY: str
     JWT_ALGORITHM: str
+    
 
     GOOGLE_LOGIN_CALLBACK_URI: str
     GOOGLE_FORM_CALLBACK_URI: str
