@@ -14,6 +14,7 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import func
 from enums.job_status_enum import JobStatus
 
+
 class AdminRepository:
 
     @staticmethod
@@ -73,10 +74,7 @@ class AdminRepository:
 
         return (
             db.query(func.count(Job.job_id))
-            .filter(
-                Job.created_at >= week_ago,
-                Job.status == JobStatus.OPEN
-            )
+            .filter(Job.created_at >= week_ago, Job.status == JobStatus.OPEN)
             .scalar()
             or 0
         )
@@ -93,3 +91,79 @@ class AdminRepository:
             .scalar()
             or 0
         )
+
+    @staticmethod
+    def get_candidates_count(
+        db: Session,
+    ) -> int:
+        return db.query(func.count(CandidateProfile.candidate_id)).scalar() or 0
+
+    @staticmethod
+    def get_recruiters_count(
+        db: Session,
+    ) -> int:
+        return (
+            db.query(func.count(User.id))
+            .filter(User.role == UserRole.RECRUITER)
+            .scalar()
+            or 0
+        )
+
+    @staticmethod
+    def get_jobs_count(
+        db: Session,
+    ) -> int:
+        return (
+            db.query(func.count(Job.job_id))
+            .filter(Job.status == JobStatus.OPEN)
+            .scalar()
+            or 0
+        )
+
+    @staticmethod
+    def get_applications_count(
+        db: Session,
+    ) -> int:
+        return db.query(func.count(Application.application_id)).scalar() or 0
+
+
+    @staticmethod
+    def get_candidate_growth(
+        db: Session,
+        days: int,
+    ):
+        start_date = datetime.now(timezone.utc) - timedelta(days=days)
+
+        return (
+            db.query(
+                func.date(CandidateProfile.created_at).label("date"),
+                func.count(CandidateProfile.candidate_id).label("count"),
+            )
+            .filter(CandidateProfile.created_at >= start_date)
+            .group_by(func.date(CandidateProfile.created_at))
+            .order_by(func.date(CandidateProfile.created_at))
+            .all()
+        )
+
+
+    @staticmethod
+    def get_recruiter_growth(
+        db: Session,
+        days: int,
+    ):
+        start_date = datetime.now(timezone.utc) - timedelta(days=days)
+
+        return (
+            db.query(
+                func.date(User.created_at).label("date"),
+                func.count(User.id).label("count"),
+            )
+            .filter(
+                User.role == UserRole.RECRUITER,
+                User.created_at >= start_date,
+            )
+            .group_by(func.date(User.created_at))
+            .order_by(func.date(User.created_at))
+            .all()
+        )
+

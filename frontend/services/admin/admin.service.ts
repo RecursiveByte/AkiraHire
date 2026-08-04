@@ -1,8 +1,8 @@
 import { apiClient } from "@/lib/api/apiClient";
 import { CandidateListItemDto } from "@/types/admin/admin.api";
 import { mapCandidates } from "@/lib/mappers/adminCandidate.mapper";
-import { CandidateListItem } from "@/types/admin/admin.types";
-import { RecruiterListItem } from "@/types/admin/admin.types";
+import { CandidateListItem, UserDistribution,
+  UserGrowthItem,RecruiterListItem } from "@/types/admin/admin.types";
 import { Dashboard } from "@/types/admin/admin.types";
 
 export class AdminService {
@@ -23,6 +23,27 @@ export class AdminService {
 
   static async getDashboard(): Promise<Dashboard> {
     const { data } = await apiClient.get<Dashboard>("/admin/dashboard");
+
+    return data;
+  }
+
+  static async getUserDistribution(): Promise<UserDistribution> {
+    const { data } = await apiClient.get<UserDistribution>(
+      "/admin/analytics/user-distribution"
+    );
+
+    return data;
+  }
+
+  static async getUserGrowth(days: number = 30): Promise<UserGrowthItem[]> {
+    const { data } = await apiClient.get<UserGrowthItem[]>(
+      "/admin/analytics/user-growth",
+      {
+        params: {
+          days,
+        },
+      }
+    );
 
     return data;
   }

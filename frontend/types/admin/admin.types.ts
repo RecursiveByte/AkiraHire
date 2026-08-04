@@ -29,3 +29,15 @@ export interface Dashboard {
   stats: DashboardStats;
   activity: RecentActivity;
 }
+
+
+export interface UserDistribution {
+  candidates: number;
+  recruiters: number;
+}
+
+export interface UserGrowthItem {
+  date: string;
+  candidates: number;
+  recruiters: number;
+}

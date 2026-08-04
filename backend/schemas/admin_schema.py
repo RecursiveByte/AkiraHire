@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-
+from datetime import date
 
 class DashboardStatsResponse(BaseModel):
     candidates: int
@@ -16,3 +16,16 @@ class RecentActivityResponse(BaseModel):
 class DashboardResponse(BaseModel):
     stats: DashboardStatsResponse
     activity: RecentActivityResponse
+    
+class UserDistributionResponse(BaseModel):
+    candidates: int
+    recruiters: int
+    
+
+
+
+
+class UserGrowthItemResponse(BaseModel):
+    date: date
+    candidates: int
+    recruiters: int
