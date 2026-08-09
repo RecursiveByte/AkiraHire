@@ -17,7 +17,21 @@ from integration.google_calendar.constants.constants import (
 
 from integration.common.config.settings import settings
 
-from integration.common.google_oauth.services.google_oauth_service import GoogleOAuthService
+from integration.google_calendar.services.google_calendar_service import GoogleCalendarService
+from datetime import datetime
+
+from integration.common.google_oauth.services.google_oauth_service import (
+    GoogleOAuthService,
+)
+
+
+from integration.google_calendar.schemas.create_calendar_event import (
+    CreateCalendarEventRequest,
+)
+
+from integration.google_calendar.services.google_calendar_service import (
+    GoogleCalendarService,
+)
 
 router = APIRouter(
     prefix="/google-calendar",
@@ -68,4 +82,32 @@ def google_calendar_callback(
     return RedirectResponse(
         url=f"{settings.FRONTEND_URL}/recruiter/integrations",
         status_code=303,
+    )
+
+@router.get("/events")
+def get_calendar_events(
+    start_time: datetime,
+    end_time: datetime,
+    current_user=Depends(get_current_user_from_refresh_token),
+    db: Session = Depends(get_db),
+):
+
+    return GoogleCalendarService.get_events(
+        user_id=current_user["user_id"],
+        db=db,
+        start_time=start_time,
+        end_time=end_time,
+    )
+    
+@router.post("/events")
+def create_calendar_event(
+    payload: CreateCalendarEventRequest,
+    current_user=Depends(get_current_user_from_refresh_token),
+    db: Session = Depends(get_db),
+):
+
+    return GoogleCalendarService.create_event(
+        user_id=current_user["user_id"],
+        db=db,
+        payload=payload,
     )

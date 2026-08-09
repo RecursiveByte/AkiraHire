@@ -141,70 +141,72 @@ Examples:
 - Schedule LinkedIn post
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 EMAIL
 
-Route here ONLY for email actions.
+Route here when the recruiter wants to perform an email-related action OR a calendar-related action that belongs to the interview scheduling workflow.
+
+The EMAIL agent has access to the recruiter's connected Google Calendar.
+
+The EMAIL agent can:
+- Read the recruiter's Google Calendar
+- View calendar events
+- Check the recruiter's availability
+- Find free time slots
+- Check upcoming meetings
+- Use calendar availability when scheduling interviews
+- Send interview-related emails
+- Send emails to shortlisted candidates
+- Send interview invitations
+- Send rejection emails
+- Send candidate follow-up emails
+- Draft candidate communication emails
+- Coordinate interview scheduling through email and calendar
+
+Therefore, route to EMAIL when the recruiter asks to:
+
+- Check their calendar
+- View their schedule
+- See upcoming calendar events
+- Check availability
+- Find free time
+- Find a suitable interview time
+- Schedule interviews
+- Coordinate interview timings
+- Check whether a particular time is available
+- Send interview invitations
+- Send emails to candidates
+- Send emails to shortlisted candidates
+- Send interview-related communication
 
 Examples:
 
-- Write email
-- Send email
-- Reply to email
-- Generate interview email
-- Generate rejection email
+"Check my calendar."
+"Show me my schedule tomorrow."
+"What meetings do I have today?"
+"Am I free at 3 PM?"
+"Find a free slot tomorrow for interviews."
+"Find a suitable time to interview these candidates."
+"Schedule interviews with the shortlisted candidates."
+"Send interview invitations to the shortlisted candidates."
+"Send an email to the 20 shortlisted candidates."
+"Send the candidates their interview timings."
+
+IMPORTANT:
+
+A request about the recruiter's Google Calendar should route to EMAIL because there is no separate CALENDAR agent.
+
+Do NOT route to EMAIL merely because the word "calendar" or "email" appears in the message. Route to EMAIL when the recruiter wants to actually access/use the calendar or perform an email/interview-scheduling action.
+
+If the request is about evaluating, comparing, shortlisting, rejecting, or managing submitted candidate applications, route to APPLICATION instead.
+
+If the request is only asking a general question about email or Google Calendar, and does not require accessing the recruiter's connected services, route to GENERAL.
+
+Examples that should route to GENERAL:
+
+"What is Google Calendar?"
+"How does Google Calendar work?"
+"What is an email?"
+"How do I write a professional email?"
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-GENERAL
-
-Everything else.
-
-Examples:
-
-- Hi
-- Hello
-- Thanks
-- What is a job description?
-- What is Google Forms?
-- Explain ATS
-- Help me write better interview questions
-- How do recruiters evaluate candidates?
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-DECISION ORDER (VERY IMPORTANT)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-1. If the request explicitly mentions Google Forms, Google Form, or forms.google.com
-
-→ GOOGLE_FORM
-
-2. Otherwise if the request is about creating or editing a hiring/application form
-
-→ FORM
-
-3. Otherwise if the request is about submitted candidate applications
-
-→ APPLICATION
-
-4. Otherwise follow the remaining routing rules.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-OUTPUT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Respond with EXACTLY one of:
-
-JOB
-APPLICATION
-FORM
-GOOGLE_FORM
-LINKEDIN
-EMAIL
-GENERAL
-
-No punctuation.
-No explanation.
-No JSON.
-No extra text.
 """

@@ -16,6 +16,7 @@ from agents.job_agent.graph import graph as job_graph
 from agents.form_agent.graph import graph as form_graph
 from agents.google_form_agent.graph import graph as google_form_graph
 from agents.linkedin_agent.graph import graph as linkedin_graph
+from agents.email_agent.graph import graph as  email_agent
 
 from exceptions.chatbot_exceptions import UnknownAgentError
 from repositories.chat_session_repository import ChatSessionRepository
@@ -40,7 +41,8 @@ AGENT_GRAPHS: dict[AgentType, Any] = {
     AgentType.JOB: job_graph,
     AgentType.FORM: form_graph,
     AgentType.GOOGLE_FORM:google_form_graph,
-    AgentType.LINKEDIN:linkedin_graph
+    AgentType.LINKEDIN:linkedin_graph,
+    AgentType.EMAIL: email_agent,
 }
 
 

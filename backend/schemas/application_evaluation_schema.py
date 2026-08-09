@@ -64,8 +64,9 @@ class ApplicationEvaluationResponse(BaseModel):
         from_attributes=True,
     )
     
+
+class GetTopEvaluationsRequest(BaseModel):
+    limit: int
     
-
-
 class DeleteApplicationEvaluationResponse(BaseModel):
     message: str

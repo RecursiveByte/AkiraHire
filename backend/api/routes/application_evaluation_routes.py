@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status,Query
 
 from sqlalchemy.orm import Session
 
@@ -17,6 +17,7 @@ from schemas.application_evaluation_schema import (
     EvaluateApplicationResponse,
     ApplicationEvaluationResponse,
     DeleteApplicationEvaluationResponse,
+    GetTopEvaluationsRequest,
 )
 
 from services.application_evaluation_service import (
@@ -28,6 +29,7 @@ from enums.application_evaluation_enum import ApplicationEvaluationStatus
 
 
 from auth.dependencies.rate_limit import DefaultRateLimit
+from auth.dependencies.dependencies import get_current_user_from_refresh_token
 
 router = APIRouter(
     prefix="/application-evaluations",
@@ -80,6 +82,26 @@ def get_all_application_evaluations(
 ):
     return ApplicationEvaluationService.get_all_evaluations(
         db=db,
+    )
+
+
+@router.post("/top")
+def get_top_evaluations(
+    payload: GetTopEvaluationsRequest,
+    status: str | None = Query(default=None),
+    current_user: dict = Depends(
+        require_role(
+            UserRole.RECRUITER,
+        )
+    ),
+    db: Session = Depends(get_db),
+):
+
+    return ApplicationEvaluationService.get_top_by_recruiter_id(
+        db=db,
+        recruiter_id=current_user.user_id,
+        limit=payload.limit,
+        status=status,
     )
 
 

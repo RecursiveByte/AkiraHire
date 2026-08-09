@@ -41,9 +41,10 @@ export class CandidateProfileService {
         },
       }
     );
-
-
-    return response.data.map(mapApiJobApplicationForm);
+    
+    const val = response.data.map(mapApiJobApplicationForm);
+    console.log("tis ",val)
+    return val;
   }
 
   static async createProfile(input: CreateCandidateProfileInput): Promise<{

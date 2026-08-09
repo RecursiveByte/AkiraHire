@@ -1,4 +1,3 @@
-
 import secrets
 from datetime import datetime, timedelta, timezone
 
@@ -12,14 +11,30 @@ from database.models.oauth_state import OAuthState
 
 
 class ConnectedAccountRepository:
-    
-    
+
+    @staticmethod
+    def get_connection(
+        db: Session,
+        user_id: int,
+        provider: str,
+        integration_name: str,
+    ):
+        return (
+            db.query(ConnectedAccount)
+            .filter(
+                ConnectedAccount.user_id == user_id,
+                ConnectedAccount.provider == provider,
+                ConnectedAccount.integration_name == integration_name,
+            )
+            .first()
+        )
+
     @staticmethod
     def get_connected_accounts_by_user_id(
         db: Session,
         user_id: int,
     ) -> list[ConnectedAccount]:
-        
+
         return (
             db.query(ConnectedAccount)
             .filter(
@@ -27,7 +42,7 @@ class ConnectedAccountRepository:
             )
             .all()
         )
-        
+
     @staticmethod
     def get_by_id_and_user(
         db: Session,
@@ -118,11 +133,7 @@ class ConnectedAccountRepository:
         max_age_seconds: int = 600,
     ) -> int | None:
 
-        record = (
-            db.query(OAuthState)
-            .filter(OAuthState.state == state)
-            .first()
-        )
+        record = db.query(OAuthState).filter(OAuthState.state == state).first()
 
         if record is None:
             return None
@@ -130,9 +141,8 @@ class ConnectedAccountRepository:
         db.delete(record)
         db.commit()
 
-        age = (
-            datetime.now(timezone.utc)
-            - record.created_at.replace(tzinfo=timezone.utc)
+        age = datetime.now(timezone.utc) - record.created_at.replace(
+            tzinfo=timezone.utc
         )
 
         if age > timedelta(seconds=max_age_seconds):

@@ -159,3 +159,43 @@ class ApplicationEvaluationRepository:
             db.rollback()
 
             raise
+        
+    @staticmethod
+    def get_top_by_recruiter_id(
+        db: Session,
+        recruiter_id: int,
+        limit: int,
+        status: ApplicationEvaluationStatus | None = None,
+    ) -> list[ApplicationEvaluation]:
+    
+        query = (
+            db.query(ApplicationEvaluation)
+            .join(
+                Application,
+                Application.application_id == ApplicationEvaluation.application_id,
+            )
+            .join(
+                Form,
+                Form.form_id == Application.form_id,
+            )
+            .join(
+                Job,
+                Job.job_id == Form.job_id,
+            )
+            .filter(
+                Job.recruiter_id == recruiter_id,
+            )
+        )
+    
+        if status:
+            query = query.filter(
+                ApplicationEvaluation.status == status,
+            )
+    
+        return (
+            query.order_by(
+                ApplicationEvaluation.match_score.desc(),
+            )
+            .limit(limit)
+            .all()
+        )

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from integration.constants import SUPPORTED_INTEGRATIONS
 from integration.connected_account_repository import ConnectedAccountRepository
 from integration.exceptions import ConnectedAccountNotFoundException
-
+from database.models.connected_account import ProviderType
 
 class IntegrationService:
 
@@ -20,7 +20,6 @@ class IntegrationService:
                 user_id=user_id,
             )
         }
-
 
         return [
             {
@@ -49,3 +48,21 @@ class IntegrationService:
             raise ConnectedAccountNotFoundException(account_id=account_id)
 
         ConnectedAccountRepository.delete(db=db, account=account)
+        
+        
+        
+    @staticmethod
+    def is_connected(
+        db: Session,
+        user_id: int,
+        provider: ProviderType,
+        integration_name: str,
+    ) -> bool:
+        account = ConnectedAccountRepository.get_connected_account(
+            db=db,
+            user_id=user_id,
+            provider=provider,
+            integration_name=integration_name,
+        )
+
+        return account is not None

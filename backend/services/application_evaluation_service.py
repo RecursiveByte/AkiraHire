@@ -345,3 +345,19 @@ class ApplicationEvaluationService:
         return DeleteApplicationEvaluationResponse(
             message="Application evaluation deleted successfully."
         )
+        
+    @staticmethod
+    def get_top_by_recruiter_id(
+        db: Session,
+        recruiter_id: int,
+        limit: int,
+        status: ApplicationEvaluationStatus | None,
+    ):
+        return (
+            ApplicationEvaluationRepository.get_top_by_recruiter_id(
+                db=db,
+                recruiter_id=recruiter_id,
+                limit=limit,
+                status=status,
+            )
+        )
