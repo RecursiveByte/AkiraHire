@@ -17,6 +17,8 @@ from integration.google_calendar.schemas.create_calendar_event import CreateCale
 
 from uuid import uuid4
 
+  
+from zoneinfo import ZoneInfo
 
 class GoogleCalendarService:
 
@@ -66,16 +68,23 @@ class GoogleCalendarService:
         )
 
         service = GoogleCalendarClient.build(credentials)
+      
+      
+
+        IST = ZoneInfo("Asia/Kolkata")
+        
+        start_time = payload.start_time.astimezone(IST)
+        end_time = payload.end_time.astimezone(IST)
 
         event = {
             "summary": payload.title,
             "description": payload.description,
             "start": {
-                "dateTime": payload.start_time.isoformat(),
+                "dateTime": start_time.isoformat(),
                 "timeZone": "Asia/Kolkata",
             },
             "end": {
-                "dateTime": payload.end_time.isoformat(),
+                "dateTime": end_time.isoformat(),
                 "timeZone": "Asia/Kolkata",
             },
         }

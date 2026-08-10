@@ -9,12 +9,12 @@ from database.models.connected_account import ProviderType
 from integration.service import IntegrationService
 
 from core.llm.llm_client import get_llm
-from agents.email_agent.tools import get_calendar_events
+from agents.email_agent.tools import get_calendar_events,create_calendar_event
 
 from langchain_core.messages import AIMessage
 
 email_llm = get_llm().bind_tools(
-    [get_calendar_events]
+    [get_calendar_events,create_calendar_event]
 )
 
 

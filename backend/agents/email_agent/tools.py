@@ -70,3 +70,82 @@ def get_calendar_events(
         "start_time": start.isoformat(),
         "end_time": end.isoformat(),
     }
+
+from integration.google_calendar.schemas.create_calendar_event import (
+    CreateCalendarEventRequest,
+)
+
+
+@tool
+def create_calendar_event(
+    title: str,
+    start_time: str,
+    end_time: str,
+    config: RunnableConfig,
+    description: str = "",
+    create_google_meet: bool = False,
+) -> dict:
+    """
+    Create an event in the recruiter's Google Calendar.
+
+    Use this tool when the recruiter explicitly asks to create,
+    schedule, or add a meeting or event to their calendar.
+
+    Required:
+    - title
+    - start_time
+    - end_time
+
+    Optional:
+    - description
+    - create_google_meet
+
+    Set create_google_meet to true only when the recruiter wants
+    a Google Meet link for the event.
+
+    The current recruiter is determined from the authenticated
+    user in the request. Never ask the LLM for or accept a user_id.
+
+    Google Calendar connection is checked by the workflow before
+    this tool is available.
+
+    This tool only creates a new calendar event. It does not
+    retrieve, update, or delete events.
+    """
+    
+
+    
+    current_user = get_current_user(config)
+
+    db = config["configurable"]["db"]
+    
+    start = datetime.fromisoformat(start_time)
+    end = datetime.fromisoformat(end_time)
+    
+    if start.tzinfo is None or end.tzinfo is None:
+        raise ValueError(
+            "start_time and end_time must include a timezone offset."
+        )
+    if start >= end:
+        raise ValueError("start_time must be before end_time")
+    
+    print("=" * 30)
+    print("TOOL START:", start)
+    print("TOOL END:", end)
+    print("TOOL START ISO:", start.isoformat())
+    print("TOOL END ISO:", end.isoformat())
+    print("=" * 30)
+
+    payload = CreateCalendarEventRequest(
+        title=title,
+        description=description,
+        start_time=start_time,
+        end_time=end_time,
+        create_google_meet=create_google_meet,
+    )
+
+    return GoogleCalendarService.create_event(
+        user_id=current_user.user_id,
+        db=db,
+        payload=payload,
+    )

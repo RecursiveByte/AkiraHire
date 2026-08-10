@@ -2,7 +2,7 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
 
 from agents.email_agent.state import EmailAgentState
-from agents.email_agent.tools import get_calendar_events
+from agents.email_agent.tools import get_calendar_events, create_calendar_event
 from agents.email_agent.nodes import (
     check_calendar_connection,
     chatbot,
@@ -34,7 +34,12 @@ def build_email_graph():
 
     builder.add_node(
         "tools",
-        ToolNode([get_calendar_events]),
+        ToolNode(
+            [
+                get_calendar_events,
+                create_calendar_event,
+            ]
+        ),
     )
 
     builder.add_edge(
