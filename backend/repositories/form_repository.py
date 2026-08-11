@@ -100,7 +100,7 @@ class FormRepository:
         db: Session,
         search: str | None = None,
     ):
-
+        
         query = db.query(Form, Job).join(
             Job,
             Form.job_id == Job.job_id,

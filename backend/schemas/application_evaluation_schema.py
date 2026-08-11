@@ -68,5 +68,16 @@ class ApplicationEvaluationResponse(BaseModel):
 class GetTopEvaluationsRequest(BaseModel):
     limit: int
     
+class InterviewCandidateResponse(BaseModel):
+    candidate_name: str
+    candidate_email: str
+    role: str
+    match_score: int
+
+class TopCandidateResponse(BaseModel):
+    evaluation: ApplicationEvaluationResponse
+    full_name: str
+    email: str
+    
 class DeleteApplicationEvaluationResponse(BaseModel):
     message: str

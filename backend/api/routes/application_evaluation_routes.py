@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status,Query
+from fastapi import APIRouter, Depends, status, Query
 
 from sqlalchemy.orm import Session
 
@@ -18,6 +18,7 @@ from schemas.application_evaluation_schema import (
     ApplicationEvaluationResponse,
     DeleteApplicationEvaluationResponse,
     GetTopEvaluationsRequest,
+    TopCandidateResponse,
 )
 
 from services.application_evaluation_service import (
@@ -85,7 +86,10 @@ def get_all_application_evaluations(
     )
 
 
-@router.post("/top")
+@router.post(
+    "/top",
+    response_model=list[TopCandidateResponse],
+)
 def get_top_evaluations(
     payload: GetTopEvaluationsRequest,
     status: str | None = Query(default=None),

@@ -1,21 +1,9 @@
-from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
+from fastapi_mail import FastMail, MessageSchema, MessageType
 
-from config.settings import settings
+from core.mail.mail_client import mail_conf
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
-
-conf = ConnectionConfig(
-    MAIL_USERNAME=settings.MAIL_USERNAME,
-    MAIL_PASSWORD=settings.MAIL_PASSWORD,
-    MAIL_FROM=settings.MAIL_FROM,
-    MAIL_FROM_NAME=settings.MAIL_FROM_NAME,
-    MAIL_PORT=settings.MAIL_PORT,
-    MAIL_SERVER=settings.MAIL_SERVER,
-    MAIL_STARTTLS=True,
-    MAIL_SSL_TLS=False,
-    USE_CREDENTIALS=True,
-)
 
 
 class EmailService:
@@ -39,7 +27,49 @@ class EmailService:
             subtype=MessageType.html,
         )
 
-        fm = FastMail(conf)
+        fm = FastMail(mail_conf)
         await fm.send_message(message)
 
         logger.info(f"OTP email sent. to={to}")
+
+    @staticmethod
+    async def send_email(
+        to: str,
+        subject: str,
+        body: str,
+    ) -> None:
+        logger.info(f"Sending email. to={to}")
+
+        message = MessageSchema(
+            subject=subject,
+            recipients=[to],
+            body=body,
+            subtype=MessageType.html,
+        )
+
+        fm = FastMail(mail_conf)
+        await fm.send_message(message)
+
+        logger.info(f"Email sent. to={to}")
+
+    @staticmethod
+    async def send_bulk_email(
+        recipients: list[dict],
+        subject: str,
+        body: str,
+    ) -> list[str]:
+        sent_to = []
+
+        for recipient in recipients:
+            await EmailService.send_email(
+                to=recipient["email"],
+                subject=subject,
+                body=body.format(
+                    candidate_name=recipient["full_name"],
+                ),
+            )
+            sent_to.append(recipient["email"])
+
+        logger.info(f"Bulk email sent. count={len(sent_to)}")
+
+        return sent_to

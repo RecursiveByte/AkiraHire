@@ -6,11 +6,13 @@ from database.models.application_evaluation import (
 )
 
 from database.models.application import Application
+from database.models.candidate_profile import CandidateProfile
 from database.models.form import Form
 from database.models.job import Job
 
-
+from schemas.application_evaluation_schema import InterviewCandidateResponse
 from enums.application_evaluation_enum import ApplicationEvaluationStatus
+
 
 class ApplicationEvaluationRepository:
 
@@ -74,8 +76,6 @@ class ApplicationEvaluationRepository:
             )
             .all()
         )
-
-
 
     @staticmethod
     def get_all_by_recruiter_id(
@@ -159,20 +159,29 @@ class ApplicationEvaluationRepository:
             db.rollback()
 
             raise
-        
+
     @staticmethod
     def get_top_by_recruiter_id(
         db: Session,
         recruiter_id: int,
         limit: int,
         status: ApplicationEvaluationStatus | None = None,
-    ) -> list[ApplicationEvaluation]:
-    
+    ) -> list[InterviewCandidateResponse]:
+
         query = (
-            db.query(ApplicationEvaluation)
+            db.query(
+                ApplicationEvaluation,
+                CandidateProfile.full_name,
+                CandidateProfile.email,
+                Job.role,
+            )
             .join(
                 Application,
                 Application.application_id == ApplicationEvaluation.application_id,
+            )
+            .join(
+                CandidateProfile,
+                CandidateProfile.candidate_id == Application.candidate_id,
             )
             .join(
                 Form,
@@ -186,16 +195,26 @@ class ApplicationEvaluationRepository:
                 Job.recruiter_id == recruiter_id,
             )
         )
-    
+
         if status:
             query = query.filter(
                 ApplicationEvaluation.status == status,
             )
-    
-        return (
+
+        results = (
             query.order_by(
                 ApplicationEvaluation.match_score.desc(),
             )
             .limit(limit)
             .all()
         )
+
+        return [
+            InterviewCandidateResponse(
+                candidate_name=full_name,
+                candidate_email=email,
+                role=role,
+                match_score=evaluation.match_score,
+            )
+            for evaluation, full_name, email, role in results
+        ]

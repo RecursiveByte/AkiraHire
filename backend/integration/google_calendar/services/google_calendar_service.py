@@ -26,8 +26,8 @@ class GoogleCalendarService:
     def get_events(
         user_id: int,
         db: Session,
-        start_time: datetime,
-        end_time: datetime,
+        start_time: str,
+        end_time: str,
     ):
 
         credentials = GoogleOAuthService.get_google_credentials(

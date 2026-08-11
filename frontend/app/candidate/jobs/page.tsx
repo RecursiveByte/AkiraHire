@@ -9,6 +9,7 @@ import { useJobs } from "@/hooks/candidate/useJobs";
 export default function JobsPage() {
   const { jobs, isLoading, error, search, setSearch } = useJobs();
 
+  console.log( "jobs ",jobs)
   return (
     <main className="flex h-full min-h-0 flex-col gap-8 py-8">
       <Header />
