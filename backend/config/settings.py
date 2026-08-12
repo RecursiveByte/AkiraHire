@@ -33,12 +33,15 @@ class Settings(BaseSettings):
 
     SECRET_KEY: str
 
-    MAIL_USERNAME: str
-    MAIL_PASSWORD: str
-    MAIL_FROM: str
-    MAIL_PORT: int = 587
-    MAIL_SERVER: str = "smtp.gmail.com"
-    MAIL_FROM_NAME: str = "AkiraHire"
+    # MAIL_USERNAME: str
+    # MAIL_PASSWORD: str
+    # MAIL_FROM: str
+    # MAIL_PORT: int = 587
+    # MAIL_SERVER: str = "smtp.gmail.com"
+    # MAIL_FROM_NAME: str = "AkiraHire"
+    BREVO_API_KEY :str
+    BREVO_SENDER_EMAIL:str
+    BREVO_SENDER_NAME :str
 
     GROQ_API_KEY: str
     MODEL_NAME: str

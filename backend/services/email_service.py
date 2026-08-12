@@ -1,12 +1,39 @@
-from fastapi_mail import FastMail, MessageSchema, MessageType
+import httpx
 
-from core.mail.mail_client import mail_conf
+from config.settings import settings
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+BREVO_API_URL = "https://api.brevo.com/v3/smtp/email"
+
 
 class EmailService:
+
+    @staticmethod
+    async def send_raw_email(to: str, subject: str, html_body: str) -> None:
+        async with httpx.AsyncClient(timeout=10) as client:
+            response = await client.post(
+                BREVO_API_URL,
+                headers={
+                    "api-key": settings.BREVO_API_KEY,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                json={
+                    "sender": {
+                        "name": settings.BREVO_SENDER_NAME,
+                        "email": settings.BREVO_SENDER_EMAIL,
+                    },
+                    "to": [{"email": to}],
+                    "subject": subject,
+                    "htmlContent": html_body,
+                },
+            )
+
+        if response.status_code >= 400:
+            logger.error(f"Brevo send failed. to={to} status={response.status_code} body={response.text}")
+            raise Exception(f"Brevo send failed: {response.status_code} {response.text}")
 
     @staticmethod
     async def send_otp_email(
@@ -16,19 +43,17 @@ class EmailService:
     ) -> None:
         logger.info(f"Sending OTP email. to={to}")
 
-        message = MessageSchema(
-            subject="Your AkiraHire password reset code",
-            recipients=[to],
-            body=(
-                f"<p>Your OTP is <strong>{otp}</strong>.</p>"
-                f"<p>It expires in {expiry_minutes} minutes.</p>"
-                f"<p>If you did not request this, you can ignore this email.</p>"
-            ),
-            subtype=MessageType.html,
+        body = (
+            f"<p>Your OTP is <strong>{otp}</strong>.</p>"
+            f"<p>It expires in {expiry_minutes} minutes.</p>"
+            f"<p>If you did not request this, you can ignore this email.</p>"
         )
 
-        fm = FastMail(mail_conf)
-        await fm.send_message(message)
+        await EmailService.send_raw_email(
+            to=to,
+            subject="Your AkiraHire password reset code",
+            html_body=body,
+        )
 
         logger.info(f"OTP email sent. to={to}")
 
@@ -40,15 +65,11 @@ class EmailService:
     ) -> None:
         logger.info(f"Sending email. to={to}")
 
-        message = MessageSchema(
+        await EmailService.send_raw_email(
+            to=to,
             subject=subject,
-            recipients=[to],
-            body=body,
-            subtype=MessageType.html,
+            html_body=body,
         )
-
-        fm = FastMail(mail_conf)
-        await fm.send_message(message)
 
         logger.info(f"Email sent. to={to}")
 

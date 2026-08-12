@@ -220,6 +220,7 @@ Working hours:
     }
 
 
+
 def execute_interviews(
     state: EmailAgentState,
     config: RunnableConfig,
@@ -232,23 +233,13 @@ def execute_interviews(
 
     for interview in state["allocated_interviews"]:
 
-        start = datetime.fromisoformat(
-            interview["start_time"]
-        )
-
-        end = datetime.fromisoformat(
-            interview["end_time"]
-        )
+        start = datetime.fromisoformat(interview["start_time"])
+        end = datetime.fromisoformat(interview["end_time"])
 
         payload = CreateCalendarEventRequest(
-            title=(
-                f"Interview - "
-                f"{interview['candidate_name']} - "
-                f"{interview['role']}"
-            ),
+            title=f"Interview - {interview['candidate_name']} - {interview['role']}",
             description=(
-                f"Interview with "
-                f"{interview['candidate_name']} "
+                f"Interview with {interview['candidate_name']} "
                 f"for the {interview['role']} position."
             ),
             start_time=start,
@@ -263,69 +254,42 @@ def execute_interviews(
         )
 
         meet_link = None
-
-        conference_data = created_event.get(
-            "conferenceData",
-            {},
-        )
-
-        for entry_point in conference_data.get(
-            "entryPoints",
-            [],
-        ):
+        conference_data = created_event.get("conferenceData", {})
+        for entry_point in conference_data.get("entryPoints", []):
             if entry_point.get("entryPointType") == "video":
                 meet_link = entry_point.get("uri")
                 break
 
-        subject = (
-            f"Interview Scheduled - "
-            f"{interview['role']} at AkiraHire"
-        )
+        subject = f"Interview Scheduled - {interview['role']} at AkiraHire"
 
         body = f"""
         <html>
             <body>
                 <p>Hi {interview['candidate_name']},</p>
-
                 <p>
                     Your interview has been scheduled for the
                     <strong>{interview['role']}</strong>
                     position at AkiraHire.
                 </p>
-
-                <p>
-                    <strong>Date:</strong>
-                    {start.strftime("%B %d, %Y")}
-                </p>
-
-                <p>
-                    <strong>Time:</strong>
-                    {start.strftime("%I:%M %p")} IST
-                </p>
-
+                <p><strong>Date:</strong> {start.strftime("%B %d, %Y")}</p>
+                <p><strong>Time:</strong> {start.strftime("%I:%M %p")} IST</p>
                 <p>
                     <strong>Google Meet:</strong>
-                    <a href="{meet_link}">
-                        Join Interview
-                    </a>
+                    <a href="{meet_link}">Join Interview</a>
                 </p>
-
-                <p>
-                    Best regards,<br>
-                    AkiraHire Team
-                </p>
+                <p>Best regards,<br>AkiraHire Team</p>
             </body>
         </html>
         """
 
         asyncio.run(
-                   EmailService.send_email(
-                       to=interview["candidate_email"],
-                       subject=subject,
-                       body=body,
-                   )
-               )
-        
+            EmailService.send_email(
+                to=interview["candidate_email"],
+                subject=subject,
+                body=body,
+            )
+        )
+
         scheduled.append(
             {
                 "candidate_name": interview["candidate_name"],
@@ -337,6 +301,19 @@ def execute_interviews(
             }
         )
 
+    summary_lines = "\n".join(
+        f"- {s['candidate_name']} ({s['role']}) — "
+        f"{datetime.fromisoformat(s['start_time']).strftime('%b %d, %I:%M %p')}"
+        for s in scheduled
+    )
+
+    summary_message = (
+        f"Scheduled {len(scheduled)} interview(s):\n\n{summary_lines}"
+        if scheduled
+        else "No interviews were scheduled."
+    )
+
     return {
         "scheduled_interviews": scheduled,
+        "messages": [AIMessage(content=summary_message)],
     }
