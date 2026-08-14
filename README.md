@@ -1,6 +1,6 @@
 # 🤖 AkiraHire
 
-AkiraHire is an **AI-powered HR automation platform** that helps recruiters manage the complete hiring workflow—from creating jobs and application forms to evaluating candidates and publishing hiring posts.
+AkiraHire is an **AI-powered HR automation platform** that helps recruiters manage the complete hiring workflow from creating jobs and application forms to evaluating candidates and publishing hiring posts.
 
 Instead of relying on a single AI assistant, AkiraHire uses a **LangGraph-powered multi-agent system**, where specialized AI agents work together to automate different parts of recruitment while keeping the recruiter in complete control.
 
@@ -324,24 +324,6 @@ npm install
 
 npm run dev
 ```
-
-Visit:
-
-```
-http://localhost:3000
-```
-
----
-
-# 🚀 Future Improvements
-
-- 📧 Email Agent
-- 📅 Interview Scheduling Agent
-- 📈 Recruitment Analytics Dashboard
-- 📹 AI Interview Assistant
-- 📊 Hiring Performance Insights
-
----
 
 # 📄 License
 
