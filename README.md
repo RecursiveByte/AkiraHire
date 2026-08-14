@@ -210,7 +210,7 @@ The **General Agent** acts as AkiraHire's conversational assistant.
 - 🎓 Recruitment-related guidance
 - 🛠 Explain workflows
 
-It doesn't modify jobs or applications—it simply assists users with information and guidance.
+It doesn't modify jobs or applications it simply assists users with information and guidance.
 
 ---
 
