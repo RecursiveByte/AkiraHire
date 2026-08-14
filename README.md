@@ -312,6 +312,9 @@ Uploaded resumes are automatically parsed, allowing AI evaluation without requir
 - Supabase Storage
 - Google OAuth2
 - Google Forms API
+- Google Sheets API
+- Google Calendar API
+- Google Apps Script
 - LinkedIn OAuth
 
 ---
