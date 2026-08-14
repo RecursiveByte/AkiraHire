@@ -1,4 +1,4 @@
-# 🤖 AkiraHire
+# <img src="./frontend/public/images/akira-logo.avif" width="30" /> AkiraHire
 
 AkiraHire is an **AI-powered HR automation platform** that helps recruiters manage the complete hiring workflow from creating jobs and application forms to evaluating candidates and publishing hiring posts.
 
