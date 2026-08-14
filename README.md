@@ -23,7 +23,7 @@ Instead of relying on a single AI assistant, AkiraHire uses a **LangGraph-powere
 - 📝 Build and manage application forms
 - 🤖 AI-powered candidate evaluation against job requirements
 - 👤 Dedicated recruiter and candidate portals
-- 💬 AI chat assistant with real-time streaming responses
+- 💬 AI chat assistant for managing recruitment workflows
 - 🌐 Generate Google Forms from natural language
 - 📢 Generate and publish LinkedIn hiring posts
 - 📄 Resume parsing for AI-assisted evaluation
@@ -53,6 +53,7 @@ User Request
       ├──────────────► Form Agent
       ├──────────────► Google Form Agent
       ├──────────────► LinkedIn Agent
+      ├──────────────► Email Agent
       └──────────────► General Agent
 ```
 
@@ -88,21 +89,16 @@ Its responsibility is to understand the recruiter's request, identify the user's
 
 # 💼 Job Agent
 
-The **Job Agent** manages everything related to job postings.
+The **Job Agent** helps recruiters create job postings.
 
 ### Responsibilities
 
 - ✨ Generate professional job descriptions
-- 💼 Create new jobs
-- ✏️ Update existing jobs
-- 📢 Publish jobs
-- 🔒 Close job openings
-- 🗑 Delete jobs
-- 🔍 Search jobs
-- 📄 Retrieve job information
-- 📊 Manage job status
+- 💼 Create new jobs after recruiter approval
 
-Sensitive operations like deleting or closing a job require recruiter approval before execution.
+The Job Agent first generates the job details and waits for the recruiter to explicitly approve them before creating the job.
+
+Actions such as deleting a job, closing a job, or changing its status are controlled directly by the recruiter through the platform.
 
 ---
 
@@ -133,13 +129,12 @@ The **Form Agent** automates application form management.
 ### Responsibilities
 
 - ➕ Create application forms
-- ✏️ Update forms
-- 👀 Retrieve form details
 - 🔗 Attach forms to jobs
-- 📄 Generate form fields automatically
 - 📋 Manage recruiter forms
 
 Recruiters simply describe the information they want to collect, and the agent prepares the form structure automatically.
+
+Actions such as deleting a form, closing a form, or changing its status are controlled directly by the recruiter through the platform.
 
 ---
 
@@ -151,8 +146,8 @@ The **Google Form Agent** creates Google Forms directly from natural language.
 
 - 🧠 Understand plain-English prompts
 - 📋 Generate complete Google Forms
-- ✨ Automatically structure questions
-- 🔗 Return editable Google Form links
+- 📊 Generate and link Google Sheets according to recruiter requirements
+- 🔗 Return editable Google Form and Google Sheet links
 - ⚙️ Integrate directly with Google Forms
 
 Example prompt:
@@ -170,12 +165,35 @@ The **LinkedIn Agent** helps recruiters create professional hiring posts.
 ### Responsibilities
 
 - ✍️ Generate LinkedIn hiring posts
-- 🎯 Create engaging recruitment content
-- 📢 Generate attractive job announcements
-- 🚀 Publish directly to LinkedIn
-- 💡 Improve wording and formatting
 
 Before publishing, the recruiter must explicitly approve the generated content.
+
+The LinkedIn Agent only generates the hiring post. **Publishing is handled separately by the platform, as publishing a job post is an important decision that remains under recruiter control.**
+
+---
+
+# 📧 Email Agent
+
+The **Email Agent** helps recruiters automate candidate communication while keeping the recruiter in control.
+
+Before the Email Agent can access the recruiter's calendar or send emails, the recruiter must explicitly grant the required permissions.
+
+### Responsibilities
+
+- ✉️ Generate professional candidate emails
+- 📩 Send recruitment-related emails
+- 🎯 Personalize emails based on candidate and job information
+- 📅 Access the recruiter's calendar after explicit authorization
+- 🕐 Check the recruiter's calendar to determine suitable times for communication
+- ⏰ Schedule emails according to the recruiter's availability and preferences
+- 📋 Generate interview invitations and other recruitment-related communications
+- 🔔 Send candidate notifications
+- ✏️ Customize email content based on recruiter instructions
+
+The Email Agent **cannot access the recruiter's calendar or send emails without explicit authorization**.
+
+Once permission is granted, the agent can check the recruiter's calendar and use the recruiter's availability to determine an appropriate time to send or schedule candidate communications.
+
 
 ---
 
