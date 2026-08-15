@@ -7,6 +7,14 @@
 Each route below is called as the base URL followed by the root path
 (for example `/assistant` + `/threads/{thread_id}`).
 
-| Method | Root | Purpose |
-| --- | --- | --- |
-| `DELETE` | `/threads/{thread_id}` | Delete chat thread |
+| Method | Root | Purpose | Response |
+| --- | --- | --- | --- |
+| `DELETE` | `/threads/{thread_id}` | Delete chat thread | 200 `ChatThreadDeleteResponse` |
+
+## Response schemas
+
+### `ChatThreadDeleteResponse`
+
+| Field | Type |
+| --- | --- |
+| `message` | `str` |

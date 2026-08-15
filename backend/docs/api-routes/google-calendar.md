@@ -7,9 +7,9 @@
 Each route below is called as the base URL followed by the root path
 (for example `/google-calendar` + `/auth/google/connect`).
 
-| Method | Root | Purpose |
-| --- | --- | --- |
-| `GET` | `/auth/google/connect` | Connect google calendar |
-| `GET` | `/auth/google/connect/callback` | Google calendar callback |
-| `GET` | `/events` | Get calendar events |
-| `POST` | `/events` | Create calendar event |
+| Method | Root | Purpose | Response |
+| --- | --- | --- | --- |
+| `GET` | `/auth/google/connect` | Connect google calendar | 200 |
+| `GET` | `/auth/google/connect/callback` | Google calendar callback | 200 |
+| `GET` | `/events` | Get calendar events | 200 |
+| `POST` | `/events` | Create calendar event | 200 |

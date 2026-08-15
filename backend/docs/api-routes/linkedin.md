@@ -7,11 +7,11 @@
 Each route below is called as the base URL followed by the root path
 (for example `/linkedin` + `/auth/connect`).
 
-| Method | Root | Purpose |
-| --- | --- | --- |
-| `GET` | `/auth/connect` | Login |
-| `GET` | `/auth/callback` | Callback |
-| `POST` | `/generate-post` | Generate post |
-| `GET` | `/drafts` | List drafts |
-| `DELETE` | `/drafts/{draft_id}` | Delete draft |
-| `POST` | `/publish-post` | Confirm post |
+| Method | Root | Purpose | Response |
+| --- | --- | --- | --- |
+| `GET` | `/auth/connect` | Login | 200 |
+| `GET` | `/auth/callback` | Callback | 200 |
+| `POST` | `/generate-post` | Generate post | 200 `LinkedInDraftResponse` |
+| `GET` | `/drafts` | List drafts | 200 `List[LinkedInDraftResponse]` |
+| `DELETE` | `/drafts/{draft_id}` | Delete draft | 204 |
+| `POST` | `/publish-post` | Confirm post | 200 `LinkedInPostResponse` |

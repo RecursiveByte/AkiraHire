@@ -3,7 +3,7 @@
 Per-module reference for the FastAPI backend. Each module has one **base URL** 
 (its router prefix); every route under it is a **method** plus a **root** path.
 
-- **15** modules, **79** routes total
+- **15** modules, **76** routes total
 - No global version prefix: routes are hit directly (`/auth/login`, not `/api/auth/login`)
 - Live copy served by the app at `/docs`, `/redoc`, `/openapi.json`
 
@@ -16,11 +16,11 @@ Per-module reference for the FastAPI backend. Each module has one **base URL**
 | Recruiter | `/recruiter` | 2 | [`recruiter.md`](recruiter.md) |
 | Admin | `/admin` | 3 | [`admin.md`](admin.md) |
 | Jobs | `/jobs` | 9 | [`jobs.md`](jobs.md) |
-| Forms | `/forms` | 10 | [`forms.md`](forms.md) |
-| Applications | `/applications` | 13 | [`applications.md`](applications.md) |
+| Forms | `/forms` | 9 | [`forms.md`](forms.md) |
+| Applications | `/applications` | 12 | [`applications.md`](applications.md) |
 | Application evaluations | `/application-evaluations` | 5 | [`application-evaluations.md`](application-evaluations.md) |
 | Resume | `/resume` | 2 | [`resume.md`](resume.md) |
-| Chatbot | `/chatbot` | 4 | [`chatbot.md`](chatbot.md) |
+| Chatbot | `/chatbot` | 3 | [`chatbot.md`](chatbot.md) |
 | Assistant threads | `/assistant` | 1 | [`assistant-threads.md`](assistant-threads.md) |
 
 ## Integrations `backend/integration`
