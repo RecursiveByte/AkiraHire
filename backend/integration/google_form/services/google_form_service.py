@@ -32,6 +32,10 @@ from integration.common.google_oauth.services.google_oauth_service import (
     GoogleOAuthService,
 )
 
+from integration.google_form.constants.google import (
+    SCOPES,GOOGLE_FORM_INTEGRATION_NAME
+)
+
 
 class GoogleFormService:
 
@@ -50,6 +54,9 @@ class GoogleFormService:
         creds = GoogleOAuthService.get_google_credentials(
             user_id=user_id,
             db=db,
+            scopes=SCOPES,
+            integration_name=GOOGLE_FORM_INTEGRATION_NAME
+            
         )
 
         schema = generate_form_schema(

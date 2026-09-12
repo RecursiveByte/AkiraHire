@@ -4,8 +4,6 @@ from exceptions.base import AppException
 
 from sqlalchemy.orm import Session
 
-
-
 def get_current_user(config: RunnableConfig):
 
     current_user = config.get("configurable", {}).get("current_user")
