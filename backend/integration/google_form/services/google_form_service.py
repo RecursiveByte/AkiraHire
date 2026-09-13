@@ -46,7 +46,6 @@ class GoogleFormService:
         description: str,
     ) -> GoogleFormResponse:
         
-        
         """
         Create a Google Form from a natural language description.
         """
